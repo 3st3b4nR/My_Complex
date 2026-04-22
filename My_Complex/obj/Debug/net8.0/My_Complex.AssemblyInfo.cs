@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("My_Complex")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5f5d55813d79c46fa1959664ae1b590018cc40ba")]
 [assembly: System.Reflection.AssemblyProductAttribute("My_Complex")]
 [assembly: System.Reflection.AssemblyTitleAttribute("My_Complex")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

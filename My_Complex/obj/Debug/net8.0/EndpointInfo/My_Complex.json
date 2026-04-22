@@ -1,10 +1,22 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "My_Complex",
-    "version": "1.0"
+    "title": "My_Complex API",
+    "version": "v1"
   },
   "paths": {
+    "/api/Apartamentos/cantidad": {
+      "get": {
+        "tags": [
+          "Apartamentos"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Auth/login": {
       "post": {
         "tags": [
@@ -53,6 +65,19 @@
         },
         "additionalProperties": false
       }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "description": "Ingrese el token JWT en el campo: Bearer {token}",
+        "name": "Authorization",
+        "in": "header"
+      }
     }
-  }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
 }

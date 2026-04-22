@@ -42,3 +42,4 @@ C:\Users\desktop\Desktop\DOO\My_Complex\My_Complex\obj\Debug\net8.0\refint\My_Co
 C:\Users\desktop\Desktop\DOO\My_Complex\My_Complex\obj\Debug\net8.0\My_Complex.pdb
 C:\Users\desktop\Desktop\DOO\My_Complex\My_Complex\obj\Debug\net8.0\My_Complex.genruntimeconfig.cache
 C:\Users\desktop\Desktop\DOO\My_Complex\My_Complex\obj\Debug\net8.0\ref\My_Complex.dll
+C:\Users\desktop\Desktop\DOO\My_Complex\My_Complex\obj\Debug\net8.0\My_Complex.sourcelink.json

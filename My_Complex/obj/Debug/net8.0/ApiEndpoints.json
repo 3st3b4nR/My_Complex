@@ -1,5 +1,15 @@
 [
   {
+    "ContainingType": "My_Complex.Controllers.ApartamentosController",
+    "Method": "GetCantidadApartamentos",
+    "RelativePath": "api/Apartamentos/cantidad",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "My_Complex.Controllers.AuthController",
     "Method": "Login",
     "RelativePath": "api/Auth/login",
