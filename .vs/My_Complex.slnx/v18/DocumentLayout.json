@@ -1,0 +1,85 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\my_complex.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\my_complex.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\User.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Models\\User.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\User.cs",
+              "RelativeToolTip": "My_Complex\\Models\\User.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-21T23:53:43.219Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Services\\AuthService.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Services\\AuthService.cs",
+              "RelativeToolTip": "My_Complex\\Services\\AuthService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-21T23:53:26.472Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "My_Complex.http",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\My_Complex.http",
+              "RelativeDocumentMoniker": "My_Complex\\My_Complex.http",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\My_Complex.http",
+              "RelativeToolTip": "My_Complex\\My_Complex.http",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
+              "WhenOpened": "2026-04-21T23:52:53.558Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "My_Complex\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-21T23:52:34.765Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
