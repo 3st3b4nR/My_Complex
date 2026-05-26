@@ -3,28 +3,48 @@
   "WorkspaceRootPath": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\controllers\\apartamentoscontoller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\controllers\\apartamentoscontoller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\my_complex.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}",
-      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\my_complex.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\dtos\\updateuserrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\dtos\\updateuserrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\models\\apartamento.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\models\\apartamento.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\models\\rol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\models\\rol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\migrations\\20260526050828_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\migrations\\20260526050828_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\models\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\models\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\models\\telefono.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\models\\telefono.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\models\\usuariorol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\models\\usuariorol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\services\\jwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\services\\jwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\services\\ijwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\services\\ijwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A24C1939-E895-DD47-1868-E07B93AA57E6}|My_Complex\\My_Complex.csproj|solutionrelative:my_complex\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,83 +54,146 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "User.cs",
-              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\User.cs",
-              "RelativeDocumentMoniker": "My_Complex\\Models\\User.cs",
-              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\User.cs",
-              "RelativeToolTip": "My_Complex\\Models\\User.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T23:53:43.219Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ApartamentosContoller.cs",
-              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Controllers\\ApartamentosContoller.cs",
-              "RelativeDocumentMoniker": "My_Complex\\Controllers\\ApartamentosContoller.cs",
-              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Controllers\\ApartamentosContoller.cs",
-              "RelativeToolTip": "My_Complex\\Controllers\\ApartamentosContoller.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T19:02:58.124Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Program.cs",
-              "RelativeDocumentMoniker": "My_Complex\\Program.cs",
-              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Program.cs",
-              "RelativeToolTip": "My_Complex\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-22T19:01:11.609Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "AuthService.cs",
-              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Services\\AuthService.cs",
-              "RelativeDocumentMoniker": "My_Complex\\Services\\AuthService.cs",
-              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Services\\AuthService.cs",
-              "RelativeToolTip": "My_Complex\\Services\\AuthService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T23:53:26.472Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "My_Complex.http",
-              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\My_Complex.http",
-              "RelativeDocumentMoniker": "My_Complex\\My_Complex.http",
-              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\My_Complex.http",
-              "RelativeToolTip": "My_Complex\\My_Complex.http",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
-              "WhenOpened": "2026-04-21T23:52:53.558Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
               "Title": "AuthController.cs",
               "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "My_Complex\\Controllers\\AuthController.cs",
               "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Controllers\\AuthController.cs",
               "RelativeToolTip": "My_Complex\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T23:52:34.765Z"
+              "WhenOpened": "2026-05-26T13:18:36.672Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UpdateUserRequest.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\DTOs\\UpdateUserRequest.cs",
+              "RelativeDocumentMoniker": "My_Complex\\DTOs\\UpdateUserRequest.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\DTOs\\UpdateUserRequest.cs",
+              "RelativeToolTip": "My_Complex\\DTOs\\UpdateUserRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T13:18:14.739Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Apartamento.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\Apartamento.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Models\\Apartamento.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\Apartamento.cs",
+              "RelativeToolTip": "My_Complex\\Models\\Apartamento.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAADwvxEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T05:07:43.815Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "20260526050828_InitialCreate.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Migrations\\20260526050828_InitialCreate.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Migrations\\20260526050828_InitialCreate.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Migrations\\20260526050828_InitialCreate.cs",
+              "RelativeToolTip": "My_Complex\\Migrations\\20260526050828_InitialCreate.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T05:08:31.121Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Telefono.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\Telefono.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Models\\Telefono.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\Telefono.cs",
+              "RelativeToolTip": "My_Complex\\Models\\Telefono.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T05:07:51.755Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "UsuarioRol.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\UsuarioRol.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Models\\UsuarioRol.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\UsuarioRol.cs",
+              "RelativeToolTip": "My_Complex\\Models\\UsuarioRol.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T05:07:30.065Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Rol.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\Rol.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Models\\Rol.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\Rol.cs",
+              "RelativeToolTip": "My_Complex\\Models\\Rol.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T05:06:53.957Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Usuario.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\Usuario.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Models\\Usuario.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Models\\Usuario.cs",
+              "RelativeToolTip": "My_Complex\\Models\\Usuario.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T05:04:00.578Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "JwtService.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Services\\JwtService.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Services\\JwtService.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Services\\JwtService.cs",
+              "RelativeToolTip": "My_Complex\\Services\\JwtService.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAYwCQAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T04:58:17.636Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "IJwtService.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Services\\IJwtService.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Services\\IJwtService.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Services\\IJwtService.cs",
+              "RelativeToolTip": "My_Complex\\Services\\IJwtService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T04:57:58.357Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "My_Complex\\Services\\AuthService.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex\\Services\\AuthService.cs",
+              "RelativeToolTip": "My_Complex\\Services\\AuthService.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAAwCMAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T04:55:04.173Z"
             }
           ]
         }

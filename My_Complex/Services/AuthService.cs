@@ -1,32 +1,37 @@
 ﻿using My_Complex.DTOs;
 using My_Complex.Models;
+using My_Complex.Config;
+using Microsoft.EntityFrameworkCore;
 
 namespace My_Complex.Services
 {
     public class AuthService
     {
         private readonly IJwtService _jwt;
-        private readonly List<User> _users = new()
-        {
-            new User { Email = "admin@correo.com", PasswordHash = "1234", Role = "Administrador" },
-            new User { Email = "residente@correo.com", PasswordHash = "1234", Role = "Residente" }
-        };
+        private readonly MyDbContext _context;
 
-        public AuthService(IJwtService jwt)
+        public AuthService(IJwtService jwt, MyDbContext context)
         {
             _jwt = jwt;
+            _context = context;
         }
 
         public LoginResponse? Login(LoginRequest request)
         {
-            var user = _users.FirstOrDefault(u =>
-                u.Email == request.Email &&
-                u.PasswordHash == request.Password);
+            // Buscar usuario en la base de datos
+            var usuario = _context.Usuarios
+                .Include(u => u.UsuarioRoles)
+                .ThenInclude(ur => ur.Rol)
+                .FirstOrDefault(u => u.Correo == request.Email && u.Clave == request.Password);
 
-            if (user == null)
+            if (usuario == null)
                 return null;
 
-            var token = _jwt.GenerateToken(user, out var expiresAt);
+            // Obtener el rol principal del usuario
+            var rol = usuario.UsuarioRoles.FirstOrDefault()?.Rol.Nombre_rol ?? "SinRol";
+
+            // Generar el token JWT
+            var token = _jwt.GenerateToken(usuario.Correo, rol, out var expiresAt);
 
             return new LoginResponse
             {
@@ -34,8 +39,5 @@ namespace My_Complex.Services
                 ExpiresAt = expiresAt
             };
         }
-
-
-
     }
 }

@@ -1,41 +1,39 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Options;
-using My_Complex.Config;
-using My_Complex.Models;
-
 
 namespace My_Complex.Services
 {
     public class JwtService : IJwtService
     {
-        private readonly JwtSettings _jwt;
+        private readonly IConfiguration _config;
 
-        public JwtService(IOptions<JwtSettings> jwt)
+        public JwtService(IConfiguration config)
         {
-            _jwt = jwt.Value;
+            _config = config;
         }
 
-        public string GenerateToken(User user, out DateTime expiresAt)
+        public string GenerateToken(string email, string role, out DateTime expiresAt)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.Email),
-                new Claim("role", user.Role)
+                new Claim(JwtRegisteredClaimNames.Sub, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, email),
+                new Claim(ClaimTypes.Role, role),
+                new Claim(JwtRegisteredClaimNames.Iss, _config["Jwt:Issuer"]),
+                new Claim(JwtRegisteredClaimNames.Aud, _config["Jwt:Audience"])
             };
 
-            expiresAt = DateTime.UtcNow.AddMinutes(_jwt.ExpiresInMinutes);
+            expiresAt = DateTime.UtcNow.AddMinutes(int.Parse(_config["Jwt:ExpiresInMinutes"]));
 
             var token = new JwtSecurityToken(
-                issuer: _jwt.Issuer,
-                audience: _jwt.Audience,
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
                 claims: claims,
                 expires: expiresAt,
                 signingCredentials: creds
