@@ -1,0 +1,241 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Migrations\\20260527015607_InitialComunicacion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:My_Complex_comunicaciones\\Migrations\\20260527015607_InitialComunicacion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\config\\comunicaciondbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\config\\comunicaciondbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\dtos\\noticiaresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\dtos\\noticiaresponse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\dtos\\noticiarequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\dtos\\noticiarequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\controllers\\reunionescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\controllers\\reunionescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\controllers\\noticiascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\controllers\\noticiascontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\services\\comunicacionservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\services\\comunicacionservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\models\\noticia.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\models\\noticia.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\dtos\\reunionrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\dtos\\reunionrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\models\\reunion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\models\\reunion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|c:\\users\\desktop\\desktop\\doo\\my_complex\\my_complex_comunicaciones\\my_complex_comunicaciones\\my_complex_comunicaciones.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{A1C7F29F-E41A-4D8F-888D-D98ECD17DEFC}|My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj|solutionrelative:my_complex_comunicaciones\\my_complex_comunicaciones.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "20260527015607_InitialComunicacion.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Migrations\\20260527015607_InitialComunicacion.cs",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\Migrations\\20260527015607_InitialComunicacion.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Migrations\\20260527015607_InitialComunicacion.cs",
+              "RelativeToolTip": "My_Complex_comunicaciones\\Migrations\\20260527015607_InitialComunicacion.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T01:56:08.726Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ReunionesController.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Controllers\\ReunionesController.cs",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\Controllers\\ReunionesController.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Controllers\\ReunionesController.cs",
+              "RelativeToolTip": "My_Complex_comunicaciones\\Controllers\\ReunionesController.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwBoAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T01:24:40.758Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "NoticiaResponse.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\DTOs\\NoticiaResponse.cs",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\DTOs\\NoticiaResponse.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\DTOs\\NoticiaResponse.cs",
+              "RelativeToolTip": "My_Complex_comunicaciones\\DTOs\\NoticiaResponse.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T01:27:02.828Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "NoticiaRequest.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\DTOs\\NoticiaRequest.cs",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\DTOs\\NoticiaRequest.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\DTOs\\NoticiaRequest.cs",
+              "RelativeToolTip": "My_Complex_comunicaciones\\DTOs\\NoticiaRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T01:25:09.233Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ComunicacionDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\config\\ComunicacionDbContext.cs",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\config\\ComunicacionDbContext.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\config\\ComunicacionDbContext.cs",
+              "RelativeToolTip": "My_Complex_comunicaciones\\config\\ComunicacionDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T01:23:08.811Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\appsettings.json",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\appsettings.json",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\appsettings.json",
+              "RelativeToolTip": "My_Complex_comunicaciones\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-05-27T01:53:08.286Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "NoticiasController.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Controllers\\NoticiasController.cs",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\Controllers\\NoticiasController.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Controllers\\NoticiasController.cs",
+              "RelativeToolTip": "My_Complex_comunicaciones\\Controllers\\NoticiasController.cs",
+              "ViewState": "AgIAACAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T01:24:20.317Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ComunicacionService.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Services\\ComunicacionService.cs",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\Services\\ComunicacionService.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Services\\ComunicacionService.cs",
+              "RelativeToolTip": "My_Complex_comunicaciones\\Services\\ComunicacionService.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAwD8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T01:31:07.287Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Noticia.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Models\\Noticia.cs",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\Models\\Noticia.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Models\\Noticia.cs",
+              "RelativeToolTip": "My_Complex_comunicaciones\\Models\\Noticia.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T01:28:37.271Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ReunionRequest.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\DTOs\\ReunionRequest.cs",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\DTOs\\ReunionRequest.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\DTOs\\ReunionRequest.cs",
+              "RelativeToolTip": "My_Complex_comunicaciones\\DTOs\\ReunionRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T01:25:23.108Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Program.cs",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\Program.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Program.cs",
+              "RelativeToolTip": "My_Complex_comunicaciones\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T00:58:35.536Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Reunion.cs",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Models\\Reunion.cs",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\Models\\Reunion.cs",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\Models\\Reunion.cs",
+              "RelativeToolTip": "My_Complex_comunicaciones\\Models\\Reunion.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T01:28:44.419Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "My_Complex_comunicaciones",
+              "DocumentMoniker": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj",
+              "RelativeDocumentMoniker": "My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj",
+              "ToolTip": "C:\\Users\\desktop\\Desktop\\DOO\\My_Complex\\My_Complex_comunicaciones\\My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj",
+              "RelativeToolTip": "My_Complex_comunicaciones\\My_Complex_comunicaciones.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-05-27T01:20:55.539Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
