@@ -1,0 +1,241 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\lucua\\source\\repos\\My_complex_\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\services\\visitanteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\services\\visitanteservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\migrations\\20260527001646_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\migrations\\20260527001646_initialcreate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\controllers\\visitantescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\controllers\\visitantescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\models\\visitante.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\models\\visitante.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\models\\registrovisita.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\models\\registrovisita.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\models\\autoriza.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\models\\autoriza.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\config\\visitantesdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\config\\visitantesdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\my_complex_.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\my_complex_.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\dtos\\registrarsalidarequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\dtos\\registrarsalidarequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\dtos\\autorizarvisitanterequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\dtos\\autorizarvisitanterequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|c:\\users\\lucua\\source\\repos\\my_complex_\\my_complex_\\dtos\\notificarvisitanterequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3F850E58-17C3-3DD8-BDB4-F1F8B44F1756}|My_complex_\\My_complex_.csproj|solutionrelative:my_complex_\\dtos\\notificarvisitanterequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "20260527001646_InitialCreate.cs",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Migrations\\20260527001646_InitialCreate.cs",
+              "RelativeDocumentMoniker": "My_complex_\\Migrations\\20260527001646_InitialCreate.cs",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Migrations\\20260527001646_InitialCreate.cs",
+              "RelativeToolTip": "My_complex_\\Migrations\\20260527001646_InitialCreate.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-27T00:16:47.054Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "VisitanteService.cs",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Services\\VisitanteService.cs",
+              "RelativeDocumentMoniker": "My_complex_\\Services\\VisitanteService.cs",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Services\\VisitanteService.cs",
+              "RelativeToolTip": "My_complex_\\Services\\VisitanteService.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAMwEAAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T19:11:29.202Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "VisitantesDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Config\\VisitantesDbContext.cs",
+              "RelativeDocumentMoniker": "My_complex_\\Config\\VisitantesDbContext.cs",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Config\\VisitantesDbContext.cs",
+              "RelativeToolTip": "My_complex_\\Config\\VisitantesDbContext.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAADwvyIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T18:47:59.085Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Visitante.cs",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Models\\Visitante.cs",
+              "RelativeDocumentMoniker": "My_complex_\\Models\\Visitante.cs",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Models\\Visitante.cs",
+              "RelativeToolTip": "My_complex_\\Models\\Visitante.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T18:50:11.132Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Program.cs",
+              "RelativeDocumentMoniker": "My_complex_\\Program.cs",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Program.cs",
+              "RelativeToolTip": "My_complex_\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T18:48:49.655Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "RegistrarSalidaRequest.cs",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\DTOs\\RegistrarSalidaRequest.cs",
+              "RelativeDocumentMoniker": "My_complex_\\DTOs\\RegistrarSalidaRequest.cs",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\DTOs\\RegistrarSalidaRequest.cs",
+              "RelativeToolTip": "My_complex_\\DTOs\\RegistrarSalidaRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T19:10:06.058Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "VisitantesController.cs",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Controllers\\VisitantesController.cs",
+              "RelativeDocumentMoniker": "My_complex_\\Controllers\\VisitantesController.cs",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Controllers\\VisitantesController.cs",
+              "RelativeToolTip": "My_complex_\\Controllers\\VisitantesController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T18:52:12.653Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Autoriza.cs",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Models\\Autoriza.cs",
+              "RelativeDocumentMoniker": "My_complex_\\Models\\Autoriza.cs",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Models\\Autoriza.cs",
+              "RelativeToolTip": "My_complex_\\Models\\Autoriza.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T18:51:47.628Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "RegistroVisita.cs",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Models\\RegistroVisita.cs",
+              "RelativeDocumentMoniker": "My_complex_\\Models\\RegistroVisita.cs",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\Models\\RegistroVisita.cs",
+              "RelativeToolTip": "My_complex_\\Models\\RegistroVisita.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T18:50:36.72Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\appsettings.json",
+              "RelativeDocumentMoniker": "My_complex_\\appsettings.json",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\appsettings.json",
+              "RelativeToolTip": "My_complex_\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-05-26T19:14:12.066Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "My_complex_.csproj",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\My_complex_.csproj",
+              "RelativeDocumentMoniker": "My_complex_\\My_complex_.csproj",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\My_complex_.csproj",
+              "RelativeToolTip": "My_complex_\\My_complex_.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-05-26T19:22:12.32Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "AutorizarVisitanteRequest.cs",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\DTOs\\AutorizarVisitanteRequest.cs",
+              "RelativeDocumentMoniker": "My_complex_\\DTOs\\AutorizarVisitanteRequest.cs",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\DTOs\\AutorizarVisitanteRequest.cs",
+              "RelativeToolTip": "My_complex_\\DTOs\\AutorizarVisitanteRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T19:09:53.299Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "NotificarVisitanteRequest.cs",
+              "DocumentMoniker": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\DTOs\\NotificarVisitanteRequest.cs",
+              "RelativeDocumentMoniker": "My_complex_\\DTOs\\NotificarVisitanteRequest.cs",
+              "ToolTip": "C:\\Users\\lucua\\source\\repos\\My_complex_\\My_complex_\\DTOs\\NotificarVisitanteRequest.cs",
+              "RelativeToolTip": "My_complex_\\DTOs\\NotificarVisitanteRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T19:09:34.424Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

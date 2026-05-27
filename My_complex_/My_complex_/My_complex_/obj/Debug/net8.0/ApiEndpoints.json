@@ -1,0 +1,50 @@
+[
+  {
+    "ContainingType": "My_complex_.Controllers.VisitantesController",
+    "Method": "AutorizarEntrada",
+    "RelativePath": "api/Visitantes/autorizar",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "My_complex_.DTOs.AutorizarVisitanteRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "My_complex_.Controllers.VisitantesController",
+    "Method": "NotificarVisitante",
+    "RelativePath": "api/Visitantes/notificar",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "My_complex_.DTOs.NotificarVisitanteRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "My_complex_.Controllers.VisitantesController",
+    "Method": "RegistrarSalida",
+    "RelativePath": "api/Visitantes/salida",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "My_complex_.DTOs.RegistrarSalidaRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
