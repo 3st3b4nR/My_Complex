@@ -1,9 +1,15 @@
 services:
   postgres:
-    image: 'postgres:latest'
+    image: postgres:17-alpine
+    container_name: mycomplex-postgres
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      POSTGRES_DB: mycomplex
+      POSTGRES_USER: mycomplex_user
+      POSTGRES_PASSWORD: mycomplex_local
     ports:
-      - '5432'
+      - "5432:5432"
+    volumes:
+      - mycomplex_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  mycomplex_postgres_data:
