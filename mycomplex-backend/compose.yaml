@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: mycomplex_user
       POSTGRES_PASSWORD: mycomplex_local
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - mycomplex_postgres_data:/var/lib/postgresql/data
 
