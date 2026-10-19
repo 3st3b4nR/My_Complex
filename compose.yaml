@@ -1,0 +1,82 @@
+name: mycomplex
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: mycomplex-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: UTC
+      PGTZ: UTC
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - mycomplex_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./mycomplex-backend
+      dockerfile: Dockerfile
+    image: mycomplex-backend:local
+    container_name: mycomplex-backend
+    restart: unless-stopped
+    environment:
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      AUTH0_ISSUER: ${AUTH0_ISSUER}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+    expose:
+      - "8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O - http://localhost:8080/actuator/health > /dev/null 2>&1 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  gateway:
+    build:
+      context: ./mycomplex-gateway
+      dockerfile: Dockerfile
+    image: mycomplex-gateway:local
+    container_name: mycomplex-gateway
+    restart: unless-stopped
+    environment:
+      AUTH0_ISSUER: ${AUTH0_ISSUER}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      BACKEND_URL: http://backend:8080
+    ports:
+      - "8081:8081"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O - http://localhost:8081/actuator/health > /dev/null 2>&1 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+volumes:
+  mycomplex_postgres_data:
+    name: mycomplex_postgres_data
