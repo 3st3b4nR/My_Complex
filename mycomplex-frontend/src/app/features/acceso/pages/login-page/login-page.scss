@@ -1,0 +1,156 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.login-page {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #75cfe4;
+}
+
+.login-page__background {
+  z-index: 0;
+  object-fit: cover;
+  object-position: center;
+}
+
+.brand-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 7rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background: #202c65;
+  box-shadow: 0 0.35rem 1.5rem rgb(8 30 70 / 25%);
+  margin:auto;
+  
+  img {
+    width: min(20.5rem, 75vw);
+    height: auto;
+  }
+}
+
+.login-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: calc(100dvh - 7rem);
+  align-items: center;
+  justify-content: flex-end;
+  padding: 2.5rem clamp(1.25rem, 9vw, 10rem);
+}
+
+.login-card {
+  width: min(100%, 23rem);
+  padding: clamp(1.75rem, 4vw, 2.5rem);
+  border: 1px solid rgb(255 255 255 / 75%);
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 1.25rem 3.5rem rgb(8 34 70 / 30%);
+  text-align: center;
+  backdrop-filter: blur(0.3rem);
+  margin:auto;
+}
+
+.brand-mark {
+  width: 200px;
+  height: 4.5rem;
+  margin: 0 auto 0.5rem;
+  overflow: hidden;
+
+  img {
+    width: 14.375rem;
+    max-width: none;
+    height: 4.375rem;
+    object-fit: contain;
+    object-position: center;
+  }
+}
+
+.login-card__eyebrow {
+  margin: 0 0 0.5rem;
+  color: #355ca4;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: #162553;
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  line-height: 1.1;
+}
+
+.login-card__description {
+  margin: 0.85rem auto 1.5rem;
+  color: #52647d;
+  line-height: 1.55;
+}
+
+.security-message {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #dbe5f0;
+  border-radius: 0.75rem;
+  background: #f2f6fb;
+  color: #405672;
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.security-message__icon {
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #dce9ff;
+  color: #245fcb;
+  font-weight: 800;
+}
+
+.login-button {
+  width: 100%;
+  min-height: 2.75rem;
+}
+
+.login-card__status {
+  margin: 0.85rem 0 0;
+  color: #697a90;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 48rem) {
+  .brand-header {
+    min-height: 5.5rem;
+  }
+
+  .login-content {
+    min-height: calc(100dvh - 5.5rem);
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .login-card {
+    width: min(100%, 21rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto;
+  }
+}
