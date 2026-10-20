@@ -2,20 +2,20 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
-    path: 'acceso',
+    path: 'login',
     loadComponent: () =>
-      import('./features/acceso/pages/login-page/login-page').then(
-        (component) => component.LoginPage,
-      ),
+      import(
+        './features/authentication/pages/login-page/login-page'
+      ).then((component) => component.LoginPage),
     title: 'Acceso | MyComplex',
   },
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'acceso',
+    redirectTo: 'login',
   },
   {
     path: '**',
-    redirectTo: 'acceso',
+    redirectTo: 'login',
   },
 ];

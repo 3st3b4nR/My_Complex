@@ -1,4 +1,4 @@
-package com.mycomplex.usuarios.infrastructure.adapter.in.rest;
+package com.mycomplex.users.infrastructure.adapter.in.rest;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     @GetMapping("/me")
-    public AuthenticationResponse obtenerUsuarioAutenticado(
+    public AuthenticationResponse getAuthenticatedUser(
             @AuthenticationPrincipal Jwt jwt) {
 
         return new AuthenticationResponse(
