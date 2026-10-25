@@ -1,0 +1,215 @@
+<main class="dashboard-page">
+  <header class="dashboard-header">
+    <img
+      ngSrc="/assets/branding/mycomplex-logo.png"
+      alt="MyComplex"
+      width="230"
+      height="70"
+      priority
+    />
+
+    <div class="header-actions">
+      @if (user$ | async; as user) {
+        <div class="user-information">
+          <span>Sesión iniciada como</span>
+          <strong>{{ user.name || user.email }}</strong>
+        </div>
+      }
+
+      <button
+        class="secondary-button"
+        type="button"
+        (click)="changeProperty()"
+      >
+        Cambiar copropiedad
+      </button>
+
+      <button
+        class="logout-button"
+        type="button"
+        (click)="logout()"
+      >
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  @if (state$ | async; as state) {
+    @switch (state.status) {
+      @case ('loading') {
+        <section class="state-container" role="status">
+          <span class="loading-indicator"></span>
+          <h1>Cargando el panel</h1>
+          <p>Estamos preparando la información de tu copropiedad.</p>
+        </section>
+      }
+
+      @case ('error') {
+        <section
+          class="state-container state-container--error"
+          role="alert"
+        >
+          <h1>No pudimos cargar el panel</h1>
+          <p>
+            Verifica que los servicios estén activos e inténtalo
+            nuevamente.
+          </p>
+
+          <button
+            class="primary-button"
+            type="button"
+            (click)="changeProperty()"
+          >
+            Volver a mis copropiedades
+          </button>
+        </section>
+      }
+
+      @case ('not-found') {
+        <section
+          class="state-container state-container--error"
+          role="alert"
+        >
+          <h1>Copropiedad no disponible</h1>
+          <p>
+            Esta copropiedad no está asociada con tu usuario o ya no
+            se encuentra activa.
+          </p>
+
+          <button
+            class="primary-button"
+            type="button"
+            (click)="changeProperty()"
+          >
+            Seleccionar otra copropiedad
+          </button>
+        </section>
+      }
+
+      @case ('success') {
+        <div class="dashboard-layout">
+          <aside class="dashboard-sidebar">
+            <div class="property-summary">
+              <span class="property-summary__mark" aria-hidden="true">
+                MC
+              </span>
+
+              <div>
+                <span class="property-summary__label">
+                  Copropiedad actual
+                </span>
+
+                <strong>{{ state.property.name }}</strong>
+                <small>{{ state.property.city }}</small>
+              </div>
+            </div>
+
+            <nav aria-label="Navegación principal">
+              <a class="navigation-item navigation-item--active">
+                Inicio
+              </a>
+
+              <span class="navigation-item">Copropiedad</span>
+              <span class="navigation-item">Usuarios y residentes</span>
+              <span class="navigation-item">Visitantes</span>
+              <span class="navigation-item">Reservas</span>
+              <span class="navigation-item">Comunicaciones</span>
+              <span class="navigation-item">Configuración</span>
+            </nav>
+          </aside>
+
+          <section class="dashboard-content">
+            <div class="dashboard-welcome">
+              <div>
+                <span class="dashboard-welcome__eyebrow">
+                  {{ roleLabel(state.property.role) }}
+                </span>
+
+                <h1>Panel de {{ state.property.name }}</h1>
+
+                <p>
+                  Administra desde aquí las operaciones principales de
+                  la copropiedad.
+                </p>
+              </div>
+            </div>
+
+            <section aria-labelledby="modules-title">
+              <div class="section-heading">
+                <div>
+                  <span>Accesos principales</span>
+                  <h2 id="modules-title">Módulos de administración</h2>
+                </div>
+              </div>
+
+              <div class="module-grid">
+                <article class="module-card">
+                  <span class="module-card__mark" aria-hidden="true">
+                    CP
+                  </span>
+                  <h3>Copropiedad</h3>
+                  <p>
+                    Consulta y administra la información general del
+                    conjunto.
+                  </p>
+                </article>
+
+                <article class="module-card">
+                  <span class="module-card__mark" aria-hidden="true">
+                    UR
+                  </span>
+                  <h3>Usuarios y residentes</h3>
+                  <p>
+                    Gestiona personas, viviendas, propietarios y
+                    residentes.
+                  </p>
+                </article>
+
+                <article class="module-card">
+                  <span class="module-card__mark" aria-hidden="true">
+                    VI
+                  </span>
+                  <h3>Visitantes</h3>
+                  <p>
+                    Controla autorizaciones e ingresos de visitantes.
+                  </p>
+                </article>
+
+                <article class="module-card">
+                  <span class="module-card__mark" aria-hidden="true">
+                    RE
+                  </span>
+                  <h3>Reservas</h3>
+                  <p>
+                    Administra la disponibilidad y reserva de zonas
+                    comunes.
+                  </p>
+                </article>
+
+                <article class="module-card">
+                  <span class="module-card__mark" aria-hidden="true">
+                    CO
+                  </span>
+                  <h3>Comunicaciones</h3>
+                  <p>
+                    Publica avisos y envía información a la comunidad.
+                  </p>
+                </article>
+
+                <article class="module-card">
+                  <span class="module-card__mark" aria-hidden="true">
+                    SE
+                  </span>
+                  <h3>Configuración</h3>
+                  <p>
+                    Configura reglas y parámetros de la copropiedad.
+                  </p>
+                </article>
+              </div>
+            </section>
+          </section>
+        </div>
+      }
+    }
+  }
+</main>
