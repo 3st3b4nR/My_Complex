@@ -1,0 +1,75 @@
+<main class="login-page">
+  <img
+    class="login-page__background"
+    ngSrc="/assets/images/login-cityscape.png"
+    alt=""
+    fill
+    priority
+  />
+
+  <header class="brand-header">
+    <img
+      ngSrc="/assets/branding/mycomplex-logo.png"
+      alt="MyComplex"
+      width="329"
+      height="100"
+      priority
+    />
+  </header>
+
+  <section class="login-content" aria-labelledby="login-title">
+    <article class="login-card">
+      <div class="brand-mark" aria-hidden="true">
+        <img
+          ngSrc="/assets/branding/mycomplex-mark.png"
+          alt=""
+          width="230"
+          height="70"
+        />
+      </div>
+
+      <p class="login-card__eyebrow">Administración de copropiedades</p>
+
+      <h1 id="login-title">Bienvenido</h1>
+
+      <p class="login-card__description">
+        Gestiona tu copropiedad de forma sencilla, conectada y segura.
+      </p>
+
+      <div class="security-message">
+        <span class="security-message__icon" aria-hidden="true">✓</span>
+        <span>Acceso protegido por Auth0</span>
+      </div>
+
+    @if (error$ | async; as authError) {
+      <p class="login-card__status">
+        Error de autenticación: {{ authError.message }}
+      </p>
+    }  
+    @if (isAuthenticated$ | async) {
+      <p id="login-status" class="login-card__status">
+        Sesión iniciada correctamente.
+      </p>
+    } @else {
+      <button
+        class="login-button"
+        matButton="filled"
+        type="button"
+        [disabled]="(isLoading$ | async) === true"
+        (click)="login()"
+        aria-describedby="login-status"
+      >
+        @if (isLoading$ | async) {
+          Conectando...
+        } @else {
+          Iniciar sesión
+        }
+      </button>
+
+      <p id="login-status" class="login-card__status">
+        Utiliza tu cuenta autorizada para ingresar a MyComplex.
+      </p>
+}
+    </article>
+  </section>
+</main>

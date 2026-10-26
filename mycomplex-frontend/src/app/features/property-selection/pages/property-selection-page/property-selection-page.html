@@ -1,0 +1,111 @@
+<main class="selection-page">
+  <header class="selection-header">
+    <img
+      ngSrc="/assets/branding/mycomplex-logo.png"
+      alt="MyComplex"
+      width="230"
+      height="70"
+      priority
+    />
+
+    <div class="user-actions">
+      @if (user$ | async; as user) {
+        <div class="user-information">
+          <span class="user-information__label">
+            Sesión iniciada como
+          </span>
+
+          <strong>
+            {{ user.name || user.email }}
+          </strong>
+        </div>
+      }
+
+      <button
+        class="logout-button"
+        type="button"
+        (click)="logout()"
+      >
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <section class="selection-content">
+    <div class="selection-introduction">
+      <span class="selection-introduction__eyebrow">
+        Tu espacio en MyComplex
+      </span>
+
+      <h1>Selecciona una copropiedad</h1>
+
+      <p>
+        Elige la copropiedad y el rol con el que deseas ingresar.
+      </p>
+    </div>
+
+    @if (state$ | async; as state) {
+      @switch (state.status) {
+        @case ('loading') {
+          <div class="state-card" role="status">
+            <span class="loading-indicator"></span>
+            <h2>Cargando tus copropiedades</h2>
+            <p>Estamos consultando tus accesos.</p>
+          </div>
+        }
+
+        @case ('error') {
+          <div class="state-card state-card--error" role="alert">
+            <h2>No pudimos cargar tus copropiedades</h2>
+            <p>
+              Verifica que los servicios estén activos e inténtalo
+              nuevamente.
+            </p>
+          </div>
+        }
+
+        @case ('success') {
+          @if (state.properties.length === 0) {
+            <div class="state-card">
+              <h2>No tienes copropiedades asignadas</h2>
+              <p>
+                Comunícate con el administrador del sistema para
+                solicitar acceso.
+              </p>
+            </div>
+          } @else {
+            <div class="property-grid">
+              @for (
+                property of state.properties;
+                track property.propertyId
+              ) {
+                <article class="property-card">
+                  <div class="property-card__icon" aria-hidden="true">
+                    MC
+                  </div>
+
+                  <div class="property-card__content">
+                    <span class="property-card__role">
+                      {{ roleLabel(property.role) }}
+                    </span>
+
+                    <h2>{{ property.name }}</h2>
+                    <p>{{ property.city }}</p>
+                  </div>
+
+                  <button
+                    class="property-card__button"
+                    type="button"
+                    (click)="selectProperty(property)"
+                  >
+                    Ingresar
+                  </button>
+                </article>
+              }
+            </div>
+          }
+        }
+      }
+    }
+  </section>
+</main>
