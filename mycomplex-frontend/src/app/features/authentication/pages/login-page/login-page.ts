@@ -31,6 +31,10 @@ export class LoginPage {
     this.authService.isAuthenticated$;
 
   protected login(): void {
-    this.authService.loginWithRedirect().subscribe();
-  }
+    this.authService.loginWithRedirect({
+      appState: {
+        target: '/select-property'
+      }
+    }).subscribe();
+}
 }
