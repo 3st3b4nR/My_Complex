@@ -258,12 +258,14 @@
 }
 
 .module-card {
+  display: block;
   min-height: 10rem;
   padding: 1.25rem;
   border: 1px solid #dce6f1;
   border-radius: 1rem;
   background: #ffffff;
   box-shadow: 0 0.6rem 1.5rem rgb(23 53 94 / 7%);
+  text-decoration: none;
 
   h3 {
     margin: 0.9rem 0 0.45rem;
@@ -276,6 +278,24 @@
     color: #65778d;
     font-size: 0.88rem;
     line-height: 1.5;
+  }
+}
+
+.module-card--link {
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+
+  &:hover {
+    border-color: #9eb8e5;
+    box-shadow: 0 0.8rem 1.8rem rgb(23 53 94 / 12%);
+    transform: translateY(-0.15rem);
+  }
+
+  &:focus-visible {
+    outline: 0.2rem solid #376bd7;
+    outline-offset: 0.2rem;
   }
 }
 
@@ -388,7 +408,8 @@
 @media (prefers-reduced-motion: reduce) {
   .secondary-button,
   .logout-button,
-  .primary-button {
+  .primary-button,
+  .module-card--link {
     transition: none;
   }
 

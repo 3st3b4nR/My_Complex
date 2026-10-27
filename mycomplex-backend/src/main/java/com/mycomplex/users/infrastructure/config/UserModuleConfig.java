@@ -4,7 +4,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.mycomplex.users.application.port.in.FindUserPropertiesUseCase;
+import com.mycomplex.users.application.port.in.FindPropertyMembersUseCase;
+import com.mycomplex.users.application.port.out.LoadPropertyMembersPort;
 import com.mycomplex.users.application.port.out.LoadUserPropertiesPort;
+import com.mycomplex.users.application.service.FindPropertyMembersService;
 import com.mycomplex.users.application.service.FindUserPropertiesService;
 
 @Configuration(proxyBeanMethods = false)
@@ -16,6 +19,15 @@ public class UserModuleConfig {
     ) {
         return new FindUserPropertiesService(
                 loadUserPropertiesPort
+        );
+    }
+
+    @Bean
+    FindPropertyMembersUseCase findPropertyMembersUseCase(
+            LoadPropertyMembersPort loadPropertyMembersPort
+    ) {
+        return new FindPropertyMembersService(
+                loadPropertyMembersPort
         );
     }
 }

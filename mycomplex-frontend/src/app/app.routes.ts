@@ -29,6 +29,15 @@ export const routes: Routes = [
     title: 'Panel de administración | MyComplex'
   },
   {
+    path: 'properties/:propertyId/users',
+    loadComponent: () =>
+      import(
+        './features/user-management/pages/user-management-page/user-management-page'
+      ).then(component => component.UserManagementPage),
+    canActivate: [authGuardFn],
+    title: 'Gestión de usuarios | MyComplex'
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'login'

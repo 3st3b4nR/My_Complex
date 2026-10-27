@@ -110,7 +110,18 @@
               </a>
 
               <span class="navigation-item">Copropiedad</span>
-              <span class="navigation-item">Usuarios y residentes</span>
+              @if (state.property.role === 'PROPERTY_ADMIN') {
+                <a
+                  class="navigation-item"
+                  [routerLink]="[
+                    '/properties',
+                    state.property.propertyId,
+                    'users'
+                  ]"
+                >
+                  Gestión de usuarios
+                </a>
+              }
               <span class="navigation-item">Visitantes</span>
               <span class="navigation-item">Reservas</span>
               <span class="navigation-item">Comunicaciones</span>
@@ -154,16 +165,25 @@
                   </p>
                 </article>
 
-                <article class="module-card">
-                  <span class="module-card__mark" aria-hidden="true">
-                    UR
-                  </span>
-                  <h3>Usuarios y residentes</h3>
-                  <p>
-                    Gestiona personas, viviendas, propietarios y
-                    residentes.
-                  </p>
-                </article>
+                @if (state.property.role === 'PROPERTY_ADMIN') {
+                  <a
+                    class="module-card module-card--link"
+                    [routerLink]="[
+                      '/properties',
+                      state.property.propertyId,
+                      'users'
+                    ]"
+                  >
+                    <span class="module-card__mark" aria-hidden="true">
+                      GU
+                    </span>
+                    <h3>Gestión de usuarios</h3>
+                    <p>
+                      Consulta las personas vinculadas y sus roles en
+                      la copropiedad.
+                    </p>
+                  </a>
+                }
 
                 <article class="module-card">
                   <span class="module-card__mark" aria-hidden="true">

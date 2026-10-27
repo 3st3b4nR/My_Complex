@@ -1,0 +1,255 @@
+<main class="users-page">
+  <header class="users-header">
+    <img
+      ngSrc="/assets/branding/mycomplex-logo.png"
+      alt="MyComplex"
+      width="230"
+      height="70"
+      priority
+    />
+
+    @if (state().property; as property) {
+      <a
+        class="header-link"
+        [routerLink]="[
+          '/properties',
+          property.propertyId,
+          'dashboard'
+        ]"
+      >
+        Volver al panel
+      </a>
+    } @else {
+      <a class="header-link" routerLink="/select-property">
+        Mis copropiedades
+      </a>
+    }
+  </header>
+
+  @switch (state().status) {
+    @case ('loading') {
+      <section class="state-container" role="status">
+        <span class="loading-indicator" aria-hidden="true"></span>
+        <h1>Cargando usuarios</h1>
+        <p>Estamos consultando las personas de la copropiedad.</p>
+      </section>
+    }
+
+    @case ('not-found') {
+      <section class="state-container state-container--error" role="alert">
+        <h1>Copropiedad no disponible</h1>
+        <p>
+          Esta copropiedad no está asociada con tu usuario o ya no
+          se encuentra activa.
+        </p>
+        <a class="primary-link" routerLink="/select-property">
+          Seleccionar otra copropiedad
+        </a>
+      </section>
+    }
+
+    @case ('unauthorized') {
+      <section class="state-container state-container--error" role="alert">
+        <h1>Acceso no autorizado</h1>
+        <p>
+          Solo un administrador activo de la copropiedad puede
+          consultar la gestión de usuarios.
+        </p>
+        @if (state().property; as property) {
+          <a
+            class="primary-link"
+            [routerLink]="[
+              '/properties',
+              property.propertyId,
+              'dashboard'
+            ]"
+          >
+            Volver al panel
+          </a>
+        }
+      </section>
+    }
+
+    @case ('error') {
+      <section class="state-container state-container--error" role="alert">
+        <h1>No pudimos cargar los usuarios</h1>
+        <p>
+          Verifica que los servicios estén activos e inténtalo
+          nuevamente.
+        </p>
+        <a class="primary-link" routerLink="/select-property">
+          Volver a mis copropiedades
+        </a>
+      </section>
+    }
+
+    @case ('success') {
+      @if (state().property; as property) {
+        <section class="users-content">
+        <div class="page-heading">
+          <div>
+            <span class="eyebrow">{{ property.name }}</span>
+            <h1>Gestión de usuarios</h1>
+            <p>
+              Consulta las personas vinculadas con esta copropiedad
+              y encuentra rápidamente la información que necesitas.
+            </p>
+          </div>
+
+          <span class="member-count">
+            {{ state().members.length }}
+            {{ state().members.length === 1 ? 'usuario' : 'usuarios' }}
+          </span>
+        </div>
+
+        @if (state().members.length === 0) {
+          <section class="empty-state" role="status">
+            <h2>No hay usuarios vinculados</h2>
+            <p>
+              La copropiedad todavía no tiene usuarios disponibles
+              para consultar.
+            </p>
+          </section>
+        } @else {
+          <section class="filters" aria-labelledby="filters-title">
+            <div class="filters-heading">
+              <h2 id="filters-title">Buscar y filtrar</h2>
+
+              <button
+                type="button"
+                class="clear-button"
+                [disabled]="!hasActiveFilters()"
+                (click)="clearFilters()"
+              >
+                Limpiar filtros
+              </button>
+            </div>
+
+            <div class="filter-grid">
+              <label class="filter-field filter-field--search">
+                <span>Nombre, apellido o correo</span>
+                <input
+                  type="search"
+                  placeholder="Buscar usuario"
+                  [value]="searchTerm()"
+                  (input)="updateSearch($event)"
+                />
+              </label>
+
+              <label class="filter-field">
+                <span>Rol</span>
+                <select
+                  [value]="roleFilter()"
+                  (change)="updateRoleFilter($event)"
+                >
+                  <option value="ALL">Todos los roles</option>
+                  @for (option of roleOptions; track option.value) {
+                    <option [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  }
+                </select>
+              </label>
+
+              <label class="filter-field">
+                <span>Estado del usuario</span>
+                <select
+                  [value]="userStatusFilter()"
+                  (change)="updateUserStatusFilter($event)"
+                >
+                  <option value="ALL">Todos los estados</option>
+                  @for (
+                    option of userStatusOptions;
+                    track option.value
+                  ) {
+                    <option [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  }
+                </select>
+              </label>
+
+              <label class="filter-field">
+                <span>Estado de la vinculación</span>
+                <select
+                  [value]="membershipStatusFilter()"
+                  (change)="updateMembershipStatusFilter($event)"
+                >
+                  <option value="ALL">Todos los estados</option>
+                  @for (
+                    option of membershipStatusOptions;
+                    track option.value
+                  ) {
+                    <option [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  }
+                </select>
+              </label>
+            </div>
+          </section>
+
+          @if (filteredMembers().length === 0) {
+            <section class="empty-state" role="status">
+              <h2>No encontramos resultados</h2>
+              <p>
+                Ajusta la búsqueda o limpia los filtros para ver
+                nuevamente todos los usuarios.
+              </p>
+            </section>
+          } @else {
+            <div class="members-table-wrapper">
+              <table class="members-table">
+                <caption>
+                  Usuarios vinculados con {{ property.name }}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Usuario</th>
+                    <th scope="col">Correo</th>
+                    <th scope="col">Rol</th>
+                    <th scope="col">Estado del usuario</th>
+                    <th scope="col">Estado de la vinculación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (
+                    member of filteredMembers();
+                    track member.userId
+                  ) {
+                    <tr>
+                      <td data-label="Usuario">
+                        <strong>
+                          {{ member.firstNames }} {{ member.lastNames }}
+                        </strong>
+                      </td>
+                      <td data-label="Correo">{{ member.email }}</td>
+                      <td data-label="Rol">
+                        {{ roleLabel(member.role) }}
+                      </td>
+                      <td data-label="Estado del usuario">
+                        <span class="status-badge">
+                          {{ userStatusLabel(member.userStatus) }}
+                        </span>
+                      </td>
+                      <td data-label="Estado de la vinculación">
+                        <span class="status-badge status-badge--membership">
+                          {{
+                            membershipStatusLabel(
+                              member.membershipStatus
+                            )
+                          }}
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+        </section>
+      }
+    }
+  }
+</main>

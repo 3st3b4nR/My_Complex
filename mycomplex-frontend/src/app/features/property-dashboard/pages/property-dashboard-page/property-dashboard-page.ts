@@ -11,7 +11,8 @@ import {
 
 import {
   ActivatedRoute,
-  Router
+  Router,
+  RouterLink
 } from '@angular/router';
 
 import { AuthService } from '@auth0/auth0-angular';
@@ -54,7 +55,8 @@ type PropertyDashboardState =
   selector: 'app-property-dashboard-page',
   imports: [
     AsyncPipe,
-    NgOptimizedImage
+    NgOptimizedImage,
+    RouterLink
   ],
   templateUrl: './property-dashboard-page.html',
   styleUrl: './property-dashboard-page.scss',

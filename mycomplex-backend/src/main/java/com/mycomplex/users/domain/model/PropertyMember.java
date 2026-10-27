@@ -1,0 +1,14 @@
+package com.mycomplex.users.domain.model;
+
+import java.util.UUID;
+
+public record PropertyMember(
+        UUID userId,
+        String firstNames,
+        String lastNames,
+        String email,
+        PropertyRole role,
+        UserStatus userStatus,
+        MembershipStatus membershipStatus
+) {
+}
