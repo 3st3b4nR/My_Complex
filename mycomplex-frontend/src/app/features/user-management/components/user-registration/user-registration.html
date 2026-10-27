@@ -1,0 +1,49 @@
+<div class="registration-backdrop" aria-hidden="true"></div>
+<aside class="registration-panel" role="dialog" aria-modal="true" aria-labelledby="registration-title">
+  <header>
+    <div><span>Gestión de usuarios</span><h2 id="registration-title">Registrar usuario</h2></div>
+    <button type="button" aria-label="Cerrar registro" (click)="closed.emit()">×</button>
+  </header>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <section>
+      <label><span>Correo</span><input type="email" formControlName="email" autocomplete="email" /></label>
+      <button type="button" (click)="verifyEmail()" [disabled]="status() === 'checking' || status() === 'saving'">
+        {{ status() === 'checking' ? 'Verificando…' : 'Verificar correo' }}
+      </button>
+    </section>
+    @if (candidate(); as current) {
+      <p class="candidate-message" role="status">{{ candidateMessage() }}</p>
+      <section class="grid">
+        <label><span>Nombres</span><input formControlName="firstNames" [readOnly]="current.state !== 'NEW_USER'" /></label>
+        <label><span>Apellidos</span><input formControlName="lastNames" [readOnly]="current.state !== 'NEW_USER'" /></label>
+        @if (current.state === 'NEW_USER') {
+          <label><span>Tipo de documento (opcional)</span><input formControlName="documentType" /></label>
+          <label><span>Número de documento (opcional)</span><input formControlName="documentNumber" /></label>
+        }
+        <label><span>Rol</span><select formControlName="role">
+          <option value="PROPERTY_ADMIN">Administrador de copropiedad</option><option value="OWNER">Propietario</option><option value="RESIDENT">Residente</option><option value="SECURITY_GUARD">Vigilante</option><option value="WORKER">Trabajador</option>
+        </select></label>
+        <label><span>Estado de la vinculación</span><select formControlName="membershipStatus">
+          <option value="ACTIVE">Activa</option><option value="INACTIVE">Inactiva</option><option value="SUSPENDED">Suspendida</option>
+        </select></label>
+      </section>
+      <section>
+        <div class="heading"><h3>Unidades residenciales</h3><button type="button" (click)="addUnit()">Agregar unidad</button></div>
+        <div formArrayName="units">
+          @for (unit of unitForms.controls; track unit; let index = $index) {
+            <fieldset [formGroupName]="index">
+              <legend>Asignación {{ index + 1 }}</legend>
+              <label><span>Estructura</span><select formControlName="structureId" (change)="structureChanged(index)"><option value="">Selecciona</option>@for (structure of structures(); track structure.id) {<option [value]="structure.id">{{ structure.name }}</option>}</select></label>
+              <label><span>Unidad</span><select formControlName="unitId"><option value="">Selecciona</option>@for (available of unitsFor(index); track available.unitId) {<option [value]="available.unitId">{{ available.unitNumber }}</option>}</select></label>
+              <label><span>Relación</span><select formControlName="relationshipType"><option value="OWNER">Propietario</option><option value="RESIDENT">Residente</option></select></label>
+              <label><input type="checkbox" formControlName="primary" (change)="selectPrimary(index, $event)" /> Unidad principal</label>
+              <button type="button" (click)="removeUnit(index)">Retirar</button>
+            </fieldset>
+          }
+        </div>
+      </section>
+    }
+    @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
+    <footer><button type="button" (click)="closed.emit()" [disabled]="status() === 'saving'">Cancelar</button><button type="submit" [disabled]="status() !== 'ready'">{{ status() === 'saving' ? 'Guardando…' : 'Confirmar registro' }}</button></footer>
+  </form>
+</aside>

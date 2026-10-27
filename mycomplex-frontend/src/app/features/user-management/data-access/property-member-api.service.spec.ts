@@ -11,7 +11,9 @@ import { environment } from '../../../../environments/environment';
 import {
   PropertyMember,
   PropertyMemberDetails,
-  PropertyMemberUpdate
+  PropertyMemberUpdate,
+  PropertyMemberCandidate,
+  PropertyMemberRegistration
 } from '../models/property-member';
 import { PropertyMemberApiService } from './property-member-api.service';
 
@@ -80,6 +82,41 @@ describe('PropertyMemberApiService', () => {
     expect(putRequest.request.method).toBe('PUT');
     expect(putRequest.request.body).toEqual(update);
     putRequest.flush(details);
+    http.verify();
+  });
+
+  it('checks, registers and unlinks a property member', () => {
+    TestBed.configureTestingModule({ providers: [
+      PropertyMemberApiService, provideHttpClient(), provideHttpClientTesting()
+    ] });
+    const service = TestBed.inject(PropertyMemberApiService);
+    const http = TestBed.inject(HttpTestingController);
+    const propertyId = '10000000-0000-0000-0000-000000000001';
+    const membershipId = '70000000-0000-0000-0000-000000000001';
+    const candidate = { state: 'NEW_USER' } as PropertyMemberCandidate;
+    const registration = { mode: 'CREATE_PENDING_USER' } as PropertyMemberRegistration;
+
+    service.findPropertyMemberCandidate(propertyId, 'ana@test.com').subscribe();
+    const candidateRequest = http.expectOne(request =>
+      request.url.endsWith(`/api/properties/${propertyId}/member-candidates`)
+    );
+    expect(candidateRequest.request.params.get('email')).toBe('ana@test.com');
+    candidateRequest.flush(candidate);
+
+    service.registerPropertyMember(propertyId, registration).subscribe();
+    const post = http.expectOne(
+      `${environment.apiUrl}/api/properties/${propertyId}/members`
+    );
+    expect(post.request.method).toBe('POST');
+    post.flush({});
+
+    service.unlinkPropertyMember(propertyId, membershipId, 3).subscribe();
+    const deletion = http.expectOne(request =>
+      request.url.endsWith(`/members/${membershipId}`)
+    );
+    expect(deletion.request.method).toBe('DELETE');
+    expect(deletion.request.params.get('version')).toBe('3');
+    deletion.flush(null);
     http.verify();
   });
 });

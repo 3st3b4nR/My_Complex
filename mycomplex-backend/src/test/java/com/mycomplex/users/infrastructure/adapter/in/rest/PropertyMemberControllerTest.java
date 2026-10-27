@@ -31,6 +31,7 @@ import com.mycomplex.users.domain.model.PropertyRole;
 import com.mycomplex.users.domain.model.ResidentialRelationshipStatus;
 import com.mycomplex.users.domain.model.ResidentialRelationshipType;
 import com.mycomplex.users.domain.model.UserStatus;
+import com.mycomplex.users.domain.model.UserRegistrationStatus;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberDetailsResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.mapper.PropertyMemberRestMapper;
@@ -62,6 +63,7 @@ class PropertyMemberControllerTest {
                             "admin@mycomplex.com",
                             PropertyRole.PROPERTY_ADMIN,
                             UserStatus.ACTIVE,
+                            UserRegistrationStatus.LINKED,
                             MembershipStatus.ACTIVE,
                             0,
                             List.of(new PropertyMemberUnit(
@@ -93,11 +95,20 @@ class PropertyMemberControllerTest {
                 (currentPropertyId, membershipId, subject) -> null;
         UpdatePropertyMemberUseCase updateUseCase =
                 (update, subject) -> null;
+        com.mycomplex.users.application.port.in.FindPropertyMemberCandidateUseCase
+                candidateUseCase = (id, email, subject) -> null;
+        com.mycomplex.users.application.port.in.RegisterPropertyMemberUseCase
+                registerUseCase = (registration, subject) -> null;
+        com.mycomplex.users.application.port.in.UnlinkPropertyMemberUseCase
+                unlinkUseCase = (unlink, subject) -> { };
         PropertyMemberController controller =
                 new PropertyMemberController(
                         useCase,
                         detailsUseCase,
                         updateUseCase,
+                        candidateUseCase,
+                        registerUseCase,
+                        unlinkUseCase,
                         mapper
                 );
         Jwt jwt = Jwt.withTokenValue("token")

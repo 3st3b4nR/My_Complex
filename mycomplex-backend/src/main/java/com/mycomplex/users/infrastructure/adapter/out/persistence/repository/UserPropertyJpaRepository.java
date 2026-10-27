@@ -63,6 +63,7 @@ public interface UserPropertyJpaRepository
                         usuario.correo AS "email",
                         membresia.rol AS "role",
                         usuario.estado AS "userStatus",
+                        usuario.estado_registro AS "registrationStatus",
                         membresia.estado AS "membershipStatus",
                         membresia.version AS "membershipVersion",
                         vinculacion.id AS "assignmentId",

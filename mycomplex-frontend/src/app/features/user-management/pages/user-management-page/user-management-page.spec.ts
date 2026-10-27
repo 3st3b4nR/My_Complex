@@ -33,6 +33,7 @@ describe('UserManagementPage', () => {
       email: 'admin@mycomplex.com',
       role: 'PROPERTY_ADMIN',
       userStatus: 'ACTIVE',
+      registrationStatus: 'LINKED',
       membershipStatus: 'ACTIVE',
       version: 0,
       units: []
@@ -45,6 +46,7 @@ describe('UserManagementPage', () => {
       email: 'laura@example.com',
       role: 'RESIDENT',
       userStatus: 'BLOCKED',
+      registrationStatus: 'LINKED',
       membershipStatus: 'SUSPENDED',
       version: 0,
       units: [
@@ -69,6 +71,7 @@ describe('UserManagementPage', () => {
       email: 'carolina@loscerezos.test',
       role: 'OWNER',
       userStatus: 'ACTIVE',
+      registrationStatus: 'PENDING',
       membershipStatus: 'ACTIVE',
       version: 0,
       units: [
@@ -104,6 +107,7 @@ describe('UserManagementPage', () => {
       email: 'ana@loscerezos.test',
       role: 'OWNER',
       userStatus: 'ACTIVE',
+      registrationStatus: 'PENDING',
       membershipStatus: 'ACTIVE',
       version: 0,
       units: []
@@ -148,7 +152,10 @@ describe('UserManagementPage', () => {
           useValue: {
             getPropertyMembers: () => membersResult,
             getPropertyMemberDetails: () => detailsResult,
-            updatePropertyMember: () => detailsResult
+            updatePropertyMember: () => detailsResult,
+            findPropertyMemberCandidate: () => of({}),
+            registerPropertyMember: () => detailsResult,
+            unlinkPropertyMember: () => of(undefined)
           }
         }
       ]
@@ -189,6 +196,10 @@ describe('UserManagementPage', () => {
     expect(text).toContain('Sin unidad asignada');
     expect(text).toContain('Torre 2 · Apto. 201 · Propietario');
     expect(text).toContain('Torre 2 · Apto. 202 · Propietario');
+    expect(text).toContain('Vinculado');
+    expect(text).toContain('Pendiente');
+    expect(text).not.toContain('LINKED');
+    expect(text).not.toContain('PENDING');
     expect(fixture.nativeElement.querySelectorAll('tbody tr').length)
       .toBe(4);
   });
@@ -335,6 +346,30 @@ describe('UserManagementPage', () => {
 
     expect(element.querySelector('app-user-management-editor'))
       .not.toBeNull();
+    expect(search.value).toBe('Laura');
+  });
+
+  it('opens registration and confirms unlinking without losing filters', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const fixture = await createComponent([administratorProperty], of(members));
+    const element = fixture.nativeElement as HTMLElement;
+    const search = element.querySelector('input[type="search"]') as HTMLInputElement;
+    search.value = 'Laura'; search.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const register = Array.from(element.querySelectorAll('button')).find(
+      button => button.textContent?.includes('Registrar usuario')
+    ) as HTMLButtonElement;
+    register.click(); fixture.detectChanges();
+    expect(element.querySelector('app-user-registration')).not.toBeNull();
+    const close = element.querySelector(
+      'app-user-registration button[aria-label="Cerrar registro"]'
+    ) as HTMLButtonElement;
+    close.click(); fixture.detectChanges();
+
+    const unlink = element.querySelector('tbody tr .unlink-button') as HTMLButtonElement;
+    unlink.click(); fixture.detectChanges();
+    expect(window.confirm).toHaveBeenCalled();
     expect(search.value).toBe('Laura');
   });
 });

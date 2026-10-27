@@ -6,7 +6,9 @@ import { environment } from '../../../../environments/environment';
 import {
   PropertyMember,
   PropertyMemberDetails,
-  PropertyMemberUpdate
+  PropertyMemberUpdate,
+  PropertyMemberCandidate,
+  PropertyMemberRegistration
 } from '../models/property-member';
 
 @Injectable({
@@ -43,6 +45,39 @@ export class PropertyMemberApiService {
       `${environment.apiUrl}/api/properties/${propertyId}`
       + `/members/${membershipId}`,
       update
+    );
+  }
+
+  findPropertyMemberCandidate(
+    propertyId: string,
+    email: string
+  ): Observable<PropertyMemberCandidate> {
+    return this.http.get<PropertyMemberCandidate>(
+      `${environment.apiUrl}/api/properties/${propertyId}`
+      + '/member-candidates',
+      { params: { email } }
+    );
+  }
+
+  registerPropertyMember(
+    propertyId: string,
+    registration: PropertyMemberRegistration
+  ): Observable<PropertyMemberDetails> {
+    return this.http.post<PropertyMemberDetails>(
+      `${environment.apiUrl}/api/properties/${propertyId}/members`,
+      registration
+    );
+  }
+
+  unlinkPropertyMember(
+    propertyId: string,
+    membershipId: string,
+    version: number
+  ): Observable<void> {
+    return this.http.delete<void>(
+      `${environment.apiUrl}/api/properties/${propertyId}`
+      + `/members/${membershipId}`,
+      { params: { version } }
     );
   }
 }

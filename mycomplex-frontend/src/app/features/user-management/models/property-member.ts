@@ -1,6 +1,7 @@
 import { PropertyRole } from '../../property-selection/models/assigned-property';
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
+export type UserRegistrationStatus = 'PENDING' | 'LINKED';
 
 export type MembershipStatus =
   | 'ACTIVE'
@@ -47,6 +48,7 @@ export interface PropertyMember {
   email: string;
   role: PropertyRole;
   userStatus: UserStatus;
+  registrationStatus: UserRegistrationStatus;
   membershipStatus: MembershipStatus;
   version: number;
   units: PropertyMemberUnit[];
@@ -75,5 +77,42 @@ export interface PropertyMemberUpdate {
   role: PropertyRole;
   membershipStatus: MembershipStatus;
   version: number;
+  units: PropertyMemberUnitUpdate[];
+}
+
+export type PropertyMemberCandidateState =
+  | 'NEW_USER'
+  | 'AVAILABLE_EXISTING_USER'
+  | 'EXISTING_MEMBERSHIP'
+  | 'DELETED_MEMBERSHIP'
+  | 'DELETED_USER';
+
+export interface PropertyMemberCandidate {
+  state: PropertyMemberCandidateState;
+  userId: string | null;
+  membershipId: string | null;
+  firstNames: string | null;
+  lastNames: string | null;
+  email: string;
+  registrationStatus: UserRegistrationStatus | null;
+  availableUnits: AvailableResidentialUnit[];
+}
+
+export type PropertyMemberRegistrationMode =
+  | 'CREATE_PENDING_USER'
+  | 'LINK_EXISTING_USER'
+  | 'REACTIVATE_MEMBERSHIP';
+
+export interface PropertyMemberRegistration {
+  mode: PropertyMemberRegistrationMode;
+  userId: string | null;
+  membershipId: string | null;
+  firstNames: string | null;
+  lastNames: string | null;
+  email: string;
+  documentType: string | null;
+  documentNumber: string | null;
+  role: PropertyRole;
+  membershipStatus: MembershipStatus;
   units: PropertyMemberUnitUpdate[];
 }

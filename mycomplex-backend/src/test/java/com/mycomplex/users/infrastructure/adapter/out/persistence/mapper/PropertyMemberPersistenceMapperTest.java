@@ -17,6 +17,7 @@ import com.mycomplex.users.domain.model.PropertyRole;
 import com.mycomplex.users.domain.model.ResidentialRelationshipStatus;
 import com.mycomplex.users.domain.model.ResidentialRelationshipType;
 import com.mycomplex.users.domain.model.UserStatus;
+import com.mycomplex.users.domain.model.UserRegistrationStatus;
 import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberDbo;
 import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberUnitDbo;
 
@@ -78,6 +79,23 @@ class PropertyMemberPersistenceMapperTest {
         );
 
         assertEquals(expectedStatus, result.membershipStatus());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "PENDIENTE, PENDING",
+        "VINCULADO, LINKED"
+    })
+    void mapsDatabaseRegistrationStatusesToDomain(
+            String databaseStatus,
+            UserRegistrationStatus expectedStatus
+    ) {
+        PropertyMember result = mapper.toDomain(new PropertyMemberDbo(
+                UUID.randomUUID(), UUID.randomUUID(), "Ana", "Gómez",
+                "ana@example.com", "RESIDENTE", "ACTIVO",
+                databaseStatus, "ACTIVA", 0, java.util.List.of()
+        ));
+        assertEquals(expectedStatus, result.registrationStatus());
     }
 
     @ParameterizedTest
@@ -154,6 +172,7 @@ class PropertyMemberPersistenceMapperTest {
                 "admin@mycomplex.com",
                 role,
                 userStatus,
+                "VINCULADO",
                 membershipStatus,
                 0,
                 java.util.List.of()

@@ -17,6 +17,7 @@ import com.mycomplex.properties.domain.model.ResidentialUnitType;
 import com.mycomplex.users.domain.model.ResidentialRelationshipStatus;
 import com.mycomplex.users.domain.model.ResidentialRelationshipType;
 import com.mycomplex.users.domain.model.UserStatus;
+import com.mycomplex.users.domain.model.UserRegistrationStatus;
 import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberDbo;
 import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberUnitDbo;
 
@@ -40,6 +41,11 @@ public interface PropertyMemberPersistenceMapper {
             target = "membershipStatus",
             source = "membershipStatus",
             qualifiedByName = "mapMembershipStatus"
+    )
+    @Mapping(
+            target = "registrationStatus",
+            source = "registrationStatus",
+            qualifiedByName = "mapRegistrationStatus"
     )
     PropertyMember toDomain(PropertyMemberDbo dbo);
 
@@ -90,6 +96,20 @@ public interface PropertyMemberPersistenceMapper {
             case "BLOQUEADO" -> UserStatus.BLOCKED;
             default -> throw new IllegalArgumentException(
                     "Unsupported database user status: "
+                            + databaseStatus
+            );
+        };
+    }
+
+    @Named("mapRegistrationStatus")
+    default UserRegistrationStatus mapRegistrationStatus(
+            String databaseStatus
+    ) {
+        return switch (databaseStatus) {
+            case "PENDIENTE" -> UserRegistrationStatus.PENDING;
+            case "VINCULADO" -> UserRegistrationStatus.LINKED;
+            default -> throw new IllegalArgumentException(
+                    "Unsupported database registration status: "
                             + databaseStatus
             );
         };

@@ -11,6 +11,7 @@ public record PropertyMemberDbo(
         String email,
         String role,
         String userStatus,
+        String registrationStatus,
         String membershipStatus,
         long version,
         List<PropertyMemberUnitDbo> units

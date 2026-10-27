@@ -20,6 +20,7 @@ describe('UserManagementEditor', () => {
     email: 'ana.gomez@loscerezos.test',
     role: 'OWNER',
     userStatus: 'ACTIVE',
+    registrationStatus: 'LINKED',
     membershipStatus: 'ACTIVE',
     version: 0,
     units: [

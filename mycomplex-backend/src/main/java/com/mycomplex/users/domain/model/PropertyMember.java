@@ -11,6 +11,7 @@ public record PropertyMember(
         String email,
         PropertyRole role,
         UserStatus userStatus,
+        UserRegistrationStatus registrationStatus,
         MembershipStatus membershipStatus,
         long version,
         List<PropertyMemberUnit> units

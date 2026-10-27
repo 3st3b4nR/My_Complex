@@ -11,6 +11,7 @@ public record PropertyMemberDetailsResponse(
         String email,
         String role,
         String userStatus,
+        String registrationStatus,
         String membershipStatus,
         long version,
         List<PropertyMemberUnitResponse> units,

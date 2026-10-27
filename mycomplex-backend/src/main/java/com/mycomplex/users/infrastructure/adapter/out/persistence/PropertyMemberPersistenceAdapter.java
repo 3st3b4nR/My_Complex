@@ -107,6 +107,7 @@ public class PropertyMemberPersistenceAdapter
                 member.getEmail(),
                 member.getRole(),
                 member.getUserStatus(),
+                member.getRegistrationStatus(),
                 member.getMembershipStatus(),
                 member.getMembershipVersion(),
                 units

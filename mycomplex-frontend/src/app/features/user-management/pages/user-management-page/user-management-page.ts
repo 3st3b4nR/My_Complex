@@ -4,10 +4,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   signal
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   catchError,
@@ -26,6 +28,7 @@ import {
 } from '../../../property-selection/models/assigned-property';
 import { PropertyMemberApiService } from '../../data-access/property-member-api.service';
 import { UserManagementEditor } from '../../components/user-management-editor/user-management-editor';
+import { UserRegistration } from '../../components/user-registration/user-registration';
 import {
   MembershipStatus,
   PropertyMember,
@@ -35,7 +38,8 @@ import {
 } from '../../models/property-member';
 import {
   USER_STATUS_LABELS,
-  userStatusLabel
+  userStatusLabel,
+  userRegistrationStatusLabel
 } from '../../models/property-member-labels';
 
 type UserManagementState =
@@ -84,7 +88,7 @@ const RELATIONSHIP_LABELS: Record<
 
 @Component({
   selector: 'app-user-management-page',
-  imports: [NgOptimizedImage, RouterLink, UserManagementEditor],
+  imports: [NgOptimizedImage, RouterLink, UserManagementEditor, UserRegistration],
   templateUrl: './user-management-page.html',
   styleUrl: './user-management-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -94,9 +98,14 @@ export class UserManagementPage {
   private readonly route = inject(ActivatedRoute);
   private readonly propertyApi = inject(PropertyApiService);
   private readonly memberApi = inject(PropertyMemberApiService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly refreshMembers = new Subject<void>();
 
   protected readonly selectedMembershipId = signal<string | null>(null);
+  protected readonly registrationOpen = signal(false);
+  protected readonly unlinkingMembershipId = signal<string | null>(null);
+  protected readonly notice = signal('');
+  protected readonly actionError = signal('');
 
   protected readonly roleOptions = Object.entries(ROLE_LABELS).map(
     ([value, label]) => ({
@@ -326,6 +335,40 @@ export class UserManagementPage {
     this.refreshMembers.next();
   }
 
+  protected handleRegistrationSaved(message: string): void {
+    this.registrationOpen.set(false);
+    this.notice.set(message);
+    this.refreshMembers.next();
+  }
+
+  protected registrationStatusLabel = userRegistrationStatusLabel;
+
+  protected unlinkMember(member: PropertyMember): void {
+    const property = this.state().property;
+    if (!property || !window.confirm(
+      `${member.firstNames} ${member.lastNames} perderá su vinculación con ${property.name}. `
+      + 'Sus asignaciones residenciales vigentes serán finalizadas y su cuenta global no será eliminada. ¿Deseas continuar?'
+    )) return;
+    this.unlinkingMembershipId.set(member.membershipId);
+    this.actionError.set('');
+    this.memberApi.unlinkPropertyMember(
+      property.propertyId,
+      member.membershipId,
+      member.version
+    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => {
+        this.unlinkingMembershipId.set(null);
+        this.selectedMembershipId.set(null);
+        this.notice.set('Usuario desvinculado correctamente.');
+        this.refreshMembers.next();
+      },
+      error: error => {
+        this.unlinkingMembershipId.set(null);
+        this.actionError.set(this.unlinkErrorMessage(error));
+      }
+    });
+  }
+
   protected roleLabel(role: PropertyRole): string {
     return ROLE_LABELS[role];
   }
@@ -450,6 +493,16 @@ export class UserManagementPage {
   private isForbidden(error: unknown): boolean {
     return error instanceof HttpErrorResponse
       && error.status === 403;
+  }
+
+  private unlinkErrorMessage(error: unknown): string {
+    if (!(error instanceof HttpErrorResponse)) return 'No pudimos desvincular al usuario.';
+    if (error.status === 403) return 'No tienes permiso para desvincular usuarios.';
+    if (error.status === 404) return 'La vinculación ya no está disponible.';
+    if (error.status === 409) return 'La vinculación fue modificada. Actualiza el listado e inténtalo nuevamente.';
+    if (error.status === 400 && error.error?.code === 'LAST_PROPERTY_ADMINISTRATOR') return 'No puedes desvincular al último administrador activo.';
+    if (error.status === 400) return error.error?.message ?? 'La desvinculación no es válida.';
+    return 'No pudimos desvincular al usuario.';
   }
 }
 

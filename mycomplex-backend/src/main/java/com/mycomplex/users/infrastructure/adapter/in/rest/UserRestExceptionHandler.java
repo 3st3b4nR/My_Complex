@@ -10,6 +10,8 @@ import com.mycomplex.users.application.exception.InvalidPropertyMemberUpdateExce
 import com.mycomplex.users.application.exception.LastPropertyAdministratorException;
 import com.mycomplex.users.application.exception.PropertyMemberConflictException;
 import com.mycomplex.users.application.exception.PropertyMemberNotFoundException;
+import com.mycomplex.users.application.exception.InvalidPropertyMemberRegistrationException;
+import com.mycomplex.users.application.exception.PropertyMemberBusinessConflictException;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.UserErrorResponse;
 
 @RestControllerAdvice(
@@ -69,6 +71,25 @@ public class UserRestExceptionHandler {
                         "INVALID_PROPERTY_MEMBER_UPDATE",
                         exception.getMessage()
                 )
+        );
+    }
+
+    @ExceptionHandler(InvalidPropertyMemberRegistrationException.class)
+    public ResponseEntity<UserErrorResponse> handleInvalidRegistration(
+            InvalidPropertyMemberRegistrationException exception
+    ) {
+        return ResponseEntity.badRequest().body(new UserErrorResponse(
+                "INVALID_PROPERTY_MEMBER_REGISTRATION",
+                exception.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(PropertyMemberBusinessConflictException.class)
+    public ResponseEntity<UserErrorResponse> handleBusinessConflict(
+            PropertyMemberBusinessConflictException exception
+    ) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                new UserErrorResponse(exception.code(), exception.getMessage())
         );
     }
 }

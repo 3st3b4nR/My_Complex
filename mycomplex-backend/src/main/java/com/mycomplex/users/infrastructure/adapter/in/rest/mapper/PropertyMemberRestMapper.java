@@ -12,13 +12,17 @@ import com.mycomplex.users.domain.model.PropertyMemberDetails;
 import com.mycomplex.users.domain.model.PropertyMemberUpdate;
 import com.mycomplex.users.domain.model.ResidentialAssignmentUpdate;
 import com.mycomplex.users.domain.model.PropertyMember;
+import com.mycomplex.users.domain.model.PropertyMemberCandidate;
+import com.mycomplex.users.domain.model.PropertyMemberRegistration;
 import com.mycomplex.users.domain.model.PropertyMemberUnit;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.AvailableResidentialUnitResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberDetailsResponse;
+import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberCandidateResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberUnitResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.UpdatePropertyMemberRequest;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.UpdatePropertyMemberUnitRequest;
+import com.mycomplex.users.infrastructure.adapter.in.rest.dto.RegisterPropertyMemberRequest;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
@@ -27,6 +31,10 @@ import com.mycomplex.users.infrastructure.adapter.in.rest.dto.UpdatePropertyMemb
 public interface PropertyMemberRestMapper {
 
     PropertyMemberResponse toResponse(PropertyMember propertyMember);
+
+    PropertyMemberCandidateResponse toResponse(
+            PropertyMemberCandidate candidate
+    );
 
     @Mapping(target = "unitId", source = "unit.id")
     @Mapping(target = "structureName", source = "unit.structure.name")
@@ -48,6 +56,10 @@ public interface PropertyMemberRestMapper {
     @Mapping(target = "email", source = "member.email")
     @Mapping(target = "role", source = "member.role")
     @Mapping(target = "userStatus", source = "member.userStatus")
+    @Mapping(
+            target = "registrationStatus",
+            source = "member.registrationStatus"
+    )
     @Mapping(
             target = "membershipStatus",
             source = "member.membershipStatus"
@@ -86,6 +98,26 @@ public interface PropertyMemberRestMapper {
                 request.unitId(),
                 request.relationshipType(),
                 request.primary()
+        );
+    }
+
+    default PropertyMemberRegistration toDomain(
+            java.util.UUID propertyId,
+            RegisterPropertyMemberRequest request
+    ) {
+        return new PropertyMemberRegistration(
+                propertyId,
+                request.mode(),
+                request.userId(),
+                request.membershipId(),
+                request.firstNames(),
+                request.lastNames(),
+                request.email(),
+                request.documentType(),
+                request.documentNumber(),
+                request.role(),
+                request.membershipStatus(),
+                request.units().stream().map(this::toDomain).toList()
         );
     }
 }

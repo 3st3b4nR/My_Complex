@@ -16,7 +16,7 @@ public class UserEntity {
     @Id
     private UUID id;
 
-    @Column(name = "auth0_subject", nullable = false, unique = true)
+    @Column(name = "auth0_subject", unique = true)
     private String auth0Subject;
 
     @Column(name = "correo", nullable = false)
@@ -39,6 +39,9 @@ public class UserEntity {
 
     @Column(name = "estado", nullable = false)
     private String status;
+
+    @Column(name = "estado_registro", nullable = false)
+    private String registrationStatus;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;

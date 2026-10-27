@@ -15,6 +15,7 @@ import com.mycomplex.users.domain.model.MembershipStatus;
 import com.mycomplex.users.domain.model.PropertyMember;
 import com.mycomplex.users.domain.model.PropertyRole;
 import com.mycomplex.users.domain.model.UserStatus;
+import com.mycomplex.users.domain.model.UserRegistrationStatus;
 
 class FindPropertyMembersServiceTest {
 
@@ -37,6 +38,7 @@ class FindPropertyMembersServiceTest {
                 "admin@mycomplex.com",
                 PropertyRole.PROPERTY_ADMIN,
                 UserStatus.ACTIVE,
+                UserRegistrationStatus.LINKED,
                 MembershipStatus.ACTIVE,
                 0,
                 List.of()

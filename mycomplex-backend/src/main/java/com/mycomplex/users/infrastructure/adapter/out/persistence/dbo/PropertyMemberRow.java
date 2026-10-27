@@ -18,6 +18,8 @@ public interface PropertyMemberRow {
 
     String getUserStatus();
 
+    String getRegistrationStatus();
+
     String getMembershipStatus();
 
     Long getMembershipVersion();

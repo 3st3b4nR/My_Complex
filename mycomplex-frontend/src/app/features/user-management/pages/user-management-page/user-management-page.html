@@ -96,11 +96,14 @@
             </p>
           </div>
 
-          <span class="member-count">
-            {{ state().members.length }}
-            {{ state().members.length === 1 ? 'usuario' : 'usuarios' }}
-          </span>
+          <div class="heading-actions">
+            <span class="member-count">{{ state().members.length }} {{ state().members.length === 1 ? 'usuario' : 'usuarios' }}</span>
+            <button type="button" class="register-button" (click)="registrationOpen.set(true)">Registrar usuario</button>
+          </div>
         </div>
+
+        @if (notice()) { <p class="page-notice" role="status">{{ notice() }}</p> }
+        @if (actionError()) { <p class="page-error" role="alert">{{ actionError() }}</p> }
 
         @if (state().members.length === 0) {
           <section class="empty-state" role="status">
@@ -241,6 +244,7 @@
                     <th scope="col">Rol</th>
                     <th scope="col">Unidades</th>
                     <th scope="col">Estado del usuario</th>
+                    <th scope="col">Estado de registro</th>
                     <th scope="col">Estado de la vinculación</th>
                     <th scope="col">Acciones</th>
                   </tr>
@@ -283,6 +287,7 @@
                           {{ userStatusLabel(member.userStatus) }}
                         </span>
                       </td>
+                      <td data-label="Estado de registro"><span class="status-badge">{{ registrationStatusLabel(member.registrationStatus) }}</span></td>
                       <td data-label="Estado de la vinculación">
                         <span class="status-badge status-badge--membership">
                           {{
@@ -305,6 +310,9 @@
                           (click)="editMember(member)"
                         >
                           Editar
+                        </button>
+                        <button type="button" class="unlink-button" [disabled]="unlinkingMembershipId() === member.membershipId" (click)="unlinkMember(member)">
+                          {{ unlinkingMembershipId() === member.membershipId ? 'Desvinculando…' : 'Desvincular' }}
                         </button>
                       </td>
                     </tr>
@@ -330,6 +338,12 @@
         (closed)="closeEditor()"
         (saved)="handleMemberSaved()"
       />
+    }
+  }
+
+  @if (registrationOpen()) {
+    @if (state().property; as property) {
+      <app-user-registration [propertyId]="property.propertyId" (closed)="registrationOpen.set(false)" (saved)="handleRegistrationSaved($event)" />
     }
   }
 </main>
