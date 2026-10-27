@@ -13,7 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberDbo;
+import com.mycomplex.users.domain.model.PropertyMember;
+import com.mycomplex.users.domain.model.ResidentialRelationshipType;
+import com.mycomplex.users.infrastructure.adapter.out.persistence.PropertyMemberPersistenceAdapter;
+import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberRow;
 
 @SpringBootTest(properties = {
     "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://auth0.test/",
@@ -22,8 +25,15 @@ import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMe
 @Transactional
 class UserPropertyJpaRepositoryTest {
 
+    private static final UUID LOS_CEREZOS_ID = UUID.fromString(
+            "10000000-0000-0000-0000-000000000001"
+    );
+
     @Autowired
     private UserPropertyJpaRepository repository;
+
+    @Autowired
+    private PropertyMemberPersistenceAdapter adapter;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -132,26 +142,209 @@ class UserPropertyJpaRepositoryTest {
                 false
         );
 
-        List<PropertyMemberDbo> members =
-                repository.findMembersByPropertyId(
+        List<PropertyMemberRow> members =
+                repository.findMemberRowsByPropertyId(
                         requestedPropertyId
                 );
 
         assertEquals(2, members.size());
         assertTrue(members.stream().anyMatch(member ->
-                member.userId().equals(activeMemberId)
-                        && member.userStatus().equals("ACTIVO")
-                        && member.membershipStatus().equals("ACTIVA")
+                member.getUserId().equals(activeMemberId)
+                        && member.getUserStatus().equals("ACTIVO")
+                        && member.getMembershipStatus().equals("ACTIVA")
         ));
         assertTrue(members.stream().anyMatch(member ->
-                member.userId().equals(blockedMemberId)
-                        && member.userStatus().equals("BLOQUEADO")
-                        && member.membershipStatus().equals("SUSPENDIDA")
+                member.getUserId().equals(blockedMemberId)
+                        && member.getUserStatus().equals("BLOQUEADO")
+                        && member.getMembershipStatus().equals("SUSPENDIDA")
         ));
         assertFalse(members.stream().anyMatch(member ->
-                member.userId().equals(deletedMemberId)
-                        || member.userId().equals(otherPropertyMemberId)
+                member.getUserId().equals(deletedMemberId)
+                        || member.getUserId().equals(otherPropertyMemberId)
         ));
+    }
+
+    @Test
+    void groupsMultipleUnitsWithoutDuplicatingMember() {
+        UUID propertyId = insertProperty("Multiple units property");
+        UUID memberId = insertUser(
+                "auth0|" + UUID.randomUUID(),
+                "ACTIVO",
+                false
+        );
+        UUID membershipId = insertMembership(
+                memberId,
+                propertyId,
+                "ADMIN_COPROPIEDAD",
+                "ACTIVA",
+                false
+        );
+        UUID structureId = insertStructure(propertyId, "Tower A");
+        UUID firstUnitId = insertUnit(
+                propertyId,
+                structureId,
+                "101"
+        );
+        UUID secondUnitId = insertUnit(
+                propertyId,
+                structureId,
+                "102"
+        );
+        insertResidentialRelationship(
+                propertyId,
+                membershipId,
+                firstUnitId,
+                "PROPIETARIO",
+                "ACTIVA",
+                true,
+                false
+        );
+        insertResidentialRelationship(
+                propertyId,
+                membershipId,
+                secondUnitId,
+                "RESIDENTE",
+                "ACTIVA",
+                false,
+                false
+        );
+
+        List<PropertyMember> members = adapter.loadByPropertyId(
+                propertyId
+        );
+
+        assertEquals(1, members.size());
+        assertEquals(memberId, members.getFirst().userId());
+        assertEquals(2, members.getFirst().units().size());
+    }
+
+    @Test
+    void keepsMemberWithoutUnitsAndExcludesEndedOrDeletedLinks() {
+        UUID propertyId = insertProperty("Current links property");
+        UUID memberWithoutUnitId = insertUser(
+                "auth0|" + UUID.randomUUID(),
+                "ACTIVO",
+                false
+        );
+        insertMembership(
+                memberWithoutUnitId,
+                propertyId,
+                "TRABAJADOR",
+                "ACTIVA",
+                false
+        );
+
+        UUID residentId = insertUser(
+                "auth0|" + UUID.randomUUID(),
+                "ACTIVO",
+                false
+        );
+        UUID membershipId = insertMembership(
+                residentId,
+                propertyId,
+                "RESIDENTE",
+                "ACTIVA",
+                false
+        );
+        UUID structureId = insertStructure(propertyId, "Tower B");
+        UUID activeUnitId = insertUnit(propertyId, structureId, "201");
+        UUID endedUnitId = insertUnit(propertyId, structureId, "202");
+        UUID deletedUnitId = insertUnit(propertyId, structureId, "203");
+
+        insertResidentialRelationship(
+                propertyId,
+                membershipId,
+                activeUnitId,
+                "RESIDENTE",
+                "ACTIVA",
+                true,
+                false
+        );
+        insertResidentialRelationship(
+                propertyId,
+                membershipId,
+                endedUnitId,
+                "RESIDENTE",
+                "FINALIZADA",
+                false,
+                false
+        );
+        insertResidentialRelationship(
+                propertyId,
+                membershipId,
+                deletedUnitId,
+                "RESIDENTE",
+                "ACTIVA",
+                false,
+                true
+        );
+
+        List<PropertyMember> members = adapter.loadByPropertyId(
+                propertyId
+        );
+
+        PropertyMember memberWithoutUnit = members.stream()
+                .filter(member -> member.userId()
+                        .equals(memberWithoutUnitId))
+                .findFirst()
+                .orElseThrow();
+        PropertyMember resident = members.stream()
+                .filter(member -> member.userId().equals(residentId))
+                .findFirst()
+                .orElseThrow();
+
+        assertTrue(memberWithoutUnit.units().isEmpty());
+        assertEquals(1, resident.units().size());
+        assertEquals(activeUnitId, resident.units().getFirst().unit().id());
+    }
+
+    @Test
+    void returnsSeededMembersWithSharedAndMultipleUnits() {
+        List<PropertyMember> members = adapter.loadByPropertyId(
+                LOS_CEREZOS_ID
+        );
+
+        PropertyMember john = memberById(
+                members,
+                "20000000-0000-0000-0000-000000000001"
+        );
+        PropertyMember ana = memberById(
+                members,
+                "60000000-0000-0000-0000-000000000001"
+        );
+        PropertyMember luis = memberById(
+                members,
+                "60000000-0000-0000-0000-000000000002"
+        );
+        PropertyMember carolina = memberById(
+                members,
+                "60000000-0000-0000-0000-000000000003"
+        );
+
+        assertEquals(5, members.size());
+        assertTrue(john.units().isEmpty());
+        assertEquals(2, carolina.units().size());
+        assertEquals(ana.units().getFirst().unit().id(),
+                luis.units().getFirst().unit().id());
+        assertEquals(
+                ResidentialRelationshipType.OWNER,
+                ana.units().getFirst().relationshipType()
+        );
+        assertEquals(
+                ResidentialRelationshipType.RESIDENT,
+                luis.units().getFirst().relationshipType()
+        );
+    }
+
+    private PropertyMember memberById(
+            List<PropertyMember> members,
+            String userId
+    ) {
+        UUID expectedId = UUID.fromString(userId);
+        return members.stream()
+                .filter(member -> member.userId().equals(expectedId))
+                .findFirst()
+                .orElseThrow();
     }
 
     private UUID insertProperty(String name) {
@@ -199,13 +392,14 @@ class UserPropertyJpaRepositoryTest {
         return userId;
     }
 
-    private void insertMembership(
+    private UUID insertMembership(
             UUID userId,
             UUID propertyId,
             String role,
             String status,
             boolean deleted
     ) {
+        UUID membershipId = UUID.randomUUID();
         jdbcTemplate.update(
                 """
                 INSERT INTO usuarios_copropiedades (
@@ -215,10 +409,77 @@ class UserPropertyJpaRepositoryTest {
                     CASE WHEN ? THEN CURRENT_TIMESTAMP ELSE NULL END
                 )
                 """,
-                UUID.randomUUID(),
+                membershipId,
                 userId,
                 propertyId,
                 role,
+                status,
+                deleted
+        );
+        return membershipId;
+    }
+
+    private UUID insertStructure(UUID propertyId, String name) {
+        UUID structureId = UUID.randomUUID();
+        jdbcTemplate.update(
+                """
+                INSERT INTO estructuras_copropiedad (
+                    id, copropiedad_id, nombre, tipo, estado
+                ) VALUES (?, ?, ?, 'TORRE', 'ACTIVA')
+                """,
+                structureId,
+                propertyId,
+                name
+        );
+        return structureId;
+    }
+
+    private UUID insertUnit(
+            UUID propertyId,
+            UUID structureId,
+            String number
+    ) {
+        UUID unitId = UUID.randomUUID();
+        jdbcTemplate.update(
+                """
+                INSERT INTO unidades_residenciales (
+                    id, copropiedad_id, estructura_id,
+                    numero, tipo, estado
+                ) VALUES (?, ?, ?, ?, 'APARTAMENTO', 'ACTIVA')
+                """,
+                unitId,
+                propertyId,
+                structureId,
+                number
+        );
+        return unitId;
+    }
+
+    private void insertResidentialRelationship(
+            UUID propertyId,
+            UUID membershipId,
+            UUID unitId,
+            String relationshipType,
+            String status,
+            boolean primary,
+            boolean deleted
+    ) {
+        jdbcTemplate.update(
+                """
+                INSERT INTO usuarios_copropiedades_unidades (
+                    id, copropiedad_id, usuario_copropiedad_id,
+                    unidad_residencial_id, tipo_vinculacion,
+                    es_principal, estado, fecha_inicio, deleted_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_DATE,
+                    CASE WHEN ? THEN CURRENT_TIMESTAMP ELSE NULL END
+                )
+                """,
+                UUID.randomUUID(),
+                propertyId,
+                membershipId,
+                unitId,
+                relationshipType,
+                primary,
                 status,
                 deleted
         );

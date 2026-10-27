@@ -15,9 +15,16 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.mycomplex.users.application.exception.PropertyMembersAccessDeniedException;
 import com.mycomplex.users.application.port.in.FindPropertyMembersUseCase;
+import com.mycomplex.properties.domain.model.PropertyStructureReference;
+import com.mycomplex.properties.domain.model.PropertyStructureType;
+import com.mycomplex.properties.domain.model.ResidentialUnitReference;
+import com.mycomplex.properties.domain.model.ResidentialUnitType;
 import com.mycomplex.users.domain.model.MembershipStatus;
 import com.mycomplex.users.domain.model.PropertyMember;
+import com.mycomplex.users.domain.model.PropertyMemberUnit;
 import com.mycomplex.users.domain.model.PropertyRole;
+import com.mycomplex.users.domain.model.ResidentialRelationshipStatus;
+import com.mycomplex.users.domain.model.ResidentialRelationshipType;
 import com.mycomplex.users.domain.model.UserStatus;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.mapper.PropertyMemberRestMapper;
@@ -46,7 +53,23 @@ class PropertyMemberControllerTest {
                             "admin@mycomplex.com",
                             PropertyRole.PROPERTY_ADMIN,
                             UserStatus.ACTIVE,
-                            MembershipStatus.ACTIVE
+                            MembershipStatus.ACTIVE,
+                            List.of(new PropertyMemberUnit(
+                                    new ResidentialUnitReference(
+                                            UUID.fromString(
+                                                    "50000000-0000-0000-0000-000000000101"
+                                            ),
+                                            new PropertyStructureReference(
+                                                    "Torre 1",
+                                                    PropertyStructureType.TOWER
+                                            ),
+                                            "101",
+                                            ResidentialUnitType.APARTMENT
+                                    ),
+                                    ResidentialRelationshipType.OWNER,
+                                    true,
+                                    ResidentialRelationshipStatus.ACTIVE
+                            ))
                     ));
                 };
 
@@ -65,6 +88,11 @@ class PropertyMemberControllerTest {
 
         assertEquals(auth0Subject, receivedSubject.get());
         assertEquals(1, response.size());
+        assertEquals(1, response.getFirst().units().size());
+        assertEquals(
+                "OWNER",
+                response.getFirst().units().getFirst().relationshipType()
+        );
         assertFalse(Arrays.stream(
                         PropertyMemberResponse.class
                                 .getRecordComponents()

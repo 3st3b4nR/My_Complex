@@ -27,6 +27,8 @@ import { PropertyMemberApiService } from '../../data-access/property-member-api.
 import {
   MembershipStatus,
   PropertyMember,
+  PropertyMemberUnit,
+  ResidentialRelationshipType,
   UserStatus
 } from '../../models/property-member';
 
@@ -72,6 +74,14 @@ const MEMBERSHIP_STATUS_LABELS: Record<MembershipStatus, string> = {
   SUSPENDED: 'Suspendida'
 };
 
+const RELATIONSHIP_LABELS: Record<
+  ResidentialRelationshipType,
+  string
+> = {
+  OWNER: 'Propietario',
+  RESIDENT: 'Residente'
+};
+
 @Component({
   selector: 'app-user-management-page',
   imports: [NgOptimizedImage, RouterLink],
@@ -104,6 +114,43 @@ export class UserManagementPage {
     label
   }));
 
+  protected readonly structureOptions = computed(() => {
+    const currentState = this.state();
+
+    if (currentState.status !== 'success') {
+      return [];
+    }
+
+    return Array.from(new Set(
+      currentState.members.flatMap(member =>
+        member.units
+          .map(unit => unit.structureName)
+          .filter((name): name is string => name !== null)
+      )
+    )).sort((first, second) =>
+      first.localeCompare(second, 'es')
+    );
+  });
+
+  protected readonly relationshipOptions = computed(() => {
+    const currentState = this.state();
+
+    if (currentState.status !== 'success') {
+      return [];
+    }
+
+    const types = new Set(
+      currentState.members.flatMap(member =>
+        member.units.map(unit => unit.relationshipType)
+      )
+    );
+
+    return Array.from(types).map(value => ({
+      value,
+      label: RELATIONSHIP_LABELS[value]
+    }));
+  });
+
   protected readonly searchTerm = signal('');
   protected readonly roleFilter = signal<PropertyRole | 'ALL'>('ALL');
   protected readonly userStatusFilter = signal<UserStatus | 'ALL'>(
@@ -111,6 +158,10 @@ export class UserManagementPage {
   );
   protected readonly membershipStatusFilter = signal<
     MembershipStatus | 'ALL'
+  >('ALL');
+  protected readonly structureFilter = signal<string | 'ALL'>('ALL');
+  protected readonly relationshipFilter = signal<
+    ResidentialRelationshipType | 'ALL'
   >('ALL');
 
   protected readonly state = toSignal(this.loadState(), {
@@ -132,10 +183,18 @@ export class UserManagementPage {
     const role = this.roleFilter();
     const userStatus = this.userStatusFilter();
     const membershipStatus = this.membershipStatusFilter();
+    const structure = this.structureFilter();
+    const relationship = this.relationshipFilter();
 
     return currentState.members.filter(member => {
+      const residentialText = member.units
+        .map(unit =>
+          `${unit.structureName ?? ''} ${unit.unitNumber}`
+        )
+        .join(' ');
       const searchableText = this.normalize(
-        `${member.firstNames} ${member.lastNames} ${member.email}`
+        `${member.firstNames} ${member.lastNames} `
+        + `${member.email} ${residentialText}`
       );
 
       return (!search || searchableText.includes(search))
@@ -147,6 +206,18 @@ export class UserManagementPage {
         && (
           membershipStatus === 'ALL'
           || member.membershipStatus === membershipStatus
+        )
+        && (
+          structure === 'ALL'
+          || member.units.some(
+            unit => unit.structureName === structure
+          )
+        )
+        && (
+          relationship === 'ALL'
+          || member.units.some(
+            unit => unit.relationshipType === relationship
+          )
         );
     });
   });
@@ -156,6 +227,8 @@ export class UserManagementPage {
     || this.roleFilter() !== 'ALL'
     || this.userStatusFilter() !== 'ALL'
     || this.membershipStatusFilter() !== 'ALL'
+    || this.structureFilter() !== 'ALL'
+    || this.relationshipFilter() !== 'ALL'
   );
 
   protected updateSearch(event: Event): void {
@@ -203,11 +276,39 @@ export class UserManagementPage {
     }
   }
 
+  protected updateStructureFilter(event: Event): void {
+    const value = this.selectValue(event);
+
+    if (
+      value === 'ALL'
+      || this.structureOptions().includes(value)
+    ) {
+      this.structureFilter.set(value);
+    }
+  }
+
+  protected updateRelationshipFilter(event: Event): void {
+    const value = this.selectValue(event);
+
+    if (
+      value === 'ALL'
+      || this.relationshipOptions().some(
+        option => option.value === value
+      )
+    ) {
+      this.relationshipFilter.set(
+        value as ResidentialRelationshipType | 'ALL'
+      );
+    }
+  }
+
   protected clearFilters(): void {
     this.searchTerm.set('');
     this.roleFilter.set('ALL');
     this.userStatusFilter.set('ALL');
     this.membershipStatusFilter.set('ALL');
+    this.structureFilter.set('ALL');
+    this.relationshipFilter.set('ALL');
   }
 
   protected roleLabel(role: PropertyRole): string {
@@ -222,6 +323,21 @@ export class UserManagementPage {
     status: MembershipStatus
   ): string {
     return MEMBERSHIP_STATUS_LABELS[status];
+  }
+
+  protected unitLabel(unit: PropertyMemberUnit): string {
+    const structure = unit.structureName
+      ? `${unit.structureName} · `
+      : '';
+
+    return `${structure}${this.unitTypeLabel(unit)} `
+      + `· ${RELATIONSHIP_LABELS[unit.relationshipType]}`;
+  }
+
+  protected noUnitsLabel(role: PropertyRole): string {
+    return role === 'OWNER' || role === 'RESIDENT'
+      ? 'Sin unidad asignada'
+      : 'No aplica';
   }
 
   private loadState(): Observable<UserManagementState> {
@@ -308,8 +424,27 @@ export class UserManagementPage {
       .toLocaleLowerCase('es');
   }
 
+  private unitTypeLabel(unit: PropertyMemberUnit): string {
+    return switchUnitType(unit);
+  }
+
   private isForbidden(error: unknown): boolean {
     return error instanceof HttpErrorResponse
       && error.status === 403;
+  }
+}
+
+function switchUnitType(unit: PropertyMemberUnit): string {
+  switch (unit.unitType) {
+    case 'APARTMENT':
+      return `Apto. ${unit.unitNumber}`;
+    case 'HOUSE':
+      return `Casa ${unit.unitNumber}`;
+    case 'COMMERCIAL_SPACE':
+      return `Local ${unit.unitNumber}`;
+    case 'OFFICE':
+      return `Oficina ${unit.unitNumber}`;
+    case 'OTHER':
+      return `Unidad ${unit.unitNumber}`;
   }
 }

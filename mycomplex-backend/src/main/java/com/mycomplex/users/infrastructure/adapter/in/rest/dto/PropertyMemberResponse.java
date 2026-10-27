@@ -1,5 +1,6 @@
 package com.mycomplex.users.infrastructure.adapter.in.rest.dto;
 
+import java.util.List;
 import java.util.UUID;
 
 public record PropertyMemberResponse(
@@ -9,6 +10,7 @@ public record PropertyMemberResponse(
         String email,
         String role,
         String userStatus,
-        String membershipStatus
+        String membershipStatus,
+        List<PropertyMemberUnitResponse> units
 ) {
 }

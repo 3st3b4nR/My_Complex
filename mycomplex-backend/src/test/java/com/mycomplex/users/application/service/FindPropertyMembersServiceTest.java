@@ -33,7 +33,8 @@ class FindPropertyMembersServiceTest {
                 "admin@mycomplex.com",
                 PropertyRole.PROPERTY_ADMIN,
                 UserStatus.ACTIVE,
-                MembershipStatus.ACTIVE
+                MembershipStatus.ACTIVE,
+                List.of()
         );
 
         LoadPropertyMembersPort port = new StubPort(

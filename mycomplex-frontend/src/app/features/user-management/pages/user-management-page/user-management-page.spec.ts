@@ -29,7 +29,8 @@ describe('UserManagementPage', () => {
       email: 'admin@mycomplex.com',
       role: 'PROPERTY_ADMIN',
       userStatus: 'ACTIVE',
-      membershipStatus: 'ACTIVE'
+      membershipStatus: 'ACTIVE',
+      units: []
     },
     {
       userId: '20000000-0000-0000-0000-000000000002',
@@ -38,7 +39,60 @@ describe('UserManagementPage', () => {
       email: 'laura@example.com',
       role: 'RESIDENT',
       userStatus: 'BLOCKED',
-      membershipStatus: 'SUSPENDED'
+      membershipStatus: 'SUSPENDED',
+      units: [
+        {
+          unitId: '50000000-0000-0000-0000-000000000101',
+          structureName: 'Torre 1',
+          structureType: 'TOWER',
+          unitNumber: '101',
+          unitType: 'APARTMENT',
+          relationshipType: 'RESIDENT',
+          primary: true,
+          status: 'ACTIVE'
+        }
+      ]
+    },
+    {
+      userId: '20000000-0000-0000-0000-000000000003',
+      firstNames: 'Carolina',
+      lastNames: 'Restrepo',
+      email: 'carolina@loscerezos.test',
+      role: 'OWNER',
+      userStatus: 'ACTIVE',
+      membershipStatus: 'ACTIVE',
+      units: [
+        {
+          unitId: '50000000-0000-0000-0000-000000000201',
+          structureName: 'Torre 2',
+          structureType: 'TOWER',
+          unitNumber: '201',
+          unitType: 'APARTMENT',
+          relationshipType: 'OWNER',
+          primary: true,
+          status: 'ACTIVE'
+        },
+        {
+          unitId: '50000000-0000-0000-0000-000000000202',
+          structureName: 'Torre 2',
+          structureType: 'TOWER',
+          unitNumber: '202',
+          unitType: 'APARTMENT',
+          relationshipType: 'OWNER',
+          primary: false,
+          status: 'ACTIVE'
+        }
+      ]
+    },
+    {
+      userId: '20000000-0000-0000-0000-000000000004',
+      firstNames: 'Ana',
+      lastNames: 'Sin Unidad',
+      email: 'ana@loscerezos.test',
+      role: 'OWNER',
+      userStatus: 'ACTIVE',
+      membershipStatus: 'ACTIVE',
+      units: []
     }
   ];
 
@@ -101,6 +155,13 @@ describe('UserManagementPage', () => {
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain('John Esteban Roldan Marin');
     expect(text).toContain('laura@example.com');
+    expect(text).toContain('Torre 1 · Apto. 101 · Residente');
+    expect(text).toContain('No aplica');
+    expect(text).toContain('Sin unidad asignada');
+    expect(text).toContain('Torre 2 · Apto. 201 · Propietario');
+    expect(text).toContain('Torre 2 · Apto. 202 · Propietario');
+    expect(fixture.nativeElement.querySelectorAll('tbody tr').length)
+      .toBe(4);
   });
 
   it('renders the empty state', async () => {
@@ -179,6 +240,46 @@ describe('UserManagementPage', () => {
     clearButton?.click();
     fixture.detectChanges();
 
-    expect(element.querySelectorAll('tbody tr').length).toBe(2);
+    expect(element.querySelectorAll('tbody tr').length).toBe(4);
+  });
+
+  it('filters by structure and residential relationship type', async () => {
+    const fixture = await createComponent(
+      [administratorProperty],
+      of(members)
+    );
+
+    const element = fixture.nativeElement as HTMLElement;
+    const selects = element.querySelectorAll('select');
+
+    selects[3].value = 'Torre 2';
+    selects[3].dispatchEvent(new Event('change'));
+    selects[4].value = 'OWNER';
+    selects[4].dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+
+    const rows = element.querySelectorAll('tbody tr');
+    expect(rows.length).toBe(1);
+    expect(rows[0].textContent).toContain('Carolina Restrepo');
+  });
+
+  it('searches by unit number without duplicating member rows', async () => {
+    const fixture = await createComponent(
+      [administratorProperty],
+      of(members)
+    );
+
+    const element = fixture.nativeElement as HTMLElement;
+    const search = element.querySelector(
+      'input[type="search"]'
+    ) as HTMLInputElement;
+
+    search.value = '202';
+    search.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const rows = element.querySelectorAll('tbody tr');
+    expect(rows.length).toBe(1);
+    expect(rows[0].textContent).toContain('Carolina Restrepo');
   });
 });

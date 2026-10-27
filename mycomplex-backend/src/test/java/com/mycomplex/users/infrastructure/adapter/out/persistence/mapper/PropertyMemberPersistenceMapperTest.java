@@ -8,11 +8,17 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mapstruct.factory.Mappers;
 
+import com.mycomplex.properties.domain.model.PropertyStructureType;
+import com.mycomplex.properties.domain.model.ResidentialUnitType;
 import com.mycomplex.users.domain.model.MembershipStatus;
 import com.mycomplex.users.domain.model.PropertyMember;
+import com.mycomplex.users.domain.model.PropertyMemberUnit;
 import com.mycomplex.users.domain.model.PropertyRole;
+import com.mycomplex.users.domain.model.ResidentialRelationshipStatus;
+import com.mycomplex.users.domain.model.ResidentialRelationshipType;
 import com.mycomplex.users.domain.model.UserStatus;
 import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberDbo;
+import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberUnitDbo;
 
 class PropertyMemberPersistenceMapperTest {
 
@@ -74,6 +80,63 @@ class PropertyMemberPersistenceMapperTest {
         assertEquals(expectedStatus, result.membershipStatus());
     }
 
+    @ParameterizedTest
+    @CsvSource({
+        "TORRE, TOWER",
+        "BLOQUE, BLOCK",
+        "SECTOR, SECTOR",
+        "OTRO, OTHER"
+    })
+    void mapsDatabaseStructureTypesToDomain(
+            String databaseType,
+            PropertyStructureType expectedType
+    ) {
+        PropertyMemberUnit result = mapper.toDomain(
+                unitDbo(databaseType, "APARTAMENTO", "PROPIETARIO")
+        );
+
+        assertEquals(expectedType, result.unit().structure().type());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "APARTAMENTO, APARTMENT",
+        "CASA, HOUSE",
+        "LOCAL, COMMERCIAL_SPACE",
+        "OFICINA, OFFICE",
+        "OTRO, OTHER"
+    })
+    void mapsDatabaseUnitTypesToDomain(
+            String databaseType,
+            ResidentialUnitType expectedType
+    ) {
+        PropertyMemberUnit result = mapper.toDomain(
+                unitDbo("TORRE", databaseType, "PROPIETARIO")
+        );
+
+        assertEquals(expectedType, result.unit().type());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "PROPIETARIO, OWNER",
+        "RESIDENTE, RESIDENT"
+    })
+    void mapsDatabaseRelationshipTypesToDomain(
+            String databaseType,
+            ResidentialRelationshipType expectedType
+    ) {
+        PropertyMemberUnit result = mapper.toDomain(
+                unitDbo("TORRE", "APARTAMENTO", databaseType)
+        );
+
+        assertEquals(expectedType, result.relationshipType());
+        assertEquals(
+                ResidentialRelationshipStatus.ACTIVE,
+                result.status()
+        );
+    }
+
     private PropertyMemberDbo dbo(
             String role,
             String userStatus,
@@ -88,7 +151,27 @@ class PropertyMemberPersistenceMapperTest {
                 "admin@mycomplex.com",
                 role,
                 userStatus,
-                membershipStatus
+                membershipStatus,
+                java.util.List.of()
+        );
+    }
+
+    private PropertyMemberUnitDbo unitDbo(
+            String structureType,
+            String unitType,
+            String relationshipType
+    ) {
+        return new PropertyMemberUnitDbo(
+                UUID.fromString(
+                        "50000000-0000-0000-0000-000000000101"
+                ),
+                "Torre 1",
+                structureType,
+                "101",
+                unitType,
+                relationshipType,
+                true,
+                "ACTIVA"
         );
     }
 }

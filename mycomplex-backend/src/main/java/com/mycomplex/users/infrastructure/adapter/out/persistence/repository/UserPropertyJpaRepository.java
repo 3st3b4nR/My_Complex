@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.AssignedPropertyDbo;
-import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberDbo;
+import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberRow;
 import com.mycomplex.users.infrastructure.adapter.out.persistence.entity.UserPropertyEntity;
 
 public interface UserPropertyJpaRepository
@@ -53,27 +53,64 @@ public interface UserPropertyJpaRepository
             @Param("auth0Subject") String auth0Subject
     );
 
-    @Query("""
-            SELECT new com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberDbo(
-                relationship.user.id,
-                relationship.user.firstNames,
-                relationship.user.lastNames,
-                relationship.user.email,
-                relationship.role,
-                relationship.user.status,
-                relationship.status
-            )
-            FROM UserPropertyEntity relationship
-            WHERE relationship.property.id = :propertyId
-              AND relationship.property.status = 'ACTIVA'
-              AND relationship.property.deletedAt IS NULL
-              AND relationship.user.deletedAt IS NULL
-              AND relationship.deletedAt IS NULL
-            ORDER BY relationship.user.lastNames,
-                     relationship.user.firstNames,
-                     relationship.user.email
-            """)
-    List<PropertyMemberDbo> findMembersByPropertyId(
+    @Query(
+            value = """
+                    SELECT
+                        usuario.id AS "userId",
+                        usuario.nombres AS "firstNames",
+                        usuario.apellidos AS "lastNames",
+                        usuario.correo AS "email",
+                        membresia.rol AS "role",
+                        usuario.estado AS "userStatus",
+                        membresia.estado AS "membershipStatus",
+                        unidad.id AS "unitId",
+                        estructura.nombre AS "structureName",
+                        estructura.tipo AS "structureType",
+                        unidad.numero AS "unitNumber",
+                        unidad.tipo AS "unitType",
+                        vinculacion.tipo_vinculacion AS "relationshipType",
+                        vinculacion.es_principal AS "primaryUnit",
+                        vinculacion.estado AS "residentialStatus"
+                    FROM usuarios_copropiedades membresia
+                    JOIN usuarios usuario
+                      ON usuario.id = membresia.usuario_id
+                    JOIN copropiedades copropiedad
+                      ON copropiedad.id = membresia.copropiedad_id
+                    LEFT JOIN usuarios_copropiedades_unidades vinculacion
+                      ON vinculacion.usuario_copropiedad_id = membresia.id
+                     AND vinculacion.copropiedad_id = membresia.copropiedad_id
+                     AND vinculacion.deleted_at IS NULL
+                     AND vinculacion.estado = 'ACTIVA'
+                     AND vinculacion.fecha_inicio <= CURRENT_DATE
+                     AND (
+                         vinculacion.fecha_fin IS NULL
+                         OR vinculacion.fecha_fin >= CURRENT_DATE
+                     )
+                    LEFT JOIN unidades_residenciales unidad
+                      ON unidad.id = vinculacion.unidad_residencial_id
+                     AND unidad.copropiedad_id = membresia.copropiedad_id
+                     AND unidad.estado = 'ACTIVA'
+                     AND unidad.deleted_at IS NULL
+                    LEFT JOIN estructuras_copropiedad estructura
+                      ON estructura.id = unidad.estructura_id
+                     AND estructura.copropiedad_id = unidad.copropiedad_id
+                     AND estructura.estado = 'ACTIVA'
+                     AND estructura.deleted_at IS NULL
+                    WHERE membresia.copropiedad_id = :propertyId
+                      AND copropiedad.estado = 'ACTIVA'
+                      AND copropiedad.deleted_at IS NULL
+                      AND usuario.deleted_at IS NULL
+                      AND membresia.deleted_at IS NULL
+                    ORDER BY usuario.apellidos,
+                             usuario.nombres,
+                             usuario.correo,
+                             vinculacion.es_principal DESC,
+                             estructura.nombre,
+                             unidad.numero
+                    """,
+            nativeQuery = true
+    )
+    List<PropertyMemberRow> findMemberRowsByPropertyId(
             @Param("propertyId") UUID propertyId
     );
 }

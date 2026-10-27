@@ -1,5 +1,6 @@
 package com.mycomplex.users.infrastructure.adapter.out.persistence.dbo;
 
+import java.util.List;
 import java.util.UUID;
 
 public record PropertyMemberDbo(
@@ -9,6 +10,7 @@ public record PropertyMemberDbo(
         String email,
         String role,
         String userStatus,
-        String membershipStatus
+        String membershipStatus,
+        List<PropertyMemberUnitDbo> units
 ) {
 }

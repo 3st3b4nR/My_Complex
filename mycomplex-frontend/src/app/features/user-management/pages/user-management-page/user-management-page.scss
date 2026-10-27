@@ -132,8 +132,12 @@
 
 .filter-grid {
   display: grid;
-  grid-template-columns: minmax(14rem, 1.6fr) repeat(3, minmax(10rem, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.9rem;
+}
+
+.filter-field--search {
+  grid-column: span 2;
 }
 
 .filter-field {
@@ -252,6 +256,31 @@
   color: #2858c4;
 }
 
+.unit-tags {
+  display: flex;
+  min-width: 13rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.unit-tag {
+  display: inline-flex;
+  padding: 0.38rem 0.6rem;
+  border: 1px solid #cad9f1;
+  border-radius: 0.55rem;
+  background: #f1f5fd;
+  color: #294f9d;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.no-units {
+  color: #718298;
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
 .empty-state,
 .state-container {
   display: grid;
@@ -327,6 +356,10 @@
 
   .filter-grid {
     grid-template-columns: 1fr;
+  }
+
+  .filter-field--search {
+    grid-column: auto;
   }
 
   .members-table-wrapper {

@@ -127,7 +127,7 @@
 
             <div class="filter-grid">
               <label class="filter-field filter-field--search">
-                <span>Nombre, apellido o correo</span>
+                <span>Nombre, correo, torre o unidad</span>
                 <input
                   type="search"
                   placeholder="Buscar usuario"
@@ -186,6 +186,37 @@
                   }
                 </select>
               </label>
+
+              <label class="filter-field">
+                <span>Torre o estructura</span>
+                <select
+                  [value]="structureFilter()"
+                  (change)="updateStructureFilter($event)"
+                >
+                  <option value="ALL">Todas las estructuras</option>
+                  @for (structure of structureOptions(); track structure) {
+                    <option [value]="structure">{{ structure }}</option>
+                  }
+                </select>
+              </label>
+
+              <label class="filter-field">
+                <span>Tipo de vinculación residencial</span>
+                <select
+                  [value]="relationshipFilter()"
+                  (change)="updateRelationshipFilter($event)"
+                >
+                  <option value="ALL">Todos los tipos</option>
+                  @for (
+                    option of relationshipOptions();
+                    track option.value
+                  ) {
+                    <option [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  }
+                </select>
+              </label>
             </div>
           </section>
 
@@ -208,6 +239,7 @@
                     <th scope="col">Usuario</th>
                     <th scope="col">Correo</th>
                     <th scope="col">Rol</th>
+                    <th scope="col">Unidades</th>
                     <th scope="col">Estado del usuario</th>
                     <th scope="col">Estado de la vinculación</th>
                   </tr>
@@ -226,6 +258,24 @@
                       <td data-label="Correo">{{ member.email }}</td>
                       <td data-label="Rol">
                         {{ roleLabel(member.role) }}
+                      </td>
+                      <td data-label="Unidades">
+                        @if (member.units.length > 0) {
+                          <div class="unit-tags">
+                            @for (
+                              unit of member.units;
+                              track unit.unitId + unit.relationshipType
+                            ) {
+                              <span class="unit-tag">
+                                {{ unitLabel(unit) }}
+                              </span>
+                            }
+                          </div>
+                        } @else {
+                          <span class="no-units">
+                            {{ noUnitsLabel(member.role) }}
+                          </span>
+                        }
                       </td>
                       <td data-label="Estado del usuario">
                         <span class="status-badge">

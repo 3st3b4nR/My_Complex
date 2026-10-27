@@ -1,5 +1,6 @@
 package com.mycomplex.users.domain.model;
 
+import java.util.List;
 import java.util.UUID;
 
 public record PropertyMember(
@@ -9,6 +10,7 @@ public record PropertyMember(
         String email,
         PropertyRole role,
         UserStatus userStatus,
-        MembershipStatus membershipStatus
+        MembershipStatus membershipStatus,
+        List<PropertyMemberUnit> units
 ) {
 }
