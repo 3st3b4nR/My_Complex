@@ -33,6 +33,10 @@ import {
   ResidentialRelationshipType,
   UserStatus
 } from '../../models/property-member';
+import {
+  USER_STATUS_LABELS,
+  userStatusLabel
+} from '../../models/property-member-labels';
 
 type UserManagementState =
   | {
@@ -62,12 +66,6 @@ const ROLE_LABELS: Record<PropertyRole, string> = {
   RESIDENT: 'Residente',
   SECURITY_GUARD: 'Vigilante',
   WORKER: 'Trabajador'
-};
-
-const USER_STATUS_LABELS: Record<UserStatus, string> = {
-  ACTIVE: 'Activo',
-  INACTIVE: 'Inactivo',
-  BLOCKED: 'Bloqueado'
 };
 
 const MEMBERSHIP_STATUS_LABELS: Record<MembershipStatus, string> = {
@@ -333,7 +331,7 @@ export class UserManagementPage {
   }
 
   protected userStatusLabel(status: UserStatus): string {
-    return USER_STATUS_LABELS[status];
+    return userStatusLabel(status);
   }
 
   protected membershipStatusLabel(

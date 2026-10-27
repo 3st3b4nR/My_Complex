@@ -100,9 +100,28 @@ describe('UserManagementEditor', () => {
     expect(element.textContent).toContain('Ana');
     expect(element.textContent).toContain('Gómez');
     expect(element.textContent).toContain('ana.gomez@loscerezos.test');
-    expect(element.textContent).toContain('ACTIVE');
+    expect(element.textContent).toContain('Activo');
+    expect(element.textContent).not.toContain('ACTIVE');
     expect(element.querySelector('input[type="email"]')).toBeNull();
   });
+
+  it.each([
+    ['ACTIVE', 'Activo'],
+    ['INACTIVE', 'Inactivo'],
+    ['BLOCKED', 'Bloqueado']
+  ] as const)(
+    'translates global user status %s as %s',
+    async (userStatus, label) => {
+      const { fixture } = await createComponent(of({
+        ...details,
+        userStatus
+      }));
+      const text = fixture.nativeElement.textContent as string;
+
+      expect(text).toContain(label);
+      expect(text).not.toContain(userStatus);
+    }
+  );
 
   it('changes role, membership status and relationship before saving', async () => {
     const { fixture, updatePropertyMember } = await createComponent();

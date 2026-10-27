@@ -30,6 +30,7 @@ import {
   PropertyMemberUpdate,
   ResidentialRelationshipType
 } from '../../models/property-member';
+import { userStatusLabel } from '../../models/property-member-labels';
 
 type EditorStatus = 'loading' | 'ready' | 'forbidden' | 'not-found' | 'error';
 type SaveStatus = 'idle' | 'saving' | 'success' | 'conflict' | 'error';
@@ -78,6 +79,7 @@ export class UserManagementEditor implements OnInit {
 
   protected readonly roleOptions = ROLE_OPTIONS;
   protected readonly membershipOptions = MEMBERSHIP_OPTIONS;
+  protected readonly userStatusLabel = userStatusLabel;
   protected readonly status = signal<EditorStatus>('loading');
   protected readonly saveStatus = signal<SaveStatus>('idle');
   protected readonly saveError = signal('');
