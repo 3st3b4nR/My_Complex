@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 public record PropertyMember(
+        UUID membershipId,
         UUID userId,
         String firstNames,
         String lastNames,
@@ -11,6 +12,7 @@ public record PropertyMember(
         PropertyRole role,
         UserStatus userStatus,
         MembershipStatus membershipStatus,
+        long version,
         List<PropertyMemberUnit> units
 ) {
 }

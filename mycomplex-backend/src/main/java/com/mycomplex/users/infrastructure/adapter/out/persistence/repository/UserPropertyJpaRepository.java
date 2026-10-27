@@ -56,6 +56,7 @@ public interface UserPropertyJpaRepository
     @Query(
             value = """
                     SELECT
+                        membresia.id AS "membershipId",
                         usuario.id AS "userId",
                         usuario.nombres AS "firstNames",
                         usuario.apellidos AS "lastNames",
@@ -63,6 +64,8 @@ public interface UserPropertyJpaRepository
                         membresia.rol AS "role",
                         usuario.estado AS "userStatus",
                         membresia.estado AS "membershipStatus",
+                        membresia.version AS "membershipVersion",
+                        vinculacion.id AS "assignmentId",
                         unidad.id AS "unitId",
                         estructura.nombre AS "structureName",
                         estructura.tipo AS "structureType",
@@ -97,6 +100,10 @@ public interface UserPropertyJpaRepository
                      AND estructura.estado = 'ACTIVA'
                      AND estructura.deleted_at IS NULL
                     WHERE membresia.copropiedad_id = :propertyId
+                      AND (
+                          CAST(:membershipId AS UUID) IS NULL
+                          OR membresia.id = CAST(:membershipId AS UUID)
+                      )
                       AND copropiedad.estado = 'ACTIVA'
                       AND copropiedad.deleted_at IS NULL
                       AND usuario.deleted_at IS NULL
@@ -111,6 +118,7 @@ public interface UserPropertyJpaRepository
             nativeQuery = true
     )
     List<PropertyMemberRow> findMemberRowsByPropertyId(
-            @Param("propertyId") UUID propertyId
+            @Param("propertyId") UUID propertyId,
+            @Param("membershipId") UUID membershipId
     );
 }

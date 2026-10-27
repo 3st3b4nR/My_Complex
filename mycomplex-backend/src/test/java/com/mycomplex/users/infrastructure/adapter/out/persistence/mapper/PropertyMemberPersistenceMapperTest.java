@@ -144,6 +144,9 @@ class PropertyMemberPersistenceMapperTest {
     ) {
         return new PropertyMemberDbo(
                 UUID.fromString(
+                        "30000000-0000-0000-0000-000000000001"
+                ),
+                UUID.fromString(
                         "20000000-0000-0000-0000-000000000001"
                 ),
                 "John Esteban",
@@ -152,6 +155,7 @@ class PropertyMemberPersistenceMapperTest {
                 role,
                 userStatus,
                 membershipStatus,
+                0,
                 java.util.List.of()
         );
     }
@@ -162,6 +166,9 @@ class PropertyMemberPersistenceMapperTest {
             String relationshipType
     ) {
         return new PropertyMemberUnitDbo(
+                UUID.fromString(
+                        "80000000-0000-0000-0000-000000000001"
+                ),
                 UUID.fromString(
                         "50000000-0000-0000-0000-000000000101"
                 ),

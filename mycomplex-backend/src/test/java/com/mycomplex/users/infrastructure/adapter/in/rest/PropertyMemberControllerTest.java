@@ -14,7 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.mycomplex.users.application.exception.PropertyMembersAccessDeniedException;
+import com.mycomplex.users.application.exception.LastPropertyAdministratorException;
+import com.mycomplex.users.application.exception.PropertyMemberConflictException;
+import com.mycomplex.users.application.exception.PropertyMemberNotFoundException;
 import com.mycomplex.users.application.port.in.FindPropertyMembersUseCase;
+import com.mycomplex.users.application.port.in.FindPropertyMemberDetailsUseCase;
+import com.mycomplex.users.application.port.in.UpdatePropertyMemberUseCase;
 import com.mycomplex.properties.domain.model.PropertyStructureReference;
 import com.mycomplex.properties.domain.model.PropertyStructureType;
 import com.mycomplex.properties.domain.model.ResidentialUnitReference;
@@ -27,6 +32,7 @@ import com.mycomplex.users.domain.model.ResidentialRelationshipStatus;
 import com.mycomplex.users.domain.model.ResidentialRelationshipType;
 import com.mycomplex.users.domain.model.UserStatus;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberResponse;
+import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberDetailsResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.mapper.PropertyMemberRestMapper;
 
 class PropertyMemberControllerTest {
@@ -46,6 +52,9 @@ class PropertyMemberControllerTest {
                     receivedSubject.set(subject);
                     return List.of(new PropertyMember(
                             UUID.fromString(
+                                    "30000000-0000-0000-0000-000000000001"
+                            ),
+                            UUID.fromString(
                                     "20000000-0000-0000-0000-000000000001"
                             ),
                             "John Esteban",
@@ -54,7 +63,11 @@ class PropertyMemberControllerTest {
                             PropertyRole.PROPERTY_ADMIN,
                             UserStatus.ACTIVE,
                             MembershipStatus.ACTIVE,
+                            0,
                             List.of(new PropertyMemberUnit(
+                                    UUID.fromString(
+                                            "80000000-0000-0000-0000-000000000001"
+                                    ),
                                     new ResidentialUnitReference(
                                             UUID.fromString(
                                                     "50000000-0000-0000-0000-000000000101"
@@ -76,8 +89,17 @@ class PropertyMemberControllerTest {
         PropertyMemberRestMapper mapper = Mappers.getMapper(
                 PropertyMemberRestMapper.class
         );
+        FindPropertyMemberDetailsUseCase detailsUseCase =
+                (currentPropertyId, membershipId, subject) -> null;
+        UpdatePropertyMemberUseCase updateUseCase =
+                (update, subject) -> null;
         PropertyMemberController controller =
-                new PropertyMemberController(useCase, mapper);
+                new PropertyMemberController(
+                        useCase,
+                        detailsUseCase,
+                        updateUseCase,
+                        mapper
+                );
         Jwt jwt = Jwt.withTokenValue("token")
                 .header("alg", "none")
                 .subject(auth0Subject)
@@ -112,5 +134,36 @@ class PropertyMemberControllerTest {
                         new PropertyMembersAccessDeniedException()
                 ).getStatusCode()
         );
+    }
+
+    @Test
+    void mapsManagementErrorsToSafeHttpStatuses() {
+        UserRestExceptionHandler handler =
+                new UserRestExceptionHandler();
+
+        assertEquals(
+                HttpStatus.NOT_FOUND,
+                handler.handleNotFound(
+                        new PropertyMemberNotFoundException()
+                ).getStatusCode()
+        );
+        assertEquals(
+                HttpStatus.CONFLICT,
+                handler.handleConflict(
+                        new PropertyMemberConflictException()
+                ).getStatusCode()
+        );
+        assertEquals(
+                HttpStatus.BAD_REQUEST,
+                handler.handleLastAdministrator(
+                        new LastPropertyAdministratorException()
+                ).getStatusCode()
+        );
+        assertFalse(Arrays.stream(
+                        PropertyMemberDetailsResponse.class
+                                .getRecordComponents()
+                )
+                .anyMatch(component -> component.getName()
+                        .equals("auth0Subject")));
     }
 }

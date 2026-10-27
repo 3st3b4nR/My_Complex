@@ -60,6 +60,7 @@ public interface PropertyMemberPersistenceMapper {
         );
 
         return new PropertyMemberUnit(
+                dbo.assignmentId(),
                 unit,
                 mapRelationshipType(dbo.relationshipType()),
                 dbo.primary(),

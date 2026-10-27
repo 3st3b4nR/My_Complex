@@ -28,6 +28,7 @@ export type ResidentialRelationshipStatus =
   | 'ENDED';
 
 export interface PropertyMemberUnit {
+  assignmentId: string;
   unitId: string;
   structureName: string | null;
   structureType: PropertyStructureType | null;
@@ -39,6 +40,7 @@ export interface PropertyMemberUnit {
 }
 
 export interface PropertyMember {
+  membershipId: string;
   userId: string;
   firstNames: string;
   lastNames: string;
@@ -46,5 +48,32 @@ export interface PropertyMember {
   role: PropertyRole;
   userStatus: UserStatus;
   membershipStatus: MembershipStatus;
+  version: number;
   units: PropertyMemberUnit[];
+}
+
+export interface AvailableResidentialUnit {
+  unitId: string;
+  structureId: string | null;
+  structureName: string | null;
+  structureType: PropertyStructureType | null;
+  unitNumber: string;
+  unitType: ResidentialUnitType;
+}
+
+export interface PropertyMemberDetails extends PropertyMember {
+  availableUnits: AvailableResidentialUnit[];
+}
+
+export interface PropertyMemberUnitUpdate {
+  unitId: string;
+  relationshipType: ResidentialRelationshipType;
+  primary: boolean;
+}
+
+export interface PropertyMemberUpdate {
+  role: PropertyRole;
+  membershipStatus: MembershipStatus;
+  version: number;
+  units: PropertyMemberUnitUpdate[];
 }

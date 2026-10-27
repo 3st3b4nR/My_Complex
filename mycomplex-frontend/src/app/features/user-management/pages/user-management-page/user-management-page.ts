@@ -15,6 +15,7 @@ import {
   Observable,
   of,
   startWith,
+  Subject,
   switchMap
 } from 'rxjs';
 
@@ -24,6 +25,7 @@ import {
   PropertyRole
 } from '../../../property-selection/models/assigned-property';
 import { PropertyMemberApiService } from '../../data-access/property-member-api.service';
+import { UserManagementEditor } from '../../components/user-management-editor/user-management-editor';
 import {
   MembershipStatus,
   PropertyMember,
@@ -84,7 +86,7 @@ const RELATIONSHIP_LABELS: Record<
 
 @Component({
   selector: 'app-user-management-page',
-  imports: [NgOptimizedImage, RouterLink],
+  imports: [NgOptimizedImage, RouterLink, UserManagementEditor],
   templateUrl: './user-management-page.html',
   styleUrl: './user-management-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -94,6 +96,9 @@ export class UserManagementPage {
   private readonly route = inject(ActivatedRoute);
   private readonly propertyApi = inject(PropertyApiService);
   private readonly memberApi = inject(PropertyMemberApiService);
+  private readonly refreshMembers = new Subject<void>();
+
+  protected readonly selectedMembershipId = signal<string | null>(null);
 
   protected readonly roleOptions = Object.entries(ROLE_LABELS).map(
     ([value, label]) => ({
@@ -311,6 +316,18 @@ export class UserManagementPage {
     this.relationshipFilter.set('ALL');
   }
 
+  protected editMember(member: PropertyMember): void {
+    this.selectedMembershipId.set(member.membershipId);
+  }
+
+  protected closeEditor(): void {
+    this.selectedMembershipId.set(null);
+  }
+
+  protected handleMemberSaved(): void {
+    this.refreshMembers.next();
+  }
+
   protected roleLabel(role: PropertyRole): string {
     return ROLE_LABELS[role];
   }
@@ -376,9 +393,11 @@ export class UserManagementPage {
               });
             }
 
-            return this.memberApi
-              .getPropertyMembers(propertyId)
-              .pipe(
+            return this.refreshMembers.pipe(
+              startWith(undefined),
+              switchMap(() => this.memberApi
+                .getPropertyMembers(propertyId)
+                .pipe(
                 map(members => ({
                   status: 'success' as const,
                   property,
@@ -398,7 +417,9 @@ export class UserManagementPage {
                     : null,
                   members: []
                 } as UserManagementState))
-              );
+                )
+              )
+            );
           }),
           catchError(() => of<UserManagementState>({
             status: 'error',

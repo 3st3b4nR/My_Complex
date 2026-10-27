@@ -1,0 +1,215 @@
+<div class="editor-backdrop" aria-hidden="true"></div>
+
+<aside
+  class="editor-panel"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="editor-title"
+>
+  <header class="editor-header">
+    <div>
+      <span class="eyebrow">Gestión de usuarios</span>
+      <h2 id="editor-title">Editar vinculación</h2>
+    </div>
+    <button
+      type="button"
+      class="icon-button"
+      aria-label="Cerrar editor"
+      (click)="cancel()"
+    >
+      ×
+    </button>
+  </header>
+
+  @switch (status()) {
+    @case ('loading') {
+      <section class="editor-state" role="status">
+        <span class="loading-indicator" aria-hidden="true"></span>
+        <p>Cargando detalle del usuario…</p>
+      </section>
+    }
+    @case ('forbidden') {
+      <section class="editor-state editor-state--error" role="alert">
+        <h3>Acceso no autorizado</h3>
+        <p>No tienes permiso para editar esta vinculación.</p>
+        <button type="button" (click)="closed.emit()">Cerrar</button>
+      </section>
+    }
+    @case ('not-found') {
+      <section class="editor-state editor-state--error" role="alert">
+        <h3>Vinculación no disponible</h3>
+        <p>El usuario ya no pertenece a esta copropiedad.</p>
+        <button type="button" (click)="closed.emit()">Cerrar</button>
+      </section>
+    }
+    @case ('error') {
+      <section class="editor-state editor-state--error" role="alert">
+        <h3>No pudimos cargar el detalle</h3>
+        <p>Inténtalo nuevamente.</p>
+        <button type="button" (click)="closed.emit()">Cerrar</button>
+      </section>
+    }
+    @case ('ready') {
+      @if (detail(); as member) {
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <div class="editor-body">
+            <section class="form-section">
+              <h3>Datos del usuario</h3>
+              <div class="read-only-grid">
+                <div>
+                  <span>Nombres</span>
+                  <strong>{{ member.firstNames }}</strong>
+                </div>
+                <div>
+                  <span>Apellidos</span>
+                  <strong>{{ member.lastNames }}</strong>
+                </div>
+                <div>
+                  <span>Correo</span>
+                  <strong>{{ member.email }}</strong>
+                </div>
+                <div>
+                  <span>Estado global</span>
+                  <strong>{{ member.userStatus }}</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="form-section form-grid">
+              <h3>Vinculación con la copropiedad</h3>
+              <label>
+                <span>Rol</span>
+                <select formControlName="role">
+                  @for (option of roleOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span>Estado de la vinculación</span>
+                <select formControlName="membershipStatus">
+                  @for (option of membershipOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              </label>
+            </section>
+
+            <section class="form-section">
+              <div class="section-heading">
+                <h3>Unidades residenciales</h3>
+                <button type="button" class="secondary-button" (click)="addUnit()">
+                  Agregar unidad
+                </button>
+              </div>
+
+              <div formArrayName="units" class="assignment-list">
+                @for (unitForm of unitForms.controls; track unitForm; let index = $index) {
+                  <fieldset [formGroupName]="index" class="assignment-card">
+                    <legend>Asignación {{ index + 1 }}</legend>
+                    <label>
+                      <span>Torre o estructura</span>
+                      <select
+                        formControlName="structureId"
+                        (change)="structureChanged(index)"
+                      >
+                        <option value="">Selecciona una estructura</option>
+                        @for (structure of structures(); track structure.id) {
+                          <option [value]="structure.id">{{ structure.name }}</option>
+                        }
+                      </select>
+                    </label>
+                    <label>
+                      <span>Unidad</span>
+                      <select
+                        formControlName="unitId"
+                        (change)="assignmentChanged()"
+                      >
+                        <option value="">Selecciona una unidad</option>
+                        @for (unit of availableUnits(index); track unit.unitId) {
+                          <option [value]="unit.unitId">{{ unit.unitNumber }}</option>
+                        }
+                      </select>
+                      @if (
+                        unitForm.controls.unitId.touched
+                        && unitForm.controls.unitId.invalid
+                      ) {
+                        <small class="field-error">Selecciona una unidad.</small>
+                      }
+                    </label>
+                    <label>
+                      <span>Tipo de vinculación</span>
+                      <select
+                        formControlName="relationshipType"
+                        (change)="assignmentChanged()"
+                      >
+                        <option value="OWNER">Propietario</option>
+                        <option value="RESIDENT">Residente</option>
+                      </select>
+                    </label>
+                    <label class="primary-field">
+                      <input
+                        type="checkbox"
+                        formControlName="primary"
+                        (change)="selectPrimary(index, $event)"
+                      />
+                      <span>Unidad principal</span>
+                    </label>
+                    <button
+                      type="button"
+                      class="remove-button"
+                      (click)="removeUnit(index)"
+                    >
+                      Retirar asignación
+                    </button>
+                  </fieldset>
+                }
+              </div>
+
+              @if (unitForms.length === 0) {
+                <p class="no-assignments">No hay unidades asignadas.</p>
+              }
+              @if (hasAssignmentError('duplicateUnits')) {
+                <p class="form-error" role="alert">
+                  No puedes asignar la misma unidad más de una vez.
+                </p>
+              }
+              @if (hasAssignmentError('multiplePrimary')) {
+                <p class="form-error" role="alert">
+                  Solo una unidad puede ser principal.
+                </p>
+              }
+            </section>
+
+            @if (saveStatus() === 'success') {
+              <p class="success-message" role="status">
+                Los cambios se guardaron correctamente.
+              </p>
+            }
+            @if (saveError()) {
+              <p class="form-error" role="alert">{{ saveError() }}</p>
+            }
+          </div>
+
+          <footer class="editor-actions">
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="saveStatus() === 'saving'"
+              (click)="cancel()"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="primary-button"
+              [disabled]="saveStatus() === 'saving'"
+            >
+              {{ saveStatus() === 'saving' ? 'Guardando…' : 'Guardar cambios' }}
+            </button>
+          </footer>
+        </form>
+      }
+    }
+  }
+</aside>

@@ -1,0 +1,275 @@
+:host {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+}
+
+.editor-backdrop {
+  position: absolute;
+  background: rgb(15 28 61 / 48%);
+  inset: 0;
+}
+
+.editor-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  width: min(46rem, 100%);
+  height: 100%;
+  flex-direction: column;
+  overflow-y: auto;
+  background: #f7f9fc;
+  box-shadow: -0.5rem 0 2rem rgb(15 28 61 / 22%);
+  color: #172858;
+}
+
+.editor-header,
+.editor-actions {
+  position: sticky;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: #ffffff;
+}
+
+.editor-header {
+  top: 0;
+  border-bottom: 1px solid #dce6f1;
+
+  h2 {
+    margin: 0.2rem 0 0;
+  }
+}
+
+.editor-actions {
+  bottom: 0;
+  justify-content: flex-end;
+  border-top: 1px solid #dce6f1;
+}
+
+.eyebrow {
+  color: #376bd7;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.icon-button {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: #eef3fa;
+  color: #314967;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.editor-body {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.form-section {
+  padding: 1.15rem;
+  border: 1px solid #dce6f1;
+  border-radius: 0.9rem;
+  background: #ffffff;
+
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+  }
+}
+
+.read-only-grid,
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.read-only-grid div,
+label {
+  display: grid;
+  gap: 0.35rem;
+
+  span {
+    color: #62758d;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+}
+
+.form-grid h3 {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+}
+
+select {
+  min-height: 2.6rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid #c9d7e8;
+  border-radius: 0.55rem;
+  background: #ffffff;
+  color: #243858;
+  font: inherit;
+
+  &:focus-visible {
+    border-color: #376bd7;
+    outline: 0.18rem solid rgb(55 107 215 / 18%);
+  }
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h3 {
+    margin: 0;
+  }
+}
+
+.assignment-list {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.assignment-card {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid #d9e3ef;
+  border-radius: 0.75rem;
+
+  legend {
+    padding: 0 0.3rem;
+    color: #53667e;
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+}
+
+.primary-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  input {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+button {
+  min-height: 2.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.55rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.6;
+  }
+
+  &:focus-visible {
+    outline: 0.18rem solid #8fb7ff;
+    outline-offset: 0.15rem;
+  }
+}
+
+.primary-button {
+  border: 1px solid #315fd0;
+  background: #315fd0;
+  color: #ffffff;
+}
+
+.secondary-button {
+  border: 1px solid #b8c9df;
+  background: #ffffff;
+  color: #315ebd;
+}
+
+.remove-button {
+  align-self: end;
+  border: 1px solid #e0aaaa;
+  background: #fff8f8;
+  color: #a52d2d;
+}
+
+.field-error,
+.form-error {
+  color: #a52d2d;
+}
+
+.form-error,
+.success-message,
+.no-assignments {
+  margin: 0.8rem 0 0;
+  font-size: 0.82rem;
+}
+
+.success-message {
+  padding: 0.75rem;
+  border-radius: 0.55rem;
+  background: #e8f3ee;
+  color: #24664b;
+  font-weight: 700;
+}
+
+.no-assignments {
+  color: #718298;
+}
+
+.editor-state {
+  display: grid;
+  min-height: 18rem;
+  place-items: center;
+  align-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.editor-state--error h3 {
+  color: #9d2929;
+}
+
+.loading-indicator {
+  width: 2rem;
+  height: 2rem;
+  border: 0.2rem solid #d6e2f2;
+  border-top-color: #376bd7;
+  border-radius: 50%;
+  animation: rotation 750ms linear infinite;
+}
+
+@keyframes rotation {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 38rem) {
+  .read-only-grid,
+  .form-grid,
+  .assignment-card {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-header,
+  .editor-actions,
+  .editor-body {
+    padding-inline: 0.9rem;
+  }
+}

@@ -3,7 +3,11 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { PropertyMember } from '../models/property-member';
+import {
+  PropertyMember,
+  PropertyMemberDetails,
+  PropertyMemberUpdate
+} from '../models/property-member';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +21,28 @@ export class PropertyMemberApiService {
   ): Observable<PropertyMember[]> {
     return this.http.get<PropertyMember[]>(
       `${environment.apiUrl}/api/properties/${propertyId}/members`
+    );
+  }
+
+  getPropertyMemberDetails(
+    propertyId: string,
+    membershipId: string
+  ): Observable<PropertyMemberDetails> {
+    return this.http.get<PropertyMemberDetails>(
+      `${environment.apiUrl}/api/properties/${propertyId}`
+      + `/members/${membershipId}`
+    );
+  }
+
+  updatePropertyMember(
+    propertyId: string,
+    membershipId: string,
+    update: PropertyMemberUpdate
+  ): Observable<PropertyMemberDetails> {
+    return this.http.put<PropertyMemberDetails>(
+      `${environment.apiUrl}/api/properties/${propertyId}`
+      + `/members/${membershipId}`,
+      update
     );
   }
 }

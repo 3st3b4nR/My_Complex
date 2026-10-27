@@ -10,7 +10,10 @@ import { Observable, of, Subject, throwError } from 'rxjs';
 import { PropertyApiService } from '../../../property-selection/data-access/property-api.service';
 import { AssignedProperty } from '../../../property-selection/models/assigned-property';
 import { PropertyMemberApiService } from '../../data-access/property-member-api.service';
-import { PropertyMember } from '../../models/property-member';
+import {
+  PropertyMember,
+  PropertyMemberDetails
+} from '../../models/property-member';
 import { UserManagementPage } from './user-management-page';
 
 describe('UserManagementPage', () => {
@@ -23,6 +26,7 @@ describe('UserManagementPage', () => {
   };
   const members: PropertyMember[] = [
     {
+      membershipId: '30000000-0000-0000-0000-000000000001',
       userId: '20000000-0000-0000-0000-000000000001',
       firstNames: 'John Esteban',
       lastNames: 'Roldan Marin',
@@ -30,9 +34,11 @@ describe('UserManagementPage', () => {
       role: 'PROPERTY_ADMIN',
       userStatus: 'ACTIVE',
       membershipStatus: 'ACTIVE',
+      version: 0,
       units: []
     },
     {
+      membershipId: '30000000-0000-0000-0000-000000000002',
       userId: '20000000-0000-0000-0000-000000000002',
       firstNames: 'Laura',
       lastNames: 'Gomez',
@@ -40,8 +46,10 @@ describe('UserManagementPage', () => {
       role: 'RESIDENT',
       userStatus: 'BLOCKED',
       membershipStatus: 'SUSPENDED',
+      version: 0,
       units: [
         {
+          assignmentId: '80000000-0000-0000-0000-000000000001',
           unitId: '50000000-0000-0000-0000-000000000101',
           structureName: 'Torre 1',
           structureType: 'TOWER',
@@ -54,6 +62,7 @@ describe('UserManagementPage', () => {
       ]
     },
     {
+      membershipId: '30000000-0000-0000-0000-000000000003',
       userId: '20000000-0000-0000-0000-000000000003',
       firstNames: 'Carolina',
       lastNames: 'Restrepo',
@@ -61,8 +70,10 @@ describe('UserManagementPage', () => {
       role: 'OWNER',
       userStatus: 'ACTIVE',
       membershipStatus: 'ACTIVE',
+      version: 0,
       units: [
         {
+          assignmentId: '80000000-0000-0000-0000-000000000002',
           unitId: '50000000-0000-0000-0000-000000000201',
           structureName: 'Torre 2',
           structureType: 'TOWER',
@@ -73,6 +84,7 @@ describe('UserManagementPage', () => {
           status: 'ACTIVE'
         },
         {
+          assignmentId: '80000000-0000-0000-0000-000000000003',
           unitId: '50000000-0000-0000-0000-000000000202',
           structureName: 'Torre 2',
           structureType: 'TOWER',
@@ -85,6 +97,7 @@ describe('UserManagementPage', () => {
       ]
     },
     {
+      membershipId: '30000000-0000-0000-0000-000000000004',
       userId: '20000000-0000-0000-0000-000000000004',
       firstNames: 'Ana',
       lastNames: 'Sin Unidad',
@@ -92,13 +105,27 @@ describe('UserManagementPage', () => {
       role: 'OWNER',
       userStatus: 'ACTIVE',
       membershipStatus: 'ACTIVE',
+      version: 0,
       units: []
     }
   ];
 
   async function createComponent(
     assignedProperties: AssignedProperty[],
-    membersResult: Observable<PropertyMember[]>
+    membersResult: Observable<PropertyMember[]>,
+    detailsResult: Observable<PropertyMemberDetails> = of({
+      ...members[1],
+      availableUnits: [
+        {
+          unitId: '50000000-0000-0000-0000-000000000101',
+          structureId: '40000000-0000-0000-0000-000000000001',
+          structureName: 'Torre 1',
+          structureType: 'TOWER',
+          unitNumber: '101',
+          unitType: 'APARTMENT'
+        }
+      ]
+    })
   ): Promise<ComponentFixture<UserManagementPage>> {
     await TestBed.configureTestingModule({
       imports: [UserManagementPage],
@@ -119,7 +146,9 @@ describe('UserManagementPage', () => {
         {
           provide: PropertyMemberApiService,
           useValue: {
-            getPropertyMembers: () => membersResult
+            getPropertyMembers: () => membersResult,
+            getPropertyMemberDetails: () => detailsResult,
+            updatePropertyMember: () => detailsResult
           }
         }
       ]
@@ -281,5 +310,31 @@ describe('UserManagementPage', () => {
     const rows = element.querySelectorAll('tbody tr');
     expect(rows.length).toBe(1);
     expect(rows[0].textContent).toContain('Carolina Restrepo');
+  });
+
+  it('opens the editor from a member row and keeps active filters', async () => {
+    const fixture = await createComponent(
+      [administratorProperty],
+      of(members)
+    );
+    const element = fixture.nativeElement as HTMLElement;
+    const search = element.querySelector(
+      'input[type="search"]'
+    ) as HTMLInputElement;
+    search.value = 'Laura';
+    search.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const editButton = element.querySelector(
+      'tbody tr .edit-button'
+    ) as HTMLButtonElement;
+    editButton.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(element.querySelector('app-user-management-editor'))
+      .not.toBeNull();
+    expect(search.value).toBe('Laura');
   });
 });

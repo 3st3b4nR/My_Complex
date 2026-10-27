@@ -144,7 +144,8 @@ class UserPropertyJpaRepositoryTest {
 
         List<PropertyMemberRow> members =
                 repository.findMemberRowsByPropertyId(
-                        requestedPropertyId
+                        requestedPropertyId,
+                        null
                 );
 
         assertEquals(2, members.size());

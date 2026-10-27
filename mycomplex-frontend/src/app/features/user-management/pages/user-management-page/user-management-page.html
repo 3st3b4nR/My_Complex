@@ -242,6 +242,7 @@
                     <th scope="col">Unidades</th>
                     <th scope="col">Estado del usuario</th>
                     <th scope="col">Estado de la vinculación</th>
+                    <th scope="col">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -291,6 +292,21 @@
                           }}
                         </span>
                       </td>
+                      <td data-label="Acciones">
+                        <button
+                          type="button"
+                          class="edit-button"
+                          [attr.aria-label]="
+                            'Editar vinculación de '
+                            + member.firstNames
+                            + ' '
+                            + member.lastNames
+                          "
+                          (click)="editMember(member)"
+                        >
+                          Editar
+                        </button>
+                      </td>
                     </tr>
                   }
                 </tbody>
@@ -300,6 +316,20 @@
         }
         </section>
       }
+    }
+  }
+
+  @if (
+    selectedMembershipId();
+    as selectedMembership
+  ) {
+    @if (state().property; as property) {
+      <app-user-management-editor
+        [propertyId]="property.propertyId"
+        [membershipId]="selectedMembership"
+        (closed)="closeEditor()"
+        (saved)="handleMemberSaved()"
+      />
     }
   }
 </main>

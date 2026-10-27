@@ -3,6 +3,7 @@ package com.mycomplex.users.infrastructure.adapter.out.persistence;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -48,7 +49,7 @@ public class PropertyMemberPersistenceAdapter
     @Transactional(readOnly = true)
     public List<PropertyMember> loadByPropertyId(UUID propertyId) {
         Map<UUID, List<PropertyMemberRow>> rowsByUser = repository
-                .findMemberRowsByPropertyId(propertyId)
+                .findMemberRowsByPropertyId(propertyId, null)
                 .stream()
                 .collect(Collectors.groupingBy(
                         PropertyMemberRow::getUserId,
@@ -56,6 +57,30 @@ public class PropertyMemberPersistenceAdapter
                         Collectors.toList()
                 ));
 
+        return toMembers(rowsByUser);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<PropertyMember> loadByMembershipId(
+            UUID propertyId,
+            UUID membershipId
+    ) {
+        Map<UUID, List<PropertyMemberRow>> rowsByUser = repository
+                .findMemberRowsByPropertyId(propertyId, membershipId)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        PropertyMemberRow::getUserId,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
+
+        return toMembers(rowsByUser).stream().findFirst();
+    }
+
+    private List<PropertyMember> toMembers(
+            Map<UUID, List<PropertyMemberRow>> rowsByUser
+    ) {
         return rowsByUser.values()
                 .stream()
                 .map(this::toDbo)
@@ -75,6 +100,7 @@ public class PropertyMemberPersistenceAdapter
                 .toList();
 
         return new PropertyMemberDbo(
+                member.getMembershipId(),
                 member.getUserId(),
                 member.getFirstNames(),
                 member.getLastNames(),
@@ -82,6 +108,7 @@ public class PropertyMemberPersistenceAdapter
                 member.getRole(),
                 member.getUserStatus(),
                 member.getMembershipStatus(),
+                member.getMembershipVersion(),
                 units
         );
     }
@@ -90,6 +117,7 @@ public class PropertyMemberPersistenceAdapter
             PropertyMemberRow row
     ) {
         return new PropertyMemberUnitDbo(
+                row.getAssignmentId(),
                 row.getUnitId(),
                 row.getStructureName(),
                 row.getStructureType(),

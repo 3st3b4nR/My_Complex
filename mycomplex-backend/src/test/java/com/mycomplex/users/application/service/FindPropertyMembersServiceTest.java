@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,9 @@ class FindPropertyMembersServiceTest {
     void returnsMembersForActivePropertyAdministrator() {
         PropertyMember expectedMember = new PropertyMember(
                 UUID.fromString(
+                        "30000000-0000-0000-0000-000000000001"
+                ),
+                UUID.fromString(
                         "20000000-0000-0000-0000-000000000001"
                 ),
                 "John Esteban",
@@ -34,6 +38,7 @@ class FindPropertyMembersServiceTest {
                 PropertyRole.PROPERTY_ADMIN,
                 UserStatus.ACTIVE,
                 MembershipStatus.ACTIVE,
+                0,
                 List.of()
         );
 
@@ -130,6 +135,14 @@ class FindPropertyMembersServiceTest {
         ) {
             assertEquals(PROPERTY_ID, propertyId);
             return members;
+        }
+
+        @Override
+        public Optional<PropertyMember> loadByMembershipId(
+                UUID propertyId,
+                UUID membershipId
+        ) {
+            return members.stream().findFirst();
         }
     }
 }

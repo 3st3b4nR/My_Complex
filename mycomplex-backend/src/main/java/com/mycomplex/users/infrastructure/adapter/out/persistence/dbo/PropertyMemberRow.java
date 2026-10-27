@@ -4,6 +4,8 @@ import java.util.UUID;
 
 public interface PropertyMemberRow {
 
+    UUID getMembershipId();
+
     UUID getUserId();
 
     String getFirstNames();
@@ -17,6 +19,10 @@ public interface PropertyMemberRow {
     String getUserStatus();
 
     String getMembershipStatus();
+
+    Long getMembershipVersion();
+
+    UUID getAssignmentId();
 
     UUID getUnitId();
 
