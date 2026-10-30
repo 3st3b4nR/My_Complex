@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -25,9 +24,17 @@ public class UserInvitationPersistenceAdapter
         implements UserInvitationPersistencePort {
 
     private final JdbcTemplate jdbcTemplate;
+    private final AuthenticatedUserLinkPersistence authenticatedUserLink;
+    private final UserInvitationStatePersistence invitationState;
 
-    public UserInvitationPersistenceAdapter(JdbcTemplate jdbcTemplate) {
+    public UserInvitationPersistenceAdapter(
+            JdbcTemplate jdbcTemplate,
+            AuthenticatedUserLinkPersistence authenticatedUserLink,
+            UserInvitationStatePersistence invitationState
+    ) {
         this.jdbcTemplate = jdbcTemplate;
+        this.authenticatedUserLink = authenticatedUserLink;
+        this.invitationState = invitationState;
     }
 
     @Override
@@ -112,23 +119,7 @@ public class UserInvitationPersistenceAdapter
     @Override
     @Transactional
     public void markProvisioned(UUID userId, String auth0Subject) {
-        int affected = jdbcTemplate.update(
-                """
-                UPDATE usuarios
-                SET auth0_subject = ?, estado_registro = 'PROVISIONADO',
-                    auth0_provisioned_at = CURRENT_TIMESTAMP,
-                    ultimo_error_registro = NULL,
-                    updated_at = CURRENT_TIMESTAMP, version = version + 1
-                WHERE id = ? AND estado_registro = 'APROVISIONANDO'
-                """,
-                auth0Subject, userId
-        );
-        if (affected != 1) {
-            throw new UserInvitationException(
-                    "INVITATION_STATE_CONFLICT",
-                    "El estado del usuario cambió durante el aprovisionamiento."
-            );
-        }
+        invitationState.markProvisioned(userId, auth0Subject);
     }
 
     @Override
@@ -137,98 +128,25 @@ public class UserInvitationPersistenceAdapter
             UUID userId,
             UUID membershipId
     ) {
-        int affected = jdbcTemplate.update(
-                """
-                UPDATE usuarios
-                SET estado_registro = 'INVITADO',
-                    invitacion_enviada_at = CURRENT_TIMESTAMP,
-                    ultimo_error_registro = NULL,
-                    updated_at = CURRENT_TIMESTAMP, version = version + 1
-                WHERE id = ?
-                  AND estado_registro IN ('PROVISIONADO', 'INVITADO')
-                """,
-                userId
-        );
-        if (affected != 1) {
-            throw new UserInvitationException(
-                    "INVITATION_STATE_CONFLICT",
-                    "El estado del usuario cambió durante el envío."
-            );
-        }
-        OffsetDateTime sentAt = jdbcTemplate.queryForObject(
-                "SELECT invitacion_enviada_at FROM usuarios WHERE id = ?",
-                OffsetDateTime.class,
-                userId
-        );
-        return new PropertyMemberInvitation(
-                membershipId, userId, UserRegistrationStatus.INVITED,
-                sentAt, "Auth0 aceptó la solicitud de invitación."
-        );
+        return invitationState.markInvited(userId, membershipId);
     }
 
     @Override
     @Transactional
     public void recordProvisioningFailure(UUID userId, String safeError) {
-        jdbcTemplate.update(
-                """
-                UPDATE usuarios
-                SET ultimo_error_registro = ?, updated_at = CURRENT_TIMESTAMP,
-                    version = version + 1
-                WHERE id = ? AND estado_registro = 'APROVISIONANDO'
-                """,
-                limit(safeError), userId
-        );
+        invitationState.recordProvisioningFailure(userId, safeError);
     }
 
     @Override
     @Transactional
     public void recordInvitationFailure(UUID userId, String safeError) {
-        jdbcTemplate.update(
-                """
-                UPDATE usuarios
-                SET estado_registro = 'PROVISIONADO',
-                    ultimo_error_registro = ?,
-                    ultimo_intento_registro_at = NULL,
-                    updated_at = CURRENT_TIMESTAMP, version = version + 1
-                WHERE id = ?
-                  AND estado_registro IN ('PROVISIONADO', 'INVITADO')
-                """,
-                limit(safeError), userId
-        );
+        invitationState.recordInvitationFailure(userId, safeError);
     }
 
     @Override
     @Transactional
     public void linkAuthenticatedUser(String auth0Subject) {
-        List<String> states = jdbcTemplate.query(
-                """
-                SELECT estado_registro FROM usuarios
-                WHERE auth0_subject = ? AND deleted_at IS NULL
-                """,
-                (resultSet, rowNumber) -> resultSet.getString(1),
-                auth0Subject
-        );
-        if (states.isEmpty() || states.getFirst().equals("VINCULADO")) {
-            return;
-        }
-        int affected = jdbcTemplate.update(
-                """
-                UPDATE usuarios
-                SET estado_registro = 'VINCULADO',
-                    vinculado_at = CURRENT_TIMESTAMP,
-                    ultimo_error_registro = NULL,
-                    updated_at = CURRENT_TIMESTAMP, version = version + 1
-                WHERE auth0_subject = ? AND deleted_at IS NULL
-                  AND estado_registro IN ('PROVISIONADO', 'INVITADO')
-                """,
-                auth0Subject
-        );
-        if (affected == 0) {
-            throw new UserInvitationException(
-                    "AUTHENTICATED_IDENTITY_CONFLICT",
-                    "La identidad autenticada no coincide con un estado vinculable."
-            );
-        }
+        authenticatedUserLink.link(auth0Subject);
     }
 
     private void lockActiveProperty(UUID propertyId) {
@@ -373,13 +291,6 @@ public class UserInvitationPersistenceAdapter
         return timestamp == null
                 ? null
                 : timestamp.toInstant().atOffset(ZoneOffset.UTC);
-    }
-
-    private String limit(String value) {
-        if (value == null) {
-            return null;
-        }
-        return value.length() <= 500 ? value : value.substring(0, 500);
     }
 
     private record InvitationUserRow(

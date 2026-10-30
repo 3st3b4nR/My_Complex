@@ -143,8 +143,9 @@
                         formControlName="relationshipType"
                         (change)="assignmentChanged()"
                       >
-                        <option value="OWNER">Propietario</option>
-                        <option value="RESIDENT">Residente</option>
+                        @for (option of relationshipOptions; track option.value) {
+                          <option [value]="option.value">{{ option.label }}</option>
+                        }
                       </select>
                     </label>
                     <label class="primary-field">

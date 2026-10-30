@@ -68,11 +68,7 @@ public interface UserPropertyJpaRepository
                         membresia.version AS "membershipVersion",
                         usuario.invitacion_enviada_at AS "invitationSentAt",
                         vinculacion.id AS "assignmentId",
-                        unidad.id AS "unitId",
-                        estructura.nombre AS "structureName",
-                        estructura.tipo AS "structureType",
-                        unidad.numero AS "unitNumber",
-                        unidad.tipo AS "unitType",
+                        vinculacion.unidad_residencial_id AS "unitId",
                         vinculacion.tipo_vinculacion AS "relationshipType",
                         vinculacion.es_principal AS "primaryUnit",
                         vinculacion.estado AS "residentialStatus"
@@ -91,16 +87,6 @@ public interface UserPropertyJpaRepository
                          vinculacion.fecha_fin IS NULL
                          OR vinculacion.fecha_fin >= CURRENT_DATE
                      )
-                    LEFT JOIN unidades_residenciales unidad
-                      ON unidad.id = vinculacion.unidad_residencial_id
-                     AND unidad.copropiedad_id = membresia.copropiedad_id
-                     AND unidad.estado = 'ACTIVA'
-                     AND unidad.deleted_at IS NULL
-                    LEFT JOIN estructuras_copropiedad estructura
-                      ON estructura.id = unidad.estructura_id
-                     AND estructura.copropiedad_id = unidad.copropiedad_id
-                     AND estructura.estado = 'ACTIVA'
-                     AND estructura.deleted_at IS NULL
                     WHERE membresia.copropiedad_id = :propertyId
                       AND (
                           CAST(:membershipId AS UUID) IS NULL
@@ -114,8 +100,7 @@ public interface UserPropertyJpaRepository
                              usuario.nombres,
                              usuario.correo,
                              vinculacion.es_principal DESC,
-                             estructura.nombre,
-                             unidad.numero
+                             vinculacion.unidad_residencial_id
                     """,
             nativeQuery = true
     )

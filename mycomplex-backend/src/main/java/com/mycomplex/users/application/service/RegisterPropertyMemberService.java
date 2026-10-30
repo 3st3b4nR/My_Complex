@@ -1,6 +1,5 @@
 package com.mycomplex.users.application.service;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -18,6 +17,7 @@ import com.mycomplex.users.domain.model.PropertyMemberDetails;
 import com.mycomplex.users.domain.model.PropertyMemberRegistration;
 import com.mycomplex.users.domain.model.PropertyMemberRegistrationMode;
 import com.mycomplex.users.domain.model.ResidentialAssignmentUpdate;
+import com.mycomplex.users.application.validation.ResidentialAssignmentValidator;
 
 public final class RegisterPropertyMemberService
         implements RegisterPropertyMemberUseCase {
@@ -25,15 +25,21 @@ public final class RegisterPropertyMemberService
     private final LoadPropertyMembersPort loadMembersPort;
     private final ManagePropertyMembersPort manageMembersPort;
     private final FindAvailableResidentialUnitsUseCase findUnitsUseCase;
+    private final PropertyMemberResidentialUnitEnricher unitEnricher;
+    private final ResidentialAssignmentValidator assignmentValidator;
 
     public RegisterPropertyMemberService(
             LoadPropertyMembersPort loadMembersPort,
             ManagePropertyMembersPort manageMembersPort,
-            FindAvailableResidentialUnitsUseCase findUnitsUseCase
+            FindAvailableResidentialUnitsUseCase findUnitsUseCase,
+            PropertyMemberResidentialUnitEnricher unitEnricher,
+            ResidentialAssignmentValidator assignmentValidator
     ) {
         this.loadMembersPort = loadMembersPort;
         this.manageMembersPort = manageMembersPort;
         this.findUnitsUseCase = findUnitsUseCase;
+        this.unitEnricher = unitEnricher;
+        this.assignmentValidator = assignmentValidator;
     }
 
     @Override
@@ -67,7 +73,10 @@ public final class RegisterPropertyMemberService
                 normalized,
                 auth0Subject
         );
-        return new PropertyMemberDetails(member, units);
+        return new PropertyMemberDetails(
+                unitEnricher.enrich(member, units),
+                units
+        );
     }
 
     private PropertyMemberRegistration validateAndNormalize(
@@ -121,39 +130,17 @@ public final class RegisterPropertyMemberService
                     "La membresía a reactivar es obligatoria."
             );
         }
-        validateAssignments(value.units());
+        assignmentValidator.validate(value.units()).ifPresent(error -> {
+            throw new InvalidPropertyMemberRegistrationException(
+                    error.safeMessage()
+            );
+        });
         return new PropertyMemberRegistration(
                 value.propertyId(), value.mode(), value.userId(),
                 value.membershipId(), firstNames, lastNames, email,
                 documentType, documentNumber, value.role(),
                 value.membershipStatus(), List.copyOf(value.units())
         );
-    }
-
-    private void validateAssignments(List<ResidentialAssignmentUpdate> units) {
-        Set<UUID> ids = new HashSet<>();
-        int primary = 0;
-        for (ResidentialAssignmentUpdate unit : units) {
-            if (unit == null || unit.unitId() == null
-                    || unit.relationshipType() == null) {
-                throw new InvalidPropertyMemberRegistrationException(
-                        "Cada asignación residencial debe estar completa."
-                );
-            }
-            if (!ids.add(unit.unitId())) {
-                throw new InvalidPropertyMemberRegistrationException(
-                        "No se puede asignar dos veces la misma unidad."
-                );
-            }
-            if (unit.primary()) {
-                primary++;
-            }
-        }
-        if (primary > 1) {
-            throw new InvalidPropertyMemberRegistrationException(
-                    "Solo una unidad puede ser principal."
-            );
-        }
     }
 
     private String trim(String value) {

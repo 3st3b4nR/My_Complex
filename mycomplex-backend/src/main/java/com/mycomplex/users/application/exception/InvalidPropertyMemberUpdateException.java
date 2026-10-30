@@ -6,4 +6,8 @@ public class InvalidPropertyMemberUpdateException
     public InvalidPropertyMemberUpdateException(String message) {
         super(message);
     }
+
+    public String safeMessage() {
+        return getMessage();
+    }
 }

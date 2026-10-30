@@ -1,6 +1,5 @@
 package com.mycomplex.users.application.service;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -16,6 +15,7 @@ import com.mycomplex.users.domain.model.PropertyMember;
 import com.mycomplex.users.domain.model.PropertyMemberDetails;
 import com.mycomplex.users.domain.model.PropertyMemberUpdate;
 import com.mycomplex.users.domain.model.ResidentialAssignmentUpdate;
+import com.mycomplex.users.application.validation.ResidentialAssignmentValidator;
 
 public final class UpdatePropertyMemberService
         implements UpdatePropertyMemberUseCase {
@@ -23,15 +23,21 @@ public final class UpdatePropertyMemberService
     private final UpdatePropertyMemberPort updateMemberPort;
     private final LoadPropertyMembersPort loadMembersPort;
     private final FindAvailableResidentialUnitsUseCase findUnitsUseCase;
+    private final PropertyMemberResidentialUnitEnricher unitEnricher;
+    private final ResidentialAssignmentValidator assignmentValidator;
 
     public UpdatePropertyMemberService(
             UpdatePropertyMemberPort updateMemberPort,
             LoadPropertyMembersPort loadMembersPort,
-            FindAvailableResidentialUnitsUseCase findUnitsUseCase
+            FindAvailableResidentialUnitsUseCase findUnitsUseCase,
+            PropertyMemberResidentialUnitEnricher unitEnricher,
+            ResidentialAssignmentValidator assignmentValidator
     ) {
         this.updateMemberPort = updateMemberPort;
         this.loadMembersPort = loadMembersPort;
         this.findUnitsUseCase = findUnitsUseCase;
+        this.unitEnricher = unitEnricher;
+        this.assignmentValidator = assignmentValidator;
     }
 
     @Override
@@ -69,7 +75,10 @@ public final class UpdatePropertyMemberService
                 auth0Subject
         );
 
-        return new PropertyMemberDetails(member, availableUnits);
+        return new PropertyMemberDetails(
+                unitEnricher.enrich(member, availableUnits),
+                availableUnits
+        );
     }
 
     private void validate(
@@ -97,29 +106,10 @@ public final class UpdatePropertyMemberService
             );
         }
 
-        Set<UUID> unitIds = new HashSet<>();
-        int primaryCount = 0;
-        for (ResidentialAssignmentUpdate assignment : update.units()) {
-            if (assignment == null
-                    || assignment.unitId() == null
-                    || assignment.relationshipType() == null) {
-                throw new InvalidPropertyMemberUpdateException(
-                        "Every residential assignment is required"
-                );
-            }
-            if (!unitIds.add(assignment.unitId())) {
-                throw new InvalidPropertyMemberUpdateException(
-                        "A residential unit cannot be assigned twice"
-                );
-            }
-            if (assignment.primary()) {
-                primaryCount++;
-            }
-        }
-        if (primaryCount > 1) {
+        assignmentValidator.validate(update.units()).ifPresent(error -> {
             throw new InvalidPropertyMemberUpdateException(
-                    "Only one residential unit can be primary"
+                    error.safeMessage()
             );
-        }
+        });
     }
 }

@@ -1,13 +1,5 @@
 package com.mycomplex.users.infrastructure.adapter.out.persistence;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -15,7 +7,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mycomplex.users.application.exception.InvalidPropertyMemberUpdateException;
 import com.mycomplex.users.application.exception.LastPropertyAdministratorException;
 import com.mycomplex.users.application.exception.PropertyMemberConflictException;
 import com.mycomplex.users.application.exception.PropertyMemberNotFoundException;
@@ -26,8 +17,6 @@ import com.mycomplex.users.domain.model.MembershipStatus;
 import com.mycomplex.users.domain.model.PropertyMember;
 import com.mycomplex.users.domain.model.PropertyMemberUpdate;
 import com.mycomplex.users.domain.model.PropertyRole;
-import com.mycomplex.users.domain.model.ResidentialAssignmentUpdate;
-import com.mycomplex.users.domain.model.ResidentialRelationshipType;
 
 @Component
 public class PropertyMemberUpdatePersistenceAdapter
@@ -35,13 +24,16 @@ public class PropertyMemberUpdatePersistenceAdapter
 
     private final JdbcTemplate jdbcTemplate;
     private final LoadPropertyMembersPort loadMembersPort;
+    private final PropertyMemberAssignmentPersistence assignmentPersistence;
 
     public PropertyMemberUpdatePersistenceAdapter(
             JdbcTemplate jdbcTemplate,
-            LoadPropertyMembersPort loadMembersPort
+            LoadPropertyMembersPort loadMembersPort,
+            PropertyMemberAssignmentPersistence assignmentPersistence
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.loadMembersPort = loadMembersPort;
+        this.assignmentPersistence = assignmentPersistence;
     }
 
     @Override
@@ -62,8 +54,7 @@ public class PropertyMemberUpdatePersistenceAdapter
         }
 
         protectLastAdministrator(update, membership);
-        validateUnitsBelongToProperty(update);
-        synchronizeAssignments(update);
+        assignmentPersistence.synchronize(update);
         updateMembership(update);
 
         return loadMembersPort.loadByMembershipId(
@@ -188,189 +179,6 @@ public class PropertyMemberUpdatePersistenceAdapter
         }
     }
 
-    private void validateUnitsBelongToProperty(
-            PropertyMemberUpdate update
-    ) {
-        if (update.units().isEmpty()) {
-            return;
-        }
-
-        List<UUID> unitIds = update.units().stream()
-                .map(ResidentialAssignmentUpdate::unitId)
-                .toList();
-        String placeholders = String.join(
-                ", ",
-                java.util.Collections.nCopies(unitIds.size(), "?")
-        );
-        List<Object> parameters = new ArrayList<>(unitIds);
-        parameters.add(update.propertyId());
-
-        Integer count = jdbcTemplate.queryForObject(
-                """
-                SELECT COUNT(*)
-                FROM unidades_residenciales unidad
-                LEFT JOIN estructuras_copropiedad estructura
-                  ON estructura.id = unidad.estructura_id
-                 AND estructura.copropiedad_id = unidad.copropiedad_id
-                 AND estructura.estado = 'ACTIVA'
-                 AND estructura.deleted_at IS NULL
-                WHERE unidad.id IN (%s)
-                  AND unidad.copropiedad_id = ?
-                  AND unidad.estado = 'ACTIVA'
-                  AND unidad.deleted_at IS NULL
-                  AND (
-                      unidad.estructura_id IS NULL
-                      OR estructura.id IS NOT NULL
-                  )
-                """.formatted(placeholders),
-                Integer.class,
-                parameters.toArray()
-        );
-        if (count == null || count != unitIds.size()) {
-            throw new InvalidPropertyMemberUpdateException(
-                    "Every unit must be active and belong to the property"
-            );
-        }
-    }
-
-    private void synchronizeAssignments(PropertyMemberUpdate update) {
-        List<AssignmentSnapshot> existing = jdbcTemplate.query(
-                """
-                SELECT id,
-                       unidad_residencial_id,
-                       tipo_vinculacion,
-                       es_principal
-                FROM usuarios_copropiedades_unidades
-                WHERE copropiedad_id = ?
-                  AND usuario_copropiedad_id = ?
-                  AND estado = 'ACTIVA'
-                  AND deleted_at IS NULL
-                FOR UPDATE
-                """,
-                this::mapAssignment,
-                update.propertyId(),
-                update.membershipId()
-        );
-
-        jdbcTemplate.update(
-                """
-                UPDATE usuarios_copropiedades_unidades
-                SET es_principal = FALSE,
-                    updated_at = CURRENT_TIMESTAMP,
-                    version = version + 1
-                WHERE copropiedad_id = ?
-                  AND usuario_copropiedad_id = ?
-                  AND estado = 'ACTIVA'
-                  AND deleted_at IS NULL
-                  AND es_principal = TRUE
-                """,
-                update.propertyId(),
-                update.membershipId()
-        );
-
-        Map<UUID, ResidentialAssignmentUpdate> requestedByUnit =
-                new HashMap<>();
-        update.units().forEach(assignment ->
-                requestedByUnit.put(assignment.unitId(), assignment)
-        );
-        Set<UUID> retainedUnits = new HashSet<>();
-
-        for (AssignmentSnapshot assignment : existing) {
-            ResidentialAssignmentUpdate requested =
-                    requestedByUnit.get(assignment.unitId());
-            if (requested != null
-                    && assignment.relationshipType().equals(
-                            toDatabaseRelationshipType(
-                                    requested.relationshipType()
-                            )
-                    )
-                    && retainedUnits.add(assignment.unitId())) {
-                if (requested.primary()) {
-                    markPrimary(assignment.assignmentId());
-                }
-                continue;
-            }
-            finalizeAssignment(assignment.assignmentId());
-        }
-
-        for (ResidentialAssignmentUpdate requested : update.units()) {
-            if (retainedUnits.contains(requested.unitId())) {
-                continue;
-            }
-            insertAssignment(update, requested);
-        }
-    }
-
-    private AssignmentSnapshot mapAssignment(
-            ResultSet resultSet,
-            int rowNumber
-    ) throws SQLException {
-        return new AssignmentSnapshot(
-                resultSet.getObject("id", UUID.class),
-                resultSet.getObject(
-                        "unidad_residencial_id",
-                        UUID.class
-                ),
-                resultSet.getString("tipo_vinculacion")
-        );
-    }
-
-    private void markPrimary(UUID assignmentId) {
-        jdbcTemplate.update(
-                """
-                UPDATE usuarios_copropiedades_unidades
-                SET es_principal = TRUE,
-                    updated_at = CURRENT_TIMESTAMP,
-                    version = version + 1
-                WHERE id = ?
-                """,
-                assignmentId
-        );
-    }
-
-    private void finalizeAssignment(UUID assignmentId) {
-        jdbcTemplate.update(
-                """
-                UPDATE usuarios_copropiedades_unidades
-                SET estado = 'FINALIZADA',
-                    es_principal = FALSE,
-                    fecha_fin = GREATEST(fecha_inicio, CURRENT_DATE),
-                    updated_at = CURRENT_TIMESTAMP,
-                    version = version + 1
-                WHERE id = ?
-                """,
-                assignmentId
-        );
-    }
-
-    private void insertAssignment(
-            PropertyMemberUpdate update,
-            ResidentialAssignmentUpdate assignment
-    ) {
-        jdbcTemplate.update(
-                """
-                INSERT INTO usuarios_copropiedades_unidades (
-                    id,
-                    copropiedad_id,
-                    usuario_copropiedad_id,
-                    unidad_residencial_id,
-                    tipo_vinculacion,
-                    es_principal,
-                    estado,
-                    fecha_inicio
-                ) VALUES (?, ?, ?, ?, ?, ?, 'ACTIVA', CURRENT_DATE)
-                """,
-                UUID.randomUUID(),
-                update.propertyId(),
-                update.membershipId(),
-                assignment.unitId(),
-                toDatabaseRelationshipType(
-                        assignment.relationshipType()
-                ),
-                assignment.primary()
-        );
-    }
-
     private void updateMembership(PropertyMemberUpdate update) {
         int affectedRows = jdbcTemplate.update(
                 """
@@ -417,15 +225,6 @@ public class PropertyMemberUpdatePersistenceAdapter
         };
     }
 
-    private String toDatabaseRelationshipType(
-            ResidentialRelationshipType type
-    ) {
-        return switch (type) {
-            case OWNER -> "PROPIETARIO";
-            case RESIDENT -> "RESIDENTE";
-        };
-    }
-
     private record MembershipSnapshot(
             String role,
             String status,
@@ -433,10 +232,4 @@ public class PropertyMemberUpdatePersistenceAdapter
     ) {
     }
 
-    private record AssignmentSnapshot(
-            UUID assignmentId,
-            UUID unitId,
-            String relationshipType
-    ) {
-    }
 }

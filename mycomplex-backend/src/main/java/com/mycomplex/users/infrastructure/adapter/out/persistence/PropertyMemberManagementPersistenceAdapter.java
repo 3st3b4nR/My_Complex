@@ -1,6 +1,5 @@
 package com.mycomplex.users.infrastructure.adapter.out.persistence;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,7 +26,6 @@ import com.mycomplex.users.domain.model.PropertyMemberUnlink;
 import com.mycomplex.users.domain.model.PropertyRole;
 import com.mycomplex.users.domain.model.ResidentialAssignmentUpdate;
 import com.mycomplex.users.domain.model.ResidentialRelationshipType;
-import com.mycomplex.users.domain.model.UserRegistrationStatus;
 
 @Component
 public class PropertyMemberManagementPersistenceAdapter
@@ -35,13 +33,16 @@ public class PropertyMemberManagementPersistenceAdapter
 
     private final JdbcTemplate jdbcTemplate;
     private final LoadPropertyMembersPort loadMembersPort;
+    private final PropertyMemberCandidatePersistence candidatePersistence;
 
     public PropertyMemberManagementPersistenceAdapter(
             JdbcTemplate jdbcTemplate,
-            LoadPropertyMembersPort loadMembersPort
+            LoadPropertyMembersPort loadMembersPort,
+            PropertyMemberCandidatePersistence candidatePersistence
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.loadMembersPort = loadMembersPort;
+        this.candidatePersistence = candidatePersistence;
     }
 
     @Override
@@ -50,60 +51,7 @@ public class PropertyMemberManagementPersistenceAdapter
             UUID propertyId,
             String email
     ) {
-        List<CandidateRow> rows = jdbcTemplate.query(
-                """
-                SELECT usuario.id AS usuario_id,
-                       usuario.nombres,
-                       usuario.apellidos,
-                       usuario.correo,
-                       usuario.estado_registro,
-                       usuario.deleted_at AS usuario_deleted_at,
-                       membresia.id AS membresia_id,
-                       membresia.deleted_at AS membresia_deleted_at
-                FROM usuarios usuario
-                LEFT JOIN usuarios_copropiedades membresia
-                  ON membresia.usuario_id = usuario.id
-                 AND membresia.copropiedad_id = ?
-                WHERE LOWER(usuario.correo) = ?
-                ORDER BY usuario.deleted_at NULLS FIRST,
-                         usuario.created_at
-                LIMIT 1
-                """,
-                (resultSet, rowNumber) -> new CandidateRow(
-                        resultSet.getObject("usuario_id", UUID.class),
-                        resultSet.getString("nombres"),
-                        resultSet.getString("apellidos"),
-                        resultSet.getString("correo"),
-                        resultSet.getString("estado_registro"),
-                        resultSet.getObject("usuario_deleted_at") != null,
-                        resultSet.getObject("membresia_id", UUID.class),
-                        resultSet.getObject("membresia_deleted_at") != null
-                ),
-                propertyId,
-                email
-        );
-        if (rows.isEmpty()) {
-            return new PropertyMemberCandidate(
-                    PropertyMemberCandidateState.NEW_USER,
-                    null, null, null, null, email, null, List.of()
-            );
-        }
-        CandidateRow row = rows.getFirst();
-        PropertyMemberCandidateState state;
-        if (row.userDeleted()) {
-            state = PropertyMemberCandidateState.DELETED_USER;
-        } else if (row.membershipId() == null) {
-            state = PropertyMemberCandidateState.AVAILABLE_EXISTING_USER;
-        } else if (row.membershipDeleted()) {
-            state = PropertyMemberCandidateState.DELETED_MEMBERSHIP;
-        } else {
-            state = PropertyMemberCandidateState.EXISTING_MEMBERSHIP;
-        }
-        return new PropertyMemberCandidate(
-                state, row.userId(), row.membershipId(),
-                row.firstNames(), row.lastNames(), row.email(),
-                mapRegistrationStatus(row.registrationStatus()), List.of()
-        );
+        return candidatePersistence.find(propertyId, email);
     }
 
     @Override
@@ -114,7 +62,6 @@ public class PropertyMemberManagementPersistenceAdapter
     ) {
         lockActiveProperty(registration.propertyId());
         verifyAdministrator(registration.propertyId(), auth0Subject);
-        validateUnits(registration.propertyId(), registration.units());
         try {
             UUID membershipId = switch (registration.mode()) {
                 case CREATE_PENDING_USER -> createPendingUser(registration);
@@ -316,41 +263,6 @@ public class PropertyMemberManagementPersistenceAdapter
         }
     }
 
-    private void validateUnits(
-            UUID propertyId,
-            List<ResidentialAssignmentUpdate> units
-    ) {
-        if (units.isEmpty()) {
-            return;
-        }
-        List<Object> parameters = new ArrayList<>();
-        units.forEach(unit -> parameters.add(unit.unitId()));
-        parameters.add(propertyId);
-        String placeholders = String.join(", ",
-                java.util.Collections.nCopies(units.size(), "?"));
-        Integer count = jdbcTemplate.queryForObject(
-                """
-                SELECT COUNT(*)
-                FROM unidades_residenciales unidad
-                LEFT JOIN estructuras_copropiedad estructura
-                  ON estructura.id = unidad.estructura_id
-                 AND estructura.copropiedad_id = unidad.copropiedad_id
-                 AND estructura.estado = 'ACTIVA'
-                 AND estructura.deleted_at IS NULL
-                WHERE unidad.id IN (%s) AND unidad.copropiedad_id = ?
-                  AND unidad.estado = 'ACTIVA' AND unidad.deleted_at IS NULL
-                  AND (unidad.estructura_id IS NULL OR estructura.id IS NOT NULL)
-                """.formatted(placeholders),
-                Integer.class,
-                parameters.toArray()
-        );
-        if (count == null || count != units.size()) {
-            throw new InvalidPropertyMemberRegistrationException(
-                    "Todas las unidades deben estar activas y pertenecer a la copropiedad."
-            );
-        }
-    }
-
     private void lockActiveProperty(UUID propertyId) {
         try {
             jdbcTemplate.queryForObject(
@@ -439,19 +351,6 @@ public class PropertyMemberManagementPersistenceAdapter
         };
     }
 
-    private UserRegistrationStatus mapRegistrationStatus(String value) {
-        return switch (value) {
-            case "PENDIENTE" -> UserRegistrationStatus.PENDING;
-            case "APROVISIONANDO" -> UserRegistrationStatus.PROVISIONING;
-            case "PROVISIONADO" -> UserRegistrationStatus.PROVISIONED;
-            case "INVITADO" -> UserRegistrationStatus.INVITED;
-            case "VINCULADO" -> UserRegistrationStatus.LINKED;
-            default -> throw new IllegalArgumentException(
-                    "Unsupported registration status: " + value
-            );
-        };
-    }
-
     private String databaseRole(PropertyRole role) {
         return switch (role) {
             case PROPERTY_ADMIN -> "ADMIN_COPROPIEDAD";
@@ -477,13 +376,6 @@ public class PropertyMemberManagementPersistenceAdapter
             case OWNER -> "PROPIETARIO";
             case RESIDENT -> "RESIDENTE";
         };
-    }
-
-    private record CandidateRow(
-            UUID userId, String firstNames, String lastNames, String email,
-            String registrationStatus, boolean userDeleted,
-            UUID membershipId, boolean membershipDeleted
-    ) {
     }
 
     private record CandidateUser(String email, boolean deleted) {

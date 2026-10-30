@@ -31,14 +31,6 @@ public interface PropertyMemberRow {
 
     UUID getUnitId();
 
-    String getStructureName();
-
-    String getStructureType();
-
-    String getUnitNumber();
-
-    String getUnitType();
-
     String getRelationshipType();
 
     Boolean getPrimaryUnit();

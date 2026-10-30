@@ -6,6 +6,7 @@ import { FormArray, FormControl, FormGroup, NonNullableFormBuilder, ReactiveForm
 import { PropertyRole } from '../../../property-selection/models/assigned-property';
 import { PropertyMemberApiService } from '../../data-access/property-member-api.service';
 import { AvailableResidentialUnit, MembershipStatus, PropertyMemberCandidate, PropertyMemberRegistration, ResidentialRelationshipType } from '../../models/property-member';
+import { MEMBERSHIP_STATUS_LABELS, PROPERTY_ROLE_LABELS, RESIDENTIAL_RELATIONSHIP_LABELS } from '../../models/property-member-labels';
 
 type UnitForm = FormGroup<{
   structureId: FormControl<string>;
@@ -32,6 +33,15 @@ export class UserRegistration {
   protected readonly status = signal<'email' | 'checking' | 'ready' | 'saving'>('email');
   protected readonly candidate = signal<PropertyMemberCandidate | null>(null);
   protected readonly error = signal('');
+  protected readonly roleOptions = Object.entries(PROPERTY_ROLE_LABELS).map(
+    ([value, label]) => ({ value: value as PropertyRole, label })
+  );
+  protected readonly membershipOptions = Object.entries(MEMBERSHIP_STATUS_LABELS).map(
+    ([value, label]) => ({ value: value as MembershipStatus, label })
+  );
+  protected readonly relationshipOptions = Object.entries(RESIDENTIAL_RELATIONSHIP_LABELS).map(
+    ([value, label]) => ({ value: value as ResidentialRelationshipType, label })
+  );
   protected readonly form = this.fb.group({
     email: this.fb.control('', [Validators.required, Validators.email, Validators.maxLength(254)]),
     firstNames: this.fb.control('', Validators.maxLength(120)),

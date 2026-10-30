@@ -9,6 +9,8 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import com.mycomplex.properties.application.port.in.ResolveResidentialUnitsUseCase;
+
 import com.mycomplex.users.application.exception.PropertyMembersAccessDeniedException;
 import com.mycomplex.users.application.port.out.LoadPropertyMembersPort;
 import com.mycomplex.users.domain.model.MembershipStatus;
@@ -50,7 +52,7 @@ class FindPropertyMembersServiceTest {
         );
 
         FindPropertyMembersService service =
-                new FindPropertyMembersService(port);
+                new FindPropertyMembersService(port, unitEnricher());
 
         assertEquals(
                 List.of(expectedMember),
@@ -65,7 +67,8 @@ class FindPropertyMembersServiceTest {
     void deniesUserWithoutActiveAdministratorAccess() {
         FindPropertyMembersService service =
                 new FindPropertyMembersService(
-                        new StubPort(false, List.of())
+                        new StubPort(false, List.of()),
+                        unitEnricher()
                 );
 
         assertThrows(
@@ -81,7 +84,8 @@ class FindPropertyMembersServiceTest {
     void rejectsMissingPropertyId() {
         FindPropertyMembersService service =
                 new FindPropertyMembersService(
-                        new StubPort(true, List.of())
+                        new StubPort(true, List.of()),
+                        unitEnricher()
                 );
 
         IllegalArgumentException exception = assertThrows(
@@ -102,7 +106,8 @@ class FindPropertyMembersServiceTest {
     void rejectsBlankAuth0Subject() {
         FindPropertyMembersService service =
                 new FindPropertyMembersService(
-                        new StubPort(true, List.of())
+                        new StubPort(true, List.of()),
+                        unitEnricher()
                 );
 
         IllegalArgumentException exception = assertThrows(
@@ -114,6 +119,12 @@ class FindPropertyMembersServiceTest {
                 "auth0Subject must not be blank",
                 exception.getMessage()
         );
+    }
+
+    private PropertyMemberResidentialUnitEnricher unitEnricher() {
+        ResolveResidentialUnitsUseCase units = (propertyId, unitIds) ->
+                List.of();
+        return new PropertyMemberResidentialUnitEnricher(units);
     }
 
     private record StubPort(

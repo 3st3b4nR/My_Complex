@@ -12,11 +12,14 @@ public final class FindPropertyMembersService
         implements FindPropertyMembersUseCase {
 
     private final LoadPropertyMembersPort loadPropertyMembersPort;
+    private final PropertyMemberResidentialUnitEnricher unitEnricher;
 
     public FindPropertyMembersService(
-            LoadPropertyMembersPort loadPropertyMembersPort
+            LoadPropertyMembersPort loadPropertyMembersPort,
+            PropertyMemberResidentialUnitEnricher unitEnricher
     ) {
         this.loadPropertyMembersPort = loadPropertyMembersPort;
+        this.unitEnricher = unitEnricher;
     }
 
     @Override
@@ -46,6 +49,9 @@ public final class FindPropertyMembersService
             throw new PropertyMembersAccessDeniedException();
         }
 
-        return loadPropertyMembersPort.loadByPropertyId(propertyId);
+        return unitEnricher.enrichAll(
+                propertyId,
+                loadPropertyMembersPort.loadByPropertyId(propertyId)
+        );
     }
 }

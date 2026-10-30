@@ -155,6 +155,9 @@ public interface PropertyMemberPersistenceMapper {
 
     @Named("mapUnitType")
     default ResidentialUnitType mapUnitType(String databaseType) {
+        if (databaseType == null) {
+            return null;
+        }
         return switch (databaseType) {
             case "APARTAMENTO" -> ResidentialUnitType.APARTMENT;
             case "CASA" -> ResidentialUnitType.HOUSE;

@@ -21,10 +21,10 @@
           <label><span>Número de documento (opcional)</span><input formControlName="documentNumber" /></label>
         }
         <label><span>Rol</span><select formControlName="role">
-          <option value="PROPERTY_ADMIN">Administrador de copropiedad</option><option value="OWNER">Propietario</option><option value="RESIDENT">Residente</option><option value="SECURITY_GUARD">Vigilante</option><option value="WORKER">Trabajador</option>
+          @for (option of roleOptions; track option.value) { <option [value]="option.value">{{ option.label }}</option> }
         </select></label>
         <label><span>Estado de la vinculación</span><select formControlName="membershipStatus">
-          <option value="ACTIVE">Activa</option><option value="INACTIVE">Inactiva</option><option value="SUSPENDED">Suspendida</option>
+          @for (option of membershipOptions; track option.value) { <option [value]="option.value">{{ option.label }}</option> }
         </select></label>
       </section>
       <section>
@@ -35,7 +35,7 @@
               <legend>Asignación {{ index + 1 }}</legend>
               <label><span>Estructura</span><select formControlName="structureId" (change)="structureChanged(index)"><option value="">Selecciona</option>@for (structure of structures(); track structure.id) {<option [value]="structure.id">{{ structure.name }}</option>}</select></label>
               <label><span>Unidad</span><select formControlName="unitId"><option value="">Selecciona</option>@for (available of unitsFor(index); track available.unitId) {<option [value]="available.unitId">{{ available.unitNumber }}</option>}</select></label>
-              <label><span>Relación</span><select formControlName="relationshipType"><option value="OWNER">Propietario</option><option value="RESIDENT">Residente</option></select></label>
+              <label><span>Relación</span><select formControlName="relationshipType">@for (option of relationshipOptions; track option.value) { <option [value]="option.value">{{ option.label }}</option> }</select></label>
               <label><input type="checkbox" formControlName="primary" (change)="selectPrimary(index, $event)" /> Unidad principal</label>
               <button type="button" (click)="removeUnit(index)">Retirar</button>
             </fieldset>

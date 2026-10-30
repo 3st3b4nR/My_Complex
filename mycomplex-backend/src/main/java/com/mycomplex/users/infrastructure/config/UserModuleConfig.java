@@ -30,12 +30,29 @@ import com.mycomplex.users.application.service.UnlinkPropertyMemberService;
 import com.mycomplex.users.application.service.InvitePropertyMemberService;
 import com.mycomplex.users.application.service.LinkAuthenticatedUserService;
 import com.mycomplex.properties.application.port.in.FindAvailableResidentialUnitsUseCase;
+import com.mycomplex.properties.application.port.in.ResolveResidentialUnitsUseCase;
+import com.mycomplex.users.application.service.PropertyMemberResidentialUnitEnricher;
+import com.mycomplex.users.application.validation.ResidentialAssignmentValidator;
 import com.mycomplex.users.infrastructure.adapter.in.security.AuthenticatedUserLinkingFilter;
 import com.mycomplex.users.infrastructure.adapter.out.auth0.Auth0ManagementProperties;
 
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(Auth0ManagementProperties.class)
 public class UserModuleConfig {
+
+    @Bean
+    PropertyMemberResidentialUnitEnricher propertyMemberUnitEnricher(
+            ResolveResidentialUnitsUseCase resolveUnitsUseCase
+    ) {
+        return new PropertyMemberResidentialUnitEnricher(
+                resolveUnitsUseCase
+        );
+    }
+
+    @Bean
+    ResidentialAssignmentValidator residentialAssignmentValidator() {
+        return new ResidentialAssignmentValidator();
+    }
 
     @Bean
     FindUserPropertiesUseCase findUserPropertiesUseCase(
@@ -48,21 +65,25 @@ public class UserModuleConfig {
 
     @Bean
     FindPropertyMembersUseCase findPropertyMembersUseCase(
-            LoadPropertyMembersPort loadPropertyMembersPort
+            LoadPropertyMembersPort loadPropertyMembersPort,
+            PropertyMemberResidentialUnitEnricher unitEnricher
     ) {
         return new FindPropertyMembersService(
-                loadPropertyMembersPort
+                loadPropertyMembersPort,
+                unitEnricher
         );
     }
 
     @Bean
     FindPropertyMemberDetailsUseCase findPropertyMemberDetailsUseCase(
             LoadPropertyMembersPort loadPropertyMembersPort,
-            FindAvailableResidentialUnitsUseCase findUnitsUseCase
+            FindAvailableResidentialUnitsUseCase findUnitsUseCase,
+            PropertyMemberResidentialUnitEnricher unitEnricher
     ) {
         return new FindPropertyMemberDetailsService(
                 loadPropertyMembersPort,
-                findUnitsUseCase
+                findUnitsUseCase,
+                unitEnricher
         );
     }
 
@@ -70,13 +91,18 @@ public class UserModuleConfig {
     UpdatePropertyMemberUseCase updatePropertyMemberUseCase(
             UpdatePropertyMemberPort updatePropertyMemberPort,
             LoadPropertyMembersPort loadPropertyMembersPort,
-            FindAvailableResidentialUnitsUseCase findUnitsUseCase
+            FindAvailableResidentialUnitsUseCase findUnitsUseCase,
+            PropertyMemberResidentialUnitEnricher unitEnricher,
+            ResidentialAssignmentValidator assignmentValidator
     ) {
-        return new UpdatePropertyMemberService(
+        UpdatePropertyMemberUseCase service = new UpdatePropertyMemberService(
                 updatePropertyMemberPort,
                 loadPropertyMembersPort,
-                findUnitsUseCase
+                findUnitsUseCase,
+                unitEnricher,
+                assignmentValidator
         );
+        return new TransactionalUpdatePropertyMemberUseCase(service);
     }
 
     @Bean
@@ -95,13 +121,19 @@ public class UserModuleConfig {
     RegisterPropertyMemberUseCase registerPropertyMemberUseCase(
             LoadPropertyMembersPort loadPropertyMembersPort,
             ManagePropertyMembersPort managePropertyMembersPort,
-            FindAvailableResidentialUnitsUseCase findUnitsUseCase
+            FindAvailableResidentialUnitsUseCase findUnitsUseCase,
+            PropertyMemberResidentialUnitEnricher unitEnricher,
+            ResidentialAssignmentValidator assignmentValidator
     ) {
-        return new RegisterPropertyMemberService(
+        RegisterPropertyMemberUseCase service =
+                new RegisterPropertyMemberService(
                 loadPropertyMembersPort,
                 managePropertyMembersPort,
-                findUnitsUseCase
+                findUnitsUseCase,
+                unitEnricher,
+                assignmentValidator
         );
+        return new TransactionalRegisterPropertyMemberUseCase(service);
     }
 
     @Bean

@@ -1,6 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -30,7 +29,12 @@ import {
   PropertyMemberUpdate,
   ResidentialRelationshipType
 } from '../../models/property-member';
-import { userStatusLabel } from '../../models/property-member-labels';
+import {
+  MEMBERSHIP_STATUS_LABELS,
+  PROPERTY_ROLE_LABELS,
+  RESIDENTIAL_RELATIONSHIP_LABELS,
+  userStatusLabel
+} from '../../models/property-member-labels';
 
 type EditorStatus = 'loading' | 'ready' | 'forbidden' | 'not-found' | 'error';
 type SaveStatus = 'idle' | 'saving' | 'success' | 'conflict' | 'error';
@@ -42,29 +46,18 @@ type UnitForm = FormGroup<{
   primary: FormControl<boolean>;
 }>;
 
-const ROLE_OPTIONS: { value: PropertyRole; label: string }[] = [
-  { value: 'PROPERTY_ADMIN', label: 'Administrador de copropiedad' },
-  { value: 'OWNER', label: 'Propietario' },
-  { value: 'RESIDENT', label: 'Residente' },
-  { value: 'SECURITY_GUARD', label: 'Vigilante' },
-  { value: 'WORKER', label: 'Trabajador' }
-];
-
-const MEMBERSHIP_OPTIONS: {
-  value: MembershipStatus;
-  label: string;
-}[] = [
-  { value: 'ACTIVE', label: 'Activa' },
-  { value: 'INACTIVE', label: 'Inactiva' },
-  { value: 'SUSPENDED', label: 'Suspendida' }
-];
+const ROLE_OPTIONS = Object.entries(PROPERTY_ROLE_LABELS).map(
+  ([value, label]) => ({ value: value as PropertyRole, label })
+);
+const MEMBERSHIP_OPTIONS = Object.entries(MEMBERSHIP_STATUS_LABELS).map(
+  ([value, label]) => ({ value: value as MembershipStatus, label })
+);
 
 @Component({
   selector: 'app-user-management-editor',
   imports: [ReactiveFormsModule],
   templateUrl: './user-management-editor.html',
-  styleUrl: './user-management-editor.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './user-management-editor.scss'
 })
 export class UserManagementEditor implements OnInit {
 
@@ -79,6 +72,12 @@ export class UserManagementEditor implements OnInit {
 
   protected readonly roleOptions = ROLE_OPTIONS;
   protected readonly membershipOptions = MEMBERSHIP_OPTIONS;
+  protected readonly relationshipOptions = Object.entries(
+    RESIDENTIAL_RELATIONSHIP_LABELS
+  ).map(([value, label]) => ({
+    value: value as ResidentialRelationshipType,
+    label
+  }));
   protected readonly userStatusLabel = userStatusLabel;
   protected readonly status = signal<EditorStatus>('loading');
   protected readonly saveStatus = signal<SaveStatus>('idle');

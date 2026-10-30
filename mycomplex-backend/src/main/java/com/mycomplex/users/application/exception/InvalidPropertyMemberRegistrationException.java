@@ -6,4 +6,8 @@ public class InvalidPropertyMemberRegistrationException
     public InvalidPropertyMemberRegistrationException(String message) {
         super(message);
     }
+
+    public String safeMessage() {
+        return getMessage();
+    }
 }

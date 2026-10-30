@@ -1,4 +1,4 @@
-package com.mycomplex.shared.infrastructure.security;
+package com.mycomplex.users.infrastructure.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -8,14 +8,15 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
+import org.springframework.security.web.SecurityFilterChain;
 
 import com.mycomplex.users.infrastructure.adapter.in.security.AuthenticatedUserLinkingFilter;
 
+/** Users-module composition for JWT security and first-login linking. */
 @Configuration(proxyBeanMethods = false)
 @EnableMethodSecurity
-public class SecurityConfig {
+public class UserSecurityConfiguration {
 
     @Bean
     SecurityFilterChain securityFilterChain(
@@ -31,21 +32,16 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
-                    "/actuator/health",
-                    "/actuator/info",
-                    "/api/public/**",
-                    "/error"
+                    "/actuator/health", "/actuator/info",
+                    "/api/public/**", "/error"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(withDefaults())
-            )
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
             .addFilterAfter(
                     authenticatedUserLinkingFilter,
                     BearerTokenAuthenticationFilter.class
             );
-
         return http.build();
     }
 }

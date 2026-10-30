@@ -130,10 +130,10 @@ public class PropertyMemberPersistenceAdapter
         return new PropertyMemberUnitDbo(
                 row.getAssignmentId(),
                 row.getUnitId(),
-                row.getStructureName(),
-                row.getStructureType(),
-                row.getUnitNumber(),
-                row.getUnitType(),
+                null,
+                null,
+                null,
+                null,
                 row.getRelationshipType(),
                 Boolean.TRUE.equals(row.getPrimaryUnit()),
                 row.getResidentialStatus()

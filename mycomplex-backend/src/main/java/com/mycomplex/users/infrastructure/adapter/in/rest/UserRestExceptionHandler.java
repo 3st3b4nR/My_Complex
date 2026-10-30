@@ -13,6 +13,7 @@ import com.mycomplex.users.application.exception.PropertyMemberNotFoundException
 import com.mycomplex.users.application.exception.InvalidPropertyMemberRegistrationException;
 import com.mycomplex.users.application.exception.PropertyMemberBusinessConflictException;
 import com.mycomplex.users.application.exception.UserInvitationException;
+import com.mycomplex.users.application.exception.UserErrorCode;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.UserErrorResponse;
 
 @RestControllerAdvice(
@@ -33,7 +34,7 @@ public class UserRestExceptionHandler {
     ) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new UserErrorResponse(
-                        "PROPERTY_MEMBER_NOT_FOUND",
+                        UserErrorCode.PROPERTY_MEMBER_NOT_FOUND.value(),
                         "La vinculación solicitada no está disponible."
                 )
         );
@@ -45,7 +46,7 @@ public class UserRestExceptionHandler {
     ) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 new UserErrorResponse(
-                        "PROPERTY_MEMBER_VERSION_CONFLICT",
+                        UserErrorCode.PROPERTY_MEMBER_VERSION_CONFLICT.value(),
                         "La vinculación fue modificada por otro administrador."
                 )
         );
@@ -57,7 +58,7 @@ public class UserRestExceptionHandler {
     ) {
         return ResponseEntity.badRequest().body(
                 new UserErrorResponse(
-                        "LAST_PROPERTY_ADMINISTRATOR",
+                        UserErrorCode.LAST_PROPERTY_ADMINISTRATOR.value(),
                         "La copropiedad debe conservar un administrador activo."
                 )
         );
@@ -69,8 +70,8 @@ public class UserRestExceptionHandler {
     ) {
         return ResponseEntity.badRequest().body(
                 new UserErrorResponse(
-                        "INVALID_PROPERTY_MEMBER_UPDATE",
-                        exception.getMessage()
+                        UserErrorCode.INVALID_PROPERTY_MEMBER_UPDATE.value(),
+                        exception.safeMessage()
                 )
         );
     }
@@ -80,8 +81,8 @@ public class UserRestExceptionHandler {
             InvalidPropertyMemberRegistrationException exception
     ) {
         return ResponseEntity.badRequest().body(new UserErrorResponse(
-                "INVALID_PROPERTY_MEMBER_REGISTRATION",
-                exception.getMessage()
+                UserErrorCode.INVALID_PROPERTY_MEMBER_REGISTRATION.value(),
+                exception.safeMessage()
         ));
     }
 
@@ -90,7 +91,10 @@ public class UserRestExceptionHandler {
             PropertyMemberBusinessConflictException exception
     ) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                new UserErrorResponse(exception.code(), exception.getMessage())
+                new UserErrorResponse(
+                        exception.code(),
+                        exception.safeMessage()
+                )
         );
     }
 
@@ -98,17 +102,17 @@ public class UserRestExceptionHandler {
     public ResponseEntity<UserErrorResponse> handleInvitation(
             UserInvitationException exception
     ) {
-        HttpStatus status = switch (exception.code()) {
-            case "AUTH0_RATE_LIMITED" -> HttpStatus.TOO_MANY_REQUESTS;
-            case "AUTH0_NOT_CONFIGURED", "AUTH0_UNAVAILABLE",
-                    "AUTH0_INVITATION_UNAVAILABLE" ->
+        HttpStatus status = switch (exception.errorCode()) {
+            case AUTH0_RATE_LIMITED -> HttpStatus.TOO_MANY_REQUESTS;
+            case AUTH0_NOT_CONFIGURED, AUTH0_UNAVAILABLE,
+                    AUTH0_INVITATION_UNAVAILABLE ->
                     HttpStatus.SERVICE_UNAVAILABLE;
-            case "AUTH0_CONFIGURATION_ERROR", "AUTH0_PERMISSION_DENIED" ->
+            case AUTH0_CONFIGURATION_ERROR, AUTH0_PERMISSION_DENIED ->
                     HttpStatus.BAD_GATEWAY;
             default -> HttpStatus.CONFLICT;
         };
         return ResponseEntity.status(status).body(
-                new UserErrorResponse(exception.code(), exception.getMessage())
+                new UserErrorResponse(exception.code(), exception.safeMessage())
         );
     }
 }

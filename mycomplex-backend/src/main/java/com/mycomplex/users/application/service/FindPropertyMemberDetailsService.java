@@ -15,13 +15,16 @@ public final class FindPropertyMemberDetailsService
 
     private final LoadPropertyMembersPort loadMembersPort;
     private final FindAvailableResidentialUnitsUseCase findUnitsUseCase;
+    private final PropertyMemberResidentialUnitEnricher unitEnricher;
 
     public FindPropertyMemberDetailsService(
             LoadPropertyMembersPort loadMembersPort,
-            FindAvailableResidentialUnitsUseCase findUnitsUseCase
+            FindAvailableResidentialUnitsUseCase findUnitsUseCase,
+            PropertyMemberResidentialUnitEnricher unitEnricher
     ) {
         this.loadMembersPort = loadMembersPort;
         this.findUnitsUseCase = findUnitsUseCase;
+        this.unitEnricher = unitEnricher;
     }
 
     @Override
@@ -44,9 +47,10 @@ public final class FindPropertyMemberDetailsService
                 membershipId
         ).orElseThrow(PropertyMemberNotFoundException::new);
 
+        var availableUnits = findUnitsUseCase.findByPropertyId(propertyId);
         return new PropertyMemberDetails(
-                member,
-                findUnitsUseCase.findByPropertyId(propertyId)
+                unitEnricher.enrich(member, availableUnits),
+                availableUnits
         );
     }
 

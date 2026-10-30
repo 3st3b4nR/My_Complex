@@ -1,32 +1,19 @@
 import { DatePipe, NgOptimizedImage } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
   inject,
   signal
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import {
-  catchError,
-  map,
-  Observable,
-  of,
-  startWith,
-  Subject,
-  switchMap
-} from 'rxjs';
+import { RouterLink } from '@angular/router';
 
-import { PropertyApiService } from '../../../property-selection/data-access/property-api.service';
 import {
-  AssignedProperty,
   PropertyRole
 } from '../../../property-selection/models/assigned-property';
 import { PropertyMemberApiService } from '../../data-access/property-member-api.service';
+import { UserManagementFacade } from '../../data-access/user-management.facade';
 import { UserManagementEditor } from '../../components/user-management-editor/user-management-editor';
 import { UserRegistration } from '../../components/user-registration/user-registration';
 import {
@@ -39,68 +26,30 @@ import {
 } from '../../models/property-member';
 import {
   USER_STATUS_LABELS,
+  PROPERTY_ROLE_LABELS,
+  MEMBERSHIP_STATUS_LABELS,
+  RESIDENTIAL_RELATIONSHIP_LABELS,
+  propertyMemberUnitLabel,
   userStatusLabel,
   userRegistrationStatusLabel
 } from '../../models/property-member-labels';
-
-type UserManagementState =
-  | {
-      status: 'loading';
-      property: AssignedProperty | null;
-      members: PropertyMember[];
-    }
-  | {
-      status: 'success';
-      property: AssignedProperty;
-      members: PropertyMember[];
-    }
-  | {
-      status: 'not-found' | 'error';
-      property: null;
-      members: PropertyMember[];
-    }
-  | {
-      status: 'unauthorized';
-      property: AssignedProperty;
-      members: PropertyMember[];
-    };
-
-const ROLE_LABELS: Record<PropertyRole, string> = {
-  PROPERTY_ADMIN: 'Administrador de copropiedad',
-  OWNER: 'Propietario',
-  RESIDENT: 'Residente',
-  SECURITY_GUARD: 'Vigilante',
-  WORKER: 'Trabajador'
-};
-
-const MEMBERSHIP_STATUS_LABELS: Record<MembershipStatus, string> = {
-  ACTIVE: 'Activa',
-  INACTIVE: 'Inactiva',
-  SUSPENDED: 'Suspendida'
-};
-
-const RELATIONSHIP_LABELS: Record<
-  ResidentialRelationshipType,
-  string
-> = {
-  OWNER: 'Propietario',
-  RESIDENT: 'Residente'
-};
+import {
+  invitationErrorMessage,
+  unlinkErrorMessage
+} from '../../models/property-member-error-messages';
 
 @Component({
   selector: 'app-user-management-page',
   imports: [DatePipe, NgOptimizedImage, RouterLink, UserManagementEditor, UserRegistration],
+  providers: [UserManagementFacade],
   templateUrl: './user-management-page.html',
-  styleUrl: './user-management-page.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './user-management-page.scss'
 })
 export class UserManagementPage {
 
-  private readonly route = inject(ActivatedRoute);
-  private readonly propertyApi = inject(PropertyApiService);
+  private readonly facade = inject(UserManagementFacade);
   private readonly memberApi = inject(PropertyMemberApiService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly refreshMembers = new Subject<void>();
 
   protected readonly selectedMembershipId = signal<string | null>(null);
   protected readonly registrationOpen = signal(false);
@@ -109,7 +58,7 @@ export class UserManagementPage {
   protected readonly notice = signal('');
   protected readonly actionError = signal('');
 
-  protected readonly roleOptions = Object.entries(ROLE_LABELS).map(
+  protected readonly roleOptions = Object.entries(PROPERTY_ROLE_LABELS).map(
     ([value, label]) => ({
       value: value as PropertyRole,
       label
@@ -161,7 +110,7 @@ export class UserManagementPage {
 
     return Array.from(types).map(value => ({
       value,
-      label: RELATIONSHIP_LABELS[value]
+      label: RESIDENTIAL_RELATIONSHIP_LABELS[value]
     }));
   });
 
@@ -178,13 +127,7 @@ export class UserManagementPage {
     ResidentialRelationshipType | 'ALL'
   >('ALL');
 
-  protected readonly state = toSignal(this.loadState(), {
-    initialValue: {
-      status: 'loading',
-      property: null,
-      members: []
-    } as UserManagementState
-  });
+  protected readonly state = this.facade.state;
 
   protected readonly filteredMembers = computed(() => {
     const currentState = this.state();
@@ -334,13 +277,13 @@ export class UserManagementPage {
   }
 
   protected handleMemberSaved(): void {
-    this.refreshMembers.next();
+    this.facade.reload();
   }
 
   protected handleRegistrationSaved(message: string): void {
     this.registrationOpen.set(false);
     this.notice.set(message);
-    this.refreshMembers.next();
+    this.facade.reload();
   }
 
   protected registrationStatusLabel = userRegistrationStatusLabel;
@@ -389,11 +332,11 @@ export class UserManagementPage {
       next: result => {
         this.invitingMembershipId.set(null);
         this.notice.set(result.message);
-        this.refreshMembers.next();
+        this.facade.reload();
       },
       error: error => {
         this.invitingMembershipId.set(null);
-        this.actionError.set(this.invitationErrorMessage(error));
+        this.actionError.set(invitationErrorMessage(error));
       }
     });
   }
@@ -415,17 +358,17 @@ export class UserManagementPage {
         this.unlinkingMembershipId.set(null);
         this.selectedMembershipId.set(null);
         this.notice.set('Usuario desvinculado correctamente.');
-        this.refreshMembers.next();
+        this.facade.reload();
       },
       error: error => {
         this.unlinkingMembershipId.set(null);
-        this.actionError.set(this.unlinkErrorMessage(error));
+        this.actionError.set(unlinkErrorMessage(error));
       }
     });
   }
 
   protected roleLabel(role: PropertyRole): string {
-    return ROLE_LABELS[role];
+    return PROPERTY_ROLE_LABELS[role];
   }
 
   protected userStatusLabel(status: UserStatus): string {
@@ -439,92 +382,13 @@ export class UserManagementPage {
   }
 
   protected unitLabel(unit: PropertyMemberUnit): string {
-    const structure = unit.structureName
-      ? `${unit.structureName} · `
-      : '';
-
-    return `${structure}${this.unitTypeLabel(unit)} `
-      + `· ${RELATIONSHIP_LABELS[unit.relationshipType]}`;
+    return propertyMemberUnitLabel(unit);
   }
 
   protected noUnitsLabel(role: PropertyRole): string {
     return role === 'OWNER' || role === 'RESIDENT'
       ? 'Sin unidad asignada'
       : 'No aplica';
-  }
-
-  private loadState(): Observable<UserManagementState> {
-    return this.route.paramMap.pipe(
-      switchMap(parameters => {
-        const propertyId = parameters.get('propertyId');
-
-        if (!propertyId) {
-          return of<UserManagementState>({
-            status: 'not-found',
-            property: null,
-            members: []
-          });
-        }
-
-        return this.propertyApi.getMyProperties().pipe(
-          switchMap(properties => {
-            const property = properties.find(
-              currentProperty =>
-                currentProperty.propertyId === propertyId
-            );
-
-            if (!property) {
-              return of<UserManagementState>({
-                status: 'not-found',
-                property: null,
-                members: []
-              });
-            }
-
-            if (property.role !== 'PROPERTY_ADMIN') {
-              return of<UserManagementState>({
-                status: 'unauthorized',
-                property,
-                members: []
-              });
-            }
-
-            return this.refreshMembers.pipe(
-              startWith(undefined),
-              switchMap(() => this.memberApi
-                .getPropertyMembers(propertyId)
-                .pipe(
-                map(members => ({
-                  status: 'success' as const,
-                  property,
-                  members
-                })),
-                startWith({
-                  status: 'loading' as const,
-                  property,
-                  members: []
-                }),
-                catchError(error => of<UserManagementState>({
-                  status: this.isForbidden(error)
-                    ? 'unauthorized'
-                    : 'error',
-                  property: this.isForbidden(error)
-                    ? property
-                    : null,
-                  members: []
-                } as UserManagementState))
-                )
-              )
-            );
-          }),
-          catchError(() => of<UserManagementState>({
-            status: 'error',
-            property: null,
-            members: []
-          }))
-        );
-      })
-    );
   }
 
   private selectValue(event: Event): string {
@@ -541,70 +405,4 @@ export class UserManagementPage {
       .toLocaleLowerCase('es');
   }
 
-  private unitTypeLabel(unit: PropertyMemberUnit): string {
-    return switchUnitType(unit);
-  }
-
-  private isForbidden(error: unknown): boolean {
-    return error instanceof HttpErrorResponse
-      && error.status === 403;
-  }
-
-  private unlinkErrorMessage(error: unknown): string {
-    if (!(error instanceof HttpErrorResponse)) return 'No pudimos desvincular al usuario.';
-    if (error.status === 403) return 'No tienes permiso para desvincular usuarios.';
-    if (error.status === 404) return 'La vinculación ya no está disponible.';
-    if (error.status === 409) return 'La vinculación fue modificada. Actualiza el listado e inténtalo nuevamente.';
-    if (error.status === 400 && error.error?.code === 'LAST_PROPERTY_ADMINISTRATOR') return 'No puedes desvincular al último administrador activo.';
-    if (error.status === 400) return error.error?.message ?? 'La desvinculación no es válida.';
-    return 'No pudimos desvincular al usuario.';
-  }
-
-  private invitationErrorMessage(error: unknown): string {
-    if (!(error instanceof HttpErrorResponse)) {
-      return 'No pudimos procesar la invitación.';
-    }
-    const code = error.error?.code as string | undefined;
-    if (error.status === 403) {
-      return 'No tienes permiso para invitar usuarios.';
-    }
-    if (error.status === 404) {
-      return 'La vinculación ya no está disponible.';
-    }
-    if (code === 'AUTH0_NOT_CONFIGURED'
-      || code === 'AUTH0_CONFIGURATION_ERROR') {
-      return 'La integración con Auth0 aún no está configurada correctamente.';
-    }
-    if (code === 'AUTH0_IDENTITY_CONFLICT') {
-      return 'El correo ya pertenece a una identidad que requiere revisión manual.';
-    }
-    if (code === 'AUTH0_RATE_LIMITED') {
-      return 'Auth0 limitó temporalmente las solicitudes. Inténtalo más tarde.';
-    }
-    if (code === 'AUTH0_UNAVAILABLE') {
-      return 'Auth0 no está disponible temporalmente.';
-    }
-    if (code === 'AUTH0_INVITATION_UNAVAILABLE') {
-      return 'La identidad fue creada, pero no fue posible solicitar el correo. Puedes reintentarlo.';
-    }
-    if (code === 'INVITATION_RESEND_TOO_SOON') {
-      return 'Espera antes de reenviar la invitación.';
-    }
-    return error.error?.message ?? 'No pudimos procesar la invitación.';
-  }
-}
-
-function switchUnitType(unit: PropertyMemberUnit): string {
-  switch (unit.unitType) {
-    case 'APARTMENT':
-      return `Apto. ${unit.unitNumber}`;
-    case 'HOUSE':
-      return `Casa ${unit.unitNumber}`;
-    case 'COMMERCIAL_SPACE':
-      return `Local ${unit.unitNumber}`;
-    case 'OFFICE':
-      return `Oficina ${unit.unitNumber}`;
-    case 'OTHER':
-      return `Unidad ${unit.unitNumber}`;
-  }
 }
