@@ -1,5 +1,8 @@
 package com.mycomplex.users.infrastructure.adapter.out.persistence;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,8 +113,15 @@ public class PropertyMemberPersistenceAdapter
                 member.getRegistrationStatus(),
                 member.getMembershipStatus(),
                 member.getMembershipVersion(),
+                toOffsetDateTime(member.getInvitationSentAt()),
                 units
         );
+    }
+
+    private OffsetDateTime toOffsetDateTime(Instant instant) {
+        return instant == null
+                ? null
+                : instant.atOffset(ZoneOffset.UTC);
     }
 
     private PropertyMemberUnitDbo toUnitDbo(

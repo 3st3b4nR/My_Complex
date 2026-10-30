@@ -107,6 +107,9 @@ public interface PropertyMemberPersistenceMapper {
     ) {
         return switch (databaseStatus) {
             case "PENDIENTE" -> UserRegistrationStatus.PENDING;
+            case "APROVISIONANDO" -> UserRegistrationStatus.PROVISIONING;
+            case "PROVISIONADO" -> UserRegistrationStatus.PROVISIONED;
+            case "INVITADO" -> UserRegistrationStatus.INVITED;
             case "VINCULADO" -> UserRegistrationStatus.LINKED;
             default -> throw new IllegalArgumentException(
                     "Unsupported database registration status: "

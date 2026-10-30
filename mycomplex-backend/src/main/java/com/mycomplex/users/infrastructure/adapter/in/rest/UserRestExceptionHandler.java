@@ -12,6 +12,7 @@ import com.mycomplex.users.application.exception.PropertyMemberConflictException
 import com.mycomplex.users.application.exception.PropertyMemberNotFoundException;
 import com.mycomplex.users.application.exception.InvalidPropertyMemberRegistrationException;
 import com.mycomplex.users.application.exception.PropertyMemberBusinessConflictException;
+import com.mycomplex.users.application.exception.UserInvitationException;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.UserErrorResponse;
 
 @RestControllerAdvice(
@@ -89,6 +90,24 @@ public class UserRestExceptionHandler {
             PropertyMemberBusinessConflictException exception
     ) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                new UserErrorResponse(exception.code(), exception.getMessage())
+        );
+    }
+
+    @ExceptionHandler(UserInvitationException.class)
+    public ResponseEntity<UserErrorResponse> handleInvitation(
+            UserInvitationException exception
+    ) {
+        HttpStatus status = switch (exception.code()) {
+            case "AUTH0_RATE_LIMITED" -> HttpStatus.TOO_MANY_REQUESTS;
+            case "AUTH0_NOT_CONFIGURED", "AUTH0_UNAVAILABLE",
+                    "AUTH0_INVITATION_UNAVAILABLE" ->
+                    HttpStatus.SERVICE_UNAVAILABLE;
+            case "AUTH0_CONFIGURATION_ERROR", "AUTH0_PERMISSION_DENIED" ->
+                    HttpStatus.BAD_GATEWAY;
+            default -> HttpStatus.CONFLICT;
+        };
+        return ResponseEntity.status(status).body(
                 new UserErrorResponse(exception.code(), exception.getMessage())
         );
     }

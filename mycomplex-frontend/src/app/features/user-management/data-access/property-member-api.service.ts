@@ -8,7 +8,8 @@ import {
   PropertyMemberDetails,
   PropertyMemberUpdate,
   PropertyMemberCandidate,
-  PropertyMemberRegistration
+  PropertyMemberRegistration,
+  PropertyMemberInvitation
 } from '../models/property-member';
 
 @Injectable({
@@ -78,6 +79,28 @@ export class PropertyMemberApiService {
       `${environment.apiUrl}/api/properties/${propertyId}`
       + `/members/${membershipId}`,
       { params: { version } }
+    );
+  }
+
+  invitePropertyMember(
+    propertyId: string,
+    membershipId: string
+  ): Observable<PropertyMemberInvitation> {
+    return this.http.post<PropertyMemberInvitation>(
+      `${environment.apiUrl}/api/properties/${propertyId}`
+      + `/members/${membershipId}/invitation`,
+      null
+    );
+  }
+
+  resendPropertyMemberInvitation(
+    propertyId: string,
+    membershipId: string
+  ): Observable<PropertyMemberInvitation> {
+    return this.http.post<PropertyMemberInvitation>(
+      `${environment.apiUrl}/api/properties/${propertyId}`
+      + `/members/${membershipId}/invitation/resend`,
+      null
     );
   }
 }

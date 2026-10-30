@@ -15,6 +15,7 @@ import com.mycomplex.users.domain.model.PropertyMember;
 import com.mycomplex.users.domain.model.PropertyMemberCandidate;
 import com.mycomplex.users.domain.model.PropertyMemberRegistration;
 import com.mycomplex.users.domain.model.PropertyMemberUnit;
+import com.mycomplex.users.domain.model.PropertyMemberInvitation;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.AvailableResidentialUnitResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberDetailsResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberCandidateResponse;
@@ -23,6 +24,7 @@ import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberUnit
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.UpdatePropertyMemberRequest;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.UpdatePropertyMemberUnitRequest;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.RegisterPropertyMemberRequest;
+import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberInvitationResponse;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
@@ -31,6 +33,10 @@ import com.mycomplex.users.infrastructure.adapter.in.rest.dto.RegisterPropertyMe
 public interface PropertyMemberRestMapper {
 
     PropertyMemberResponse toResponse(PropertyMember propertyMember);
+
+    PropertyMemberInvitationResponse toResponse(
+            PropertyMemberInvitation invitation
+    );
 
     PropertyMemberCandidateResponse toResponse(
             PropertyMemberCandidate candidate
@@ -65,6 +71,10 @@ public interface PropertyMemberRestMapper {
             source = "member.membershipStatus"
     )
     @Mapping(target = "version", source = "member.version")
+    @Mapping(
+            target = "invitationSentAt",
+            source = "member.invitationSentAt"
+    )
     @Mapping(target = "units", source = "member.units")
     PropertyMemberDetailsResponse toResponse(
             PropertyMemberDetails details

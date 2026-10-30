@@ -1,7 +1,12 @@
 import { PropertyRole } from '../../property-selection/models/assigned-property';
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
-export type UserRegistrationStatus = 'PENDING' | 'LINKED';
+export type UserRegistrationStatus =
+  | 'PENDING'
+  | 'PROVISIONING'
+  | 'PROVISIONED'
+  | 'INVITED'
+  | 'LINKED';
 
 export type MembershipStatus =
   | 'ACTIVE'
@@ -51,7 +56,16 @@ export interface PropertyMember {
   registrationStatus: UserRegistrationStatus;
   membershipStatus: MembershipStatus;
   version: number;
+  invitationSentAt?: string | null;
   units: PropertyMemberUnit[];
+}
+
+export interface PropertyMemberInvitation {
+  membershipId: string;
+  userId: string;
+  registrationStatus: UserRegistrationStatus;
+  invitationSentAt: string | null;
+  message: string;
 }
 
 export interface AvailableResidentialUnit {

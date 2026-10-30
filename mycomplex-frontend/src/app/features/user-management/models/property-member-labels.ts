@@ -14,6 +14,9 @@ export const USER_REGISTRATION_STATUS_LABELS: Readonly<
   Record<UserRegistrationStatus, string>
 > = {
   PENDING: 'Pendiente',
+  PROVISIONING: 'Aprovisionando',
+  PROVISIONED: 'Identidad creada',
+  INVITED: 'Invitado',
   LINKED: 'Vinculado'
 };
 

@@ -1,5 +1,6 @@
 package com.mycomplex.users.infrastructure.adapter.in.rest.dto;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ public record PropertyMemberDetailsResponse(
         String registrationStatus,
         String membershipStatus,
         long version,
+        OffsetDateTime invitationSentAt,
         List<PropertyMemberUnitResponse> units,
         List<AvailableResidentialUnitResponse> availableUnits
 ) {

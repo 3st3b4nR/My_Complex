@@ -20,6 +20,7 @@ import com.mycomplex.users.application.exception.PropertyMemberNotFoundException
 import com.mycomplex.users.application.port.in.FindPropertyMembersUseCase;
 import com.mycomplex.users.application.port.in.FindPropertyMemberDetailsUseCase;
 import com.mycomplex.users.application.port.in.UpdatePropertyMemberUseCase;
+import com.mycomplex.users.application.port.in.InvitePropertyMemberUseCase;
 import com.mycomplex.properties.domain.model.PropertyStructureReference;
 import com.mycomplex.properties.domain.model.PropertyStructureType;
 import com.mycomplex.properties.domain.model.ResidentialUnitReference;
@@ -32,6 +33,7 @@ import com.mycomplex.users.domain.model.ResidentialRelationshipStatus;
 import com.mycomplex.users.domain.model.ResidentialRelationshipType;
 import com.mycomplex.users.domain.model.UserStatus;
 import com.mycomplex.users.domain.model.UserRegistrationStatus;
+import com.mycomplex.users.domain.model.PropertyMemberInvitation;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberDetailsResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.mapper.PropertyMemberRestMapper;
@@ -101,6 +103,26 @@ class PropertyMemberControllerTest {
                 registerUseCase = (registration, subject) -> null;
         com.mycomplex.users.application.port.in.UnlinkPropertyMemberUseCase
                 unlinkUseCase = (unlink, subject) -> { };
+        InvitePropertyMemberUseCase inviteUseCase =
+                new InvitePropertyMemberUseCase() {
+                    @Override
+                    public PropertyMemberInvitation invite(
+                            UUID currentPropertyId,
+                            UUID membershipId,
+                            String subject
+                    ) {
+                        return null;
+                    }
+
+                    @Override
+                    public PropertyMemberInvitation resend(
+                            UUID currentPropertyId,
+                            UUID membershipId,
+                            String subject
+                    ) {
+                        return null;
+                    }
+                };
         PropertyMemberController controller =
                 new PropertyMemberController(
                         useCase,
@@ -109,6 +131,7 @@ class PropertyMemberControllerTest {
                         candidateUseCase,
                         registerUseCase,
                         unlinkUseCase,
+                        inviteUseCase,
                         mapper
                 );
         Jwt jwt = Jwt.withTokenValue("token")

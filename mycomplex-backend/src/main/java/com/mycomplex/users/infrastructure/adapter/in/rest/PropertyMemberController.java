@@ -21,6 +21,7 @@ import com.mycomplex.users.application.port.in.UpdatePropertyMemberUseCase;
 import com.mycomplex.users.application.port.in.FindPropertyMemberCandidateUseCase;
 import com.mycomplex.users.application.port.in.RegisterPropertyMemberUseCase;
 import com.mycomplex.users.application.port.in.UnlinkPropertyMemberUseCase;
+import com.mycomplex.users.application.port.in.InvitePropertyMemberUseCase;
 import com.mycomplex.users.domain.model.PropertyMemberUnlink;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberCandidateResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.RegisterPropertyMemberRequest;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberDetailsResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.UpdatePropertyMemberRequest;
+import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberInvitationResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.mapper.PropertyMemberRestMapper;
 
 import jakarta.validation.Valid;
@@ -43,6 +45,7 @@ public class PropertyMemberController {
     private final FindPropertyMemberCandidateUseCase candidateUseCase;
     private final RegisterPropertyMemberUseCase registerUseCase;
     private final UnlinkPropertyMemberUseCase unlinkUseCase;
+    private final InvitePropertyMemberUseCase inviteUseCase;
     private final PropertyMemberRestMapper mapper;
 
     public PropertyMemberController(
@@ -52,6 +55,7 @@ public class PropertyMemberController {
             FindPropertyMemberCandidateUseCase candidateUseCase,
             RegisterPropertyMemberUseCase registerUseCase,
             UnlinkPropertyMemberUseCase unlinkUseCase,
+            InvitePropertyMemberUseCase inviteUseCase,
             PropertyMemberRestMapper mapper
     ) {
         this.useCase = useCase;
@@ -60,6 +64,7 @@ public class PropertyMemberController {
         this.candidateUseCase = candidateUseCase;
         this.registerUseCase = registerUseCase;
         this.unlinkUseCase = unlinkUseCase;
+        this.inviteUseCase = inviteUseCase;
         this.mapper = mapper;
     }
 
@@ -138,5 +143,27 @@ public class PropertyMemberController {
                 new PropertyMemberUnlink(propertyId, membershipId, version),
                 jwt.getSubject()
         );
+    }
+
+    @PostMapping("/members/{membershipId}/invitation")
+    public PropertyMemberInvitationResponse invitePropertyMember(
+            @PathVariable UUID propertyId,
+            @PathVariable UUID membershipId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return mapper.toResponse(inviteUseCase.invite(
+                propertyId, membershipId, jwt.getSubject()
+        ));
+    }
+
+    @PostMapping("/members/{membershipId}/invitation/resend")
+    public PropertyMemberInvitationResponse resendPropertyMemberInvitation(
+            @PathVariable UUID propertyId,
+            @PathVariable UUID membershipId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return mapper.toResponse(inviteUseCase.resend(
+                propertyId, membershipId, jwt.getSubject()
+        ));
     }
 }

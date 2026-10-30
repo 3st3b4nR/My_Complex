@@ -1,5 +1,6 @@
 package com.mycomplex.users.infrastructure.adapter.out.persistence.dbo;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public interface PropertyMemberRow {
@@ -23,6 +24,8 @@ public interface PropertyMemberRow {
     String getMembershipStatus();
 
     Long getMembershipVersion();
+
+    Instant getInvitationSentAt();
 
     UUID getAssignmentId();
 

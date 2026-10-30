@@ -119,4 +119,33 @@ describe('PropertyMemberApiService', () => {
     deletion.flush(null);
     http.verify();
   });
+
+  it('requests an invitation and an explicit resend', () => {
+    TestBed.configureTestingModule({ providers: [
+      PropertyMemberApiService, provideHttpClient(), provideHttpClientTesting()
+    ] });
+    const service = TestBed.inject(PropertyMemberApiService);
+    const http = TestBed.inject(HttpTestingController);
+    const propertyId = '10000000-0000-0000-0000-000000000001';
+    const membershipId = '70000000-0000-0000-0000-000000000001';
+
+    service.invitePropertyMember(propertyId, membershipId).subscribe();
+    const invitation = http.expectOne(
+      `${environment.apiUrl}/api/properties/${propertyId}`
+      + `/members/${membershipId}/invitation`
+    );
+    expect(invitation.request.method).toBe('POST');
+    expect(invitation.request.body).toBeNull();
+    invitation.flush({ registrationStatus: 'INVITED' });
+
+    service.resendPropertyMemberInvitation(propertyId, membershipId)
+      .subscribe();
+    const resend = http.expectOne(
+      `${environment.apiUrl}/api/properties/${propertyId}`
+      + `/members/${membershipId}/invitation/resend`
+    );
+    expect(resend.request.method).toBe('POST');
+    resend.flush({ registrationStatus: 'INVITED' });
+    http.verify();
+  });
 });

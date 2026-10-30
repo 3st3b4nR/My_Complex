@@ -287,7 +287,14 @@
                           {{ userStatusLabel(member.userStatus) }}
                         </span>
                       </td>
-                      <td data-label="Estado de registro"><span class="status-badge">{{ registrationStatusLabel(member.registrationStatus) }}</span></td>
+                      <td data-label="Estado de registro">
+                        <span class="status-badge">{{ registrationStatusLabel(member.registrationStatus) }}</span>
+                        @if (member.invitationSentAt) {
+                          <small class="invitation-date">
+                            Último envío: {{ member.invitationSentAt | date: 'dd/MM/yyyy, HH:mm' }}
+                          </small>
+                        }
+                      </td>
                       <td data-label="Estado de la vinculación">
                         <span class="status-badge status-badge--membership">
                           {{
@@ -298,6 +305,17 @@
                         </span>
                       </td>
                       <td data-label="Acciones">
+                        @if (invitationActionLabel(member.registrationStatus); as invitationLabel) {
+                          <button
+                            type="button"
+                            class="invitation-button"
+                            [disabled]="member.registrationStatus === 'PROVISIONING' || invitingMembershipId() !== null"
+                            [attr.aria-label]="invitationLabel + ' para ' + member.firstNames + ' ' + member.lastNames"
+                            (click)="sendInvitation(member)"
+                          >
+                            {{ invitingMembershipId() === member.membershipId ? 'Procesando…' : invitationLabel }}
+                          </button>
+                        }
                         <button
                           type="button"
                           class="edit-button"

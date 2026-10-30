@@ -66,6 +66,7 @@ public interface UserPropertyJpaRepository
                         usuario.estado_registro AS "registrationStatus",
                         membresia.estado AS "membershipStatus",
                         membresia.version AS "membershipVersion",
+                        usuario.invitacion_enviada_at AS "invitationSentAt",
                         vinculacion.id AS "assignmentId",
                         unidad.id AS "unitId",
                         estructura.nombre AS "structureName",

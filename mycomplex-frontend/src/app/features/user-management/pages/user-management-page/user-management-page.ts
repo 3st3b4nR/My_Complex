@@ -1,4 +1,4 @@
-import { NgOptimizedImage } from '@angular/common';
+import { DatePipe, NgOptimizedImage } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
@@ -34,7 +34,8 @@ import {
   PropertyMember,
   PropertyMemberUnit,
   ResidentialRelationshipType,
-  UserStatus
+  UserStatus,
+  UserRegistrationStatus
 } from '../../models/property-member';
 import {
   USER_STATUS_LABELS,
@@ -88,7 +89,7 @@ const RELATIONSHIP_LABELS: Record<
 
 @Component({
   selector: 'app-user-management-page',
-  imports: [NgOptimizedImage, RouterLink, UserManagementEditor, UserRegistration],
+  imports: [DatePipe, NgOptimizedImage, RouterLink, UserManagementEditor, UserRegistration],
   templateUrl: './user-management-page.html',
   styleUrl: './user-management-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -104,6 +105,7 @@ export class UserManagementPage {
   protected readonly selectedMembershipId = signal<string | null>(null);
   protected readonly registrationOpen = signal(false);
   protected readonly unlinkingMembershipId = signal<string | null>(null);
+  protected readonly invitingMembershipId = signal<string | null>(null);
   protected readonly notice = signal('');
   protected readonly actionError = signal('');
 
@@ -343,6 +345,59 @@ export class UserManagementPage {
 
   protected registrationStatusLabel = userRegistrationStatusLabel;
 
+  protected invitationActionLabel(
+    status: UserRegistrationStatus
+  ): string | null {
+    switch (status) {
+      case 'PENDING':
+        return 'Enviar invitación';
+      case 'PROVISIONING':
+        return 'Aprovisionando…';
+      case 'PROVISIONED':
+        return 'Reintentar envío';
+      case 'INVITED':
+        return 'Reenviar invitación';
+      case 'LINKED':
+        return null;
+    }
+  }
+
+  protected sendInvitation(member: PropertyMember): void {
+    const property = this.state().property;
+    const label = this.invitationActionLabel(member.registrationStatus);
+    if (!property || !label || member.registrationStatus === 'PROVISIONING'
+      || this.invitingMembershipId() !== null) {
+      return;
+    }
+    const resend = member.registrationStatus === 'INVITED';
+    const confirmation = resend
+      ? 'Se solicitará un nuevo correo de invitación. El usuario debe usar el correo más reciente. ¿Deseas continuar?'
+      : 'Se creará o reconciliará la identidad y se solicitará un correo para que el usuario establezca su propia contraseña. ¿Deseas continuar?';
+    if (!window.confirm(confirmation)) {
+      return;
+    }
+    this.invitingMembershipId.set(member.membershipId);
+    this.actionError.set('');
+    const request = resend
+      ? this.memberApi.resendPropertyMemberInvitation(
+          property.propertyId, member.membershipId
+        )
+      : this.memberApi.invitePropertyMember(
+          property.propertyId, member.membershipId
+        );
+    request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: result => {
+        this.invitingMembershipId.set(null);
+        this.notice.set(result.message);
+        this.refreshMembers.next();
+      },
+      error: error => {
+        this.invitingMembershipId.set(null);
+        this.actionError.set(this.invitationErrorMessage(error));
+      }
+    });
+  }
+
   protected unlinkMember(member: PropertyMember): void {
     const property = this.state().property;
     if (!property || !window.confirm(
@@ -503,6 +558,39 @@ export class UserManagementPage {
     if (error.status === 400 && error.error?.code === 'LAST_PROPERTY_ADMINISTRATOR') return 'No puedes desvincular al último administrador activo.';
     if (error.status === 400) return error.error?.message ?? 'La desvinculación no es válida.';
     return 'No pudimos desvincular al usuario.';
+  }
+
+  private invitationErrorMessage(error: unknown): string {
+    if (!(error instanceof HttpErrorResponse)) {
+      return 'No pudimos procesar la invitación.';
+    }
+    const code = error.error?.code as string | undefined;
+    if (error.status === 403) {
+      return 'No tienes permiso para invitar usuarios.';
+    }
+    if (error.status === 404) {
+      return 'La vinculación ya no está disponible.';
+    }
+    if (code === 'AUTH0_NOT_CONFIGURED'
+      || code === 'AUTH0_CONFIGURATION_ERROR') {
+      return 'La integración con Auth0 aún no está configurada correctamente.';
+    }
+    if (code === 'AUTH0_IDENTITY_CONFLICT') {
+      return 'El correo ya pertenece a una identidad que requiere revisión manual.';
+    }
+    if (code === 'AUTH0_RATE_LIMITED') {
+      return 'Auth0 limitó temporalmente las solicitudes. Inténtalo más tarde.';
+    }
+    if (code === 'AUTH0_UNAVAILABLE') {
+      return 'Auth0 no está disponible temporalmente.';
+    }
+    if (code === 'AUTH0_INVITATION_UNAVAILABLE') {
+      return 'La identidad fue creada, pero no fue posible solicitar el correo. Puedes reintentarlo.';
+    }
+    if (code === 'INVITATION_RESEND_TOO_SOON') {
+      return 'Espera antes de reenviar la invitación.';
+    }
+    return error.error?.message ?? 'No pudimos procesar la invitación.';
   }
 }
 

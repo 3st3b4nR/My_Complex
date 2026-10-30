@@ -5,7 +5,7 @@ import {
   convertToParamMap,
   provideRouter
 } from '@angular/router';
-import { Observable, of, Subject, throwError } from 'rxjs';
+import { defer, Observable, of, Subject, throwError } from 'rxjs';
 
 import { PropertyApiService } from '../../../property-selection/data-access/property-api.service';
 import { AssignedProperty } from '../../../property-selection/models/assigned-property';
@@ -17,6 +17,20 @@ import {
 import { UserManagementPage } from './user-management-page';
 
 describe('UserManagementPage', () => {
+  const invitePropertyMember = vi.fn(() => of({
+    membershipId: '30000000-0000-0000-0000-000000000003',
+    userId: '20000000-0000-0000-0000-000000000003',
+    registrationStatus: 'INVITED' as const,
+    invitationSentAt: '2026-10-27T15:00:00Z',
+    message: 'Auth0 aceptó la solicitud de invitación.'
+  }));
+  const resendPropertyMemberInvitation = vi.fn(() => of({
+    membershipId: '30000000-0000-0000-0000-000000000003',
+    userId: '20000000-0000-0000-0000-000000000003',
+    registrationStatus: 'INVITED' as const,
+    invitationSentAt: '2026-10-27T15:00:00Z',
+    message: 'La invitación fue reenviada. Debe utilizarse el correo más reciente.'
+  }));
   const propertyId = '10000000-0000-0000-0000-000000000001';
   const administratorProperty: AssignedProperty = {
     propertyId,
@@ -155,7 +169,9 @@ describe('UserManagementPage', () => {
             updatePropertyMember: () => detailsResult,
             findPropertyMemberCandidate: () => of({}),
             registerPropertyMember: () => detailsResult,
-            unlinkPropertyMember: () => of(undefined)
+            unlinkPropertyMember: () => of(undefined),
+            invitePropertyMember,
+            resendPropertyMemberInvitation
           }
         }
       ]
@@ -168,7 +184,11 @@ describe('UserManagementPage', () => {
     return fixture;
   }
 
-  afterEach(() => TestBed.resetTestingModule());
+  afterEach(() => {
+    invitePropertyMember.mockClear();
+    resendPropertyMemberInvitation.mockClear();
+    TestBed.resetTestingModule();
+  });
 
   it('renders the loading state', async () => {
     const pendingMembers = new Subject<PropertyMember[]>();
@@ -371,5 +391,121 @@ describe('UserManagementPage', () => {
     unlink.click(); fixture.detectChanges();
     expect(window.confirm).toHaveBeenCalled();
     expect(search.value).toBe('Laura');
+  });
+
+  it('renders translated invitation states and their permitted actions', async () => {
+    const invitationMembers: PropertyMember[] = [
+      { ...members[2], registrationStatus: 'PENDING' },
+      { ...members[2], membershipId: 'provisioning', registrationStatus: 'PROVISIONING' },
+      { ...members[2], membershipId: 'provisioned', registrationStatus: 'PROVISIONED' },
+      {
+        ...members[2],
+        membershipId: 'invited',
+        registrationStatus: 'INVITED',
+        invitationSentAt: '2026-10-27T15:00:00Z'
+      },
+      { ...members[2], membershipId: 'linked', registrationStatus: 'LINKED' }
+    ];
+    const fixture = await createComponent(
+      [administratorProperty], of(invitationMembers)
+    );
+    const text = fixture.nativeElement.textContent as string;
+
+    expect(text).toContain('Pendiente');
+    expect(text).toContain('Aprovisionando');
+    expect(text).toContain('Identidad creada');
+    expect(text).toContain('Invitado');
+    expect(text).toContain('Vinculado');
+    expect(text).toContain('Enviar invitación');
+    expect(text).toContain('Reintentar envío');
+    expect(text).toContain('Reenviar invitación');
+    expect(text).toContain('Último envío:');
+    expect(text).not.toContain('PROVISIONED');
+  });
+
+  it('confirms invitation, prevents duplicate clicks and keeps filters', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const pendingInvitation = new Subject<{
+      membershipId: string;
+      userId: string;
+      registrationStatus: 'INVITED';
+      invitationSentAt: string;
+      message: string;
+    }>();
+    invitePropertyMember.mockReturnValueOnce(pendingInvitation);
+    const fixture = await createComponent(
+      [administratorProperty], of([members[2]])
+    );
+    const element = fixture.nativeElement as HTMLElement;
+    const search = element.querySelector('input[type="search"]') as HTMLInputElement;
+    search.value = 'Carolina';
+    search.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    const button = element.querySelector(
+      '.invitation-button'
+    ) as HTMLButtonElement;
+
+    button.click();
+    fixture.detectChanges();
+    button.click();
+
+    expect(window.confirm).toHaveBeenCalledTimes(1);
+    expect(invitePropertyMember).toHaveBeenCalledTimes(1);
+    expect(button.disabled).toBe(true);
+    expect(search.value).toBe('Carolina');
+    pendingInvitation.complete();
+  });
+
+  it('uses the explicit resend operation after confirmation', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const fixture = await createComponent(
+      [administratorProperty],
+      of([{ ...members[2], registrationStatus: 'INVITED' }])
+    );
+    const button = fixture.nativeElement.querySelector(
+      '.invitation-button'
+    ) as HTMLButtonElement;
+
+    button.click();
+
+    expect(resendPropertyMemberInvitation).toHaveBeenCalledTimes(1);
+    expect(invitePropertyMember).not.toHaveBeenCalled();
+  });
+
+  it('keeps the current list when the invitation action fails', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    let listSubscriptions = 0;
+    const membersResult = defer(() => {
+      listSubscriptions += 1;
+      return listSubscriptions === 1
+        ? of([members[2]])
+        : throwError(() => new HttpErrorResponse({ status: 500 }));
+    });
+    invitePropertyMember.mockReturnValueOnce(throwError(() =>
+      new HttpErrorResponse({
+        status: 503,
+        error: { code: 'AUTH0_UNAVAILABLE' }
+      })
+    ));
+    const fixture = await createComponent(
+      [administratorProperty], membersResult
+    );
+    const element = fixture.nativeElement as HTMLElement;
+    const button = element.querySelector(
+      '.invitation-button'
+    ) as HTMLButtonElement;
+
+    button.click();
+    fixture.detectChanges();
+
+    expect(listSubscriptions).toBe(1);
+    expect(element.querySelectorAll('tbody tr').length).toBe(1);
+    expect(element.textContent).toContain('Carolina Restrepo');
+    expect(element.textContent).toContain(
+      'Auth0 no está disponible temporalmente.'
+    );
+    expect(element.textContent).not.toContain(
+      'No pudimos cargar los usuarios'
+    );
   });
 });

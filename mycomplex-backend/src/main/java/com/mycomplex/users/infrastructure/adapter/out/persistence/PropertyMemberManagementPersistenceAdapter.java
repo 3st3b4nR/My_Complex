@@ -442,6 +442,9 @@ public class PropertyMemberManagementPersistenceAdapter
     private UserRegistrationStatus mapRegistrationStatus(String value) {
         return switch (value) {
             case "PENDIENTE" -> UserRegistrationStatus.PENDING;
+            case "APROVISIONANDO" -> UserRegistrationStatus.PROVISIONING;
+            case "PROVISIONADO" -> UserRegistrationStatus.PROVISIONED;
+            case "INVITADO" -> UserRegistrationStatus.INVITED;
             case "VINCULADO" -> UserRegistrationStatus.LINKED;
             default -> throw new IllegalArgumentException(
                     "Unsupported registration status: " + value
