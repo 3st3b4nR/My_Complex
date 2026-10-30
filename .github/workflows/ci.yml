@@ -276,7 +276,10 @@ jobs:
   repository-security:
     name: Secrets, dependencies and configuration
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    needs:
+      - backend
+      - gateway
 
     steps:
       - name: Check out complete history
@@ -284,6 +287,24 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      - name: Set up Java 21 and restore Maven cache
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: |
+            mycomplex-backend/pom.xml
+            mycomplex-gateway/pom.xml
+
+      - name: Allow Maven Wrapper execution
+        run: chmod +x mycomplex-backend/mvnw mycomplex-gateway/mvnw
+
+      - name: Populate missing Maven dependencies
+        run: |
+          mycomplex-backend/mvnw --batch-mode --no-transfer-progress -f mycomplex-backend/pom.xml -DskipTests dependency:go-offline
+          mycomplex-gateway/mvnw --batch-mode --no-transfer-progress -f mycomplex-gateway/pom.xml -DskipTests dependency:go-offline
 
       - name: Prepare report directory
         run: mkdir -p reports
