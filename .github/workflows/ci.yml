@@ -2,9 +2,13 @@ name: MyComplex CI
 
 on:
   push:
+    branches:
+      - main
+      - "feature/**"
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,33 +18,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  gateway-tests:
-    name: Gateway tests
+  backend:
+    name: Backend tests, architecture and coverage
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Download repository
-        uses: actions/checkout@v7
-
-      - name: Configure Java 21
-        uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: "21"
-          cache: maven
-          cache-dependency-path: mycomplex-gateway/pom.xml
-
-      - name: Allow Maven Wrapper execution
-        working-directory: mycomplex-gateway
-        run: chmod +x mvnw
-
-      - name: Test gateway
-        working-directory: mycomplex-gateway
-        run: ./mvnw --batch-mode test
-
-  backend-tests:
-    name: Backend tests
-    runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     services:
       postgres:
@@ -64,18 +45,18 @@ jobs:
       SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/mycomplex
       SPRING_DATASOURCE_USERNAME: mycomplex_user
       SPRING_DATASOURCE_PASSWORD: mycomplex_test
-
       AUTH0_ISSUER: https://auth0.test/
       AUTH0_AUDIENCE: https://api.mycomplex.test
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: https://auth0.test/.well-known/jwks.json
-
       JAVA_TOOL_OPTIONS: -Duser.timezone=UTC
 
     steps:
-      - name: Download repository
+      - name: Check out repository
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-      - name: Configure Java 21
+      - name: Set up Java 21
         uses: actions/setup-java@v6
         with:
           distribution: temurin
@@ -87,30 +68,394 @@ jobs:
         working-directory: mycomplex-backend
         run: chmod +x mvnw
 
-      - name: Test backend
+      - name: Verify backend
         working-directory: mycomplex-backend
-        run: ./mvnw --batch-mode test
+        run: ./mvnw --batch-mode --no-transfer-progress verify
 
-  docker-build:
-    name: Build Docker images
+      - name: Upload backend reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-quality-reports
+          path: |
+            mycomplex-backend/target/surefire-reports
+            mycomplex-backend/target/site/jacoco
+            mycomplex-backend/target/classes/META-INF/sbom/application.cdx.json
+          if-no-files-found: warn
+          retention-days: 7
+
+  gateway:
+    name: Gateway tests and coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      AUTH0_ISSUER: https://auth0.test/
+      AUTH0_AUDIENCE: https://api.mycomplex.test
+      JAVA_TOOL_OPTIONS: -Duser.timezone=UTC
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: mycomplex-gateway/pom.xml
+
+      - name: Allow Maven Wrapper execution
+        working-directory: mycomplex-gateway
+        run: chmod +x mvnw
+
+      - name: Verify gateway
+        working-directory: mycomplex-gateway
+        run: ./mvnw --batch-mode --no-transfer-progress verify
+
+      - name: Upload gateway reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: gateway-quality-reports
+          path: |
+            mycomplex-gateway/target/surefire-reports
+            mycomplex-gateway/target/site/jacoco
+            mycomplex-gateway/target/classes/META-INF/sbom/application.cdx.json
+          if-no-files-found: warn
+          retention-days: 7
+
+  frontend:
+    name: Frontend tests, coverage and production build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      CI: "true"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: mycomplex-frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: mycomplex-frontend
+        run: npm ci --no-audit --no-fund
+
+      - name: Test frontend with coverage
+        working-directory: mycomplex-frontend
+        run: npm run test:ci
+
+      - name: Build frontend for production
+        working-directory: mycomplex-frontend
+        run: npm run build -- --configuration production
+
+      - name: Upload frontend reports and build
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-quality-reports
+          path: |
+            mycomplex-frontend/coverage/mycomplex-frontend
+            mycomplex-frontend/dist/mycomplex-frontend
+          if-no-files-found: warn
+          retention-days: 7
+
+  docker:
+    name: Validate Compose and build local images
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs:
-      - gateway-tests
-      - backend-tests
+      - backend
+      - gateway
+      - frontend
 
     env:
       POSTGRES_DB: mycomplex
       POSTGRES_USER: mycomplex_user
-      POSTGRES_PASSWORD: mycomplex_build
+      POSTGRES_PASSWORD: local_ci_only
       AUTH0_ISSUER: https://auth0.test/
       AUTH0_AUDIENCE: https://api.mycomplex.test
+      AUTH0_MANAGEMENT_DOMAIN: auth0.test
+      AUTH0_MANAGEMENT_CLIENT_ID: local-ci-client
+      AUTH0_MANAGEMENT_CLIENT_SECRET: local-ci-not-a-secret
+      AUTH0_MANAGEMENT_AUDIENCE: https://auth0.test/api/v2/
+      AUTH0_DATABASE_CONNECTION: Username-Password-Authentication
+      AUTH0_APPLICATION_CLIENT_ID: local-ci-application
 
     steps:
-      - name: Download repository
+      - name: Check out repository
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-      - name: Validate Compose
-        run: docker compose config
+      - name: Validate canonical Compose file
+        run: docker compose config --quiet
 
-      - name: Build Docker images
-        run: docker compose build
+      - name: Build backend and gateway images
+        run: docker compose build backend gateway
+
+      - name: Prepare image security reports
+        run: mkdir -p reports
+
+      - name: Scan backend image
+        id: trivy_backend
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          version: v0.76.1
+          image-ref: mycomplex-backend:local
+          severity: HIGH,CRITICAL
+          ignore-unfixed: false
+          format: json
+          output: reports/trivy-backend-image.json
+          exit-code: "1"
+
+      - name: Scan gateway image
+        id: trivy_gateway
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          version: v0.76.1
+          image-ref: mycomplex-gateway:local
+          severity: HIGH,CRITICAL
+          ignore-unfixed: false
+          format: json
+          output: reports/trivy-gateway-image.json
+          exit-code: "1"
+
+      - name: Generate backend image CycloneDX SBOM
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          version: v0.76.1
+          image-ref: mycomplex-backend:local
+          format: cyclonedx
+          output: reports/backend-image-sbom.cdx.json
+          exit-code: "0"
+
+      - name: Generate gateway image CycloneDX SBOM
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          version: v0.76.1
+          image-ref: mycomplex-gateway:local
+          format: cyclonedx
+          output: reports/gateway-image-sbom.cdx.json
+          exit-code: "0"
+
+      - name: Upload image security reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: image-security-reports
+          path: reports
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Enforce image security gates
+        if: always()
+        env:
+          BACKEND_OUTCOME: ${{ steps.trivy_backend.outcome }}
+          GATEWAY_OUTCOME: ${{ steps.trivy_gateway.outcome }}
+        run: |
+          if [[ "$BACKEND_OUTCOME" != "success" || "$GATEWAY_OUTCOME" != "success" ]]; then
+            echo "A HIGH or CRITICAL image vulnerability requires review."
+            exit 1
+          fi
+
+  repository-security:
+    name: Secrets, dependencies and configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out complete history
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prepare report directory
+        run: mkdir -p reports
+
+      - name: Detect versioned secrets with Gitleaks
+        id: gitleaks
+        continue-on-error: true
+        run: >-
+          docker run --rm
+          -v "${{ github.workspace }}:/repo"
+          ghcr.io/gitleaks/gitleaks:v8.30.1
+          git /repo
+          --redact=100
+          --report-format=json
+          --report-path=/repo/reports/gitleaks.json
+          --exit-code=1
+          --no-banner
+
+      - name: Scan dependencies and configuration with Trivy
+        id: trivy_repository
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          version: v0.76.1
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,misconfig
+          severity: HIGH,CRITICAL
+          ignore-unfixed: false
+          format: json
+          output: reports/trivy-repository.json
+          exit-code: "1"
+
+      - name: Generate frontend CycloneDX SBOM
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          version: v0.76.1
+          scan-type: fs
+          scan-ref: mycomplex-frontend
+          format: cyclonedx
+          output: reports/frontend-sbom.cdx.json
+          exit-code: "0"
+
+      - name: Upload repository security reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: repository-security-reports
+          path: reports
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Enforce repository security gates
+        if: always()
+        env:
+          GITLEAKS_OUTCOME: ${{ steps.gitleaks.outcome }}
+          TRIVY_OUTCOME: ${{ steps.trivy_repository.outcome }}
+        run: |
+          if [[ "$GITLEAKS_OUTCOME" != "success" || "$TRIVY_OUTCOME" != "success" ]]; then
+            echo "A secret, HIGH/CRITICAL vulnerability, or configuration issue requires review."
+            exit 1
+          fi
+
+  codeql:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      actions: read
+      contents: read
+      packages: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: java-kotlin
+            build-mode: manual
+          - language: javascript-typescript
+            build-mode: none
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Java 21
+        if: matrix.language == 'java-kotlin'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-extended
+
+      - name: Build Java components for CodeQL
+        if: matrix.language == 'java-kotlin'
+        run: |
+          chmod +x mycomplex-backend/mvnw mycomplex-gateway/mvnw
+          mycomplex-backend/mvnw --batch-mode --no-transfer-progress -f mycomplex-backend/pom.xml -DskipTests package
+          mycomplex-gateway/mvnw --batch-mode --no-transfer-progress -f mycomplex-gateway/pom.xml -DskipTests package
+
+      - name: Analyze with CodeQL
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
+
+  sonar:
+    name: Optional Sonar quality gate
+    if: >-
+      vars.SONAR_ENABLED == 'true' &&
+      (github.event_name != 'pull_request' ||
+      github.event.pull_request.head.repo.fork == false)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs:
+      - backend
+      - gateway
+      - frontend
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v8
+        with:
+          name: backend-quality-reports
+          path: downloaded/backend
+
+      - name: Download gateway coverage
+        uses: actions/download-artifact@v8
+        with:
+          name: gateway-quality-reports
+          path: downloaded/gateway
+
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-quality-reports
+          path: downloaded/frontend
+
+      - name: Compile Java sources for analysis
+        run: |
+          chmod +x mycomplex-backend/mvnw mycomplex-gateway/mvnw
+          mycomplex-backend/mvnw --batch-mode --no-transfer-progress -f mycomplex-backend/pom.xml -DskipTests compile
+          mycomplex-gateway/mvnw --batch-mode --no-transfer-progress -f mycomplex-gateway/pom.xml -DskipTests compile
+
+      - name: Run Sonar analysis and wait for Quality Gate
+        uses: SonarSource/sonarqube-scan-action@v8.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        with:
+          args: >-
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=300
