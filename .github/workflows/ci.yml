@@ -212,7 +212,7 @@ jobs:
       - name: Scan backend image
         id: trivy_backend
         continue-on-error: true
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.76.1
           image-ref: mycomplex-backend:local
@@ -225,7 +225,7 @@ jobs:
       - name: Scan gateway image
         id: trivy_gateway
         continue-on-error: true
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.76.1
           image-ref: mycomplex-gateway:local
@@ -236,7 +236,7 @@ jobs:
           exit-code: "1"
 
       - name: Generate backend image CycloneDX SBOM
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.76.1
           image-ref: mycomplex-backend:local
@@ -245,7 +245,7 @@ jobs:
           exit-code: "0"
 
       - name: Generate gateway image CycloneDX SBOM
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.76.1
           image-ref: mycomplex-gateway:local
@@ -305,7 +305,7 @@ jobs:
       - name: Scan dependencies and configuration with Trivy
         id: trivy_repository
         continue-on-error: true
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.76.1
           scan-type: fs
@@ -318,7 +318,7 @@ jobs:
           exit-code: "1"
 
       - name: Generate frontend CycloneDX SBOM
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.76.1
           scan-type: fs
