@@ -242,7 +242,8 @@ class InvitePropertyMemberServiceTest {
         }
 
         @Override
-        public void linkAuthenticatedUser(String auth0Subject) {
+        public boolean linkAuthenticatedUser(String auth0Subject) {
+            return false;
         }
     }
 }

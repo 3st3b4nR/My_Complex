@@ -20,6 +20,7 @@ import com.mycomplex.users.application.port.out.UpdatePropertyMemberPort;
 import com.mycomplex.users.application.port.out.ManagePropertyMembersPort;
 import com.mycomplex.users.application.port.out.UserInvitationPersistencePort;
 import com.mycomplex.users.application.port.out.ExternalIdentityPort;
+import com.mycomplex.users.application.port.out.LoadLocalUserIdPort;
 import com.mycomplex.users.application.service.FindPropertyMemberDetailsService;
 import com.mycomplex.users.application.service.FindPropertyMembersService;
 import com.mycomplex.users.application.service.FindUserPropertiesService;
@@ -29,6 +30,13 @@ import com.mycomplex.users.application.service.RegisterPropertyMemberService;
 import com.mycomplex.users.application.service.UnlinkPropertyMemberService;
 import com.mycomplex.users.application.service.InvitePropertyMemberService;
 import com.mycomplex.users.application.service.LinkAuthenticatedUserService;
+import com.mycomplex.users.application.service.AuditedRegisterPropertyMemberUseCase;
+import com.mycomplex.users.application.service.AuditedUpdatePropertyMemberUseCase;
+import com.mycomplex.users.application.service.AuditedUnlinkPropertyMemberUseCase;
+import com.mycomplex.users.application.service.AuditedInvitePropertyMemberUseCase;
+import com.mycomplex.users.application.service.AuditedLinkAuthenticatedUserUseCase;
+import com.mycomplex.observability.api.RecordSecurityAuditUseCase;
+import com.mycomplex.observability.api.SecurityEventReporter;
 import com.mycomplex.properties.application.port.in.FindAvailableResidentialUnitsUseCase;
 import com.mycomplex.properties.application.port.in.ResolveResidentialUnitsUseCase;
 import com.mycomplex.users.application.service.PropertyMemberResidentialUnitEnricher;
@@ -91,9 +99,12 @@ public class UserModuleConfig {
     UpdatePropertyMemberUseCase updatePropertyMemberUseCase(
             UpdatePropertyMemberPort updatePropertyMemberPort,
             LoadPropertyMembersPort loadPropertyMembersPort,
+            LoadLocalUserIdPort loadLocalUserIdPort,
             FindAvailableResidentialUnitsUseCase findUnitsUseCase,
             PropertyMemberResidentialUnitEnricher unitEnricher,
-            ResidentialAssignmentValidator assignmentValidator
+            ResidentialAssignmentValidator assignmentValidator,
+            RecordSecurityAuditUseCase auditUseCase,
+            SecurityEventReporter securityReporter
     ) {
         UpdatePropertyMemberUseCase service = new UpdatePropertyMemberService(
                 updatePropertyMemberPort,
@@ -102,7 +113,12 @@ public class UserModuleConfig {
                 unitEnricher,
                 assignmentValidator
         );
-        return new TransactionalUpdatePropertyMemberUseCase(service);
+        UpdatePropertyMemberUseCase audited =
+                new AuditedUpdatePropertyMemberUseCase(
+                        service, loadPropertyMembersPort,
+                        loadLocalUserIdPort, auditUseCase, securityReporter
+                );
+        return new TransactionalUpdatePropertyMemberUseCase(audited);
     }
 
     @Bean
@@ -120,10 +136,13 @@ public class UserModuleConfig {
     @Bean
     RegisterPropertyMemberUseCase registerPropertyMemberUseCase(
             LoadPropertyMembersPort loadPropertyMembersPort,
+            LoadLocalUserIdPort loadLocalUserIdPort,
             ManagePropertyMembersPort managePropertyMembersPort,
             FindAvailableResidentialUnitsUseCase findUnitsUseCase,
             PropertyMemberResidentialUnitEnricher unitEnricher,
-            ResidentialAssignmentValidator assignmentValidator
+            ResidentialAssignmentValidator assignmentValidator,
+            RecordSecurityAuditUseCase auditUseCase,
+            SecurityEventReporter securityReporter
     ) {
         RegisterPropertyMemberUseCase service =
                 new RegisterPropertyMemberService(
@@ -133,38 +152,66 @@ public class UserModuleConfig {
                 unitEnricher,
                 assignmentValidator
         );
-        return new TransactionalRegisterPropertyMemberUseCase(service);
+        RegisterPropertyMemberUseCase audited =
+                new AuditedRegisterPropertyMemberUseCase(
+                        service, loadLocalUserIdPort,
+                        auditUseCase, securityReporter
+                );
+        return new TransactionalRegisterPropertyMemberUseCase(audited);
     }
 
     @Bean
     UnlinkPropertyMemberUseCase unlinkPropertyMemberUseCase(
             LoadPropertyMembersPort loadPropertyMembersPort,
-            ManagePropertyMembersPort managePropertyMembersPort
+            LoadLocalUserIdPort loadLocalUserIdPort,
+            ManagePropertyMembersPort managePropertyMembersPort,
+            RecordSecurityAuditUseCase auditUseCase,
+            SecurityEventReporter securityReporter
     ) {
-        return new UnlinkPropertyMemberService(
+        UnlinkPropertyMemberUseCase service = new UnlinkPropertyMemberService(
                 loadPropertyMembersPort, managePropertyMembersPort
         );
+        UnlinkPropertyMemberUseCase audited =
+                new AuditedUnlinkPropertyMemberUseCase(
+                        service, loadPropertyMembersPort,
+                        loadLocalUserIdPort, auditUseCase, securityReporter
+                );
+        return new TransactionalUnlinkPropertyMemberUseCase(audited);
     }
 
     @Bean
     InvitePropertyMemberUseCase invitePropertyMemberUseCase(
             UserInvitationPersistencePort persistencePort,
             ExternalIdentityPort externalIdentityPort,
-            Auth0ManagementProperties properties
+            Auth0ManagementProperties properties,
+            LoadLocalUserIdPort loadLocalUserIdPort,
+            RecordSecurityAuditUseCase auditUseCase,
+            SecurityEventReporter securityReporter
     ) {
-        return new InvitePropertyMemberService(
+        InvitePropertyMemberUseCase service = new InvitePropertyMemberService(
                 persistencePort,
                 externalIdentityPort,
                 properties.getProvisioningTimeout(),
                 properties.getResendCooldown()
         );
+        return new AuditedInvitePropertyMemberUseCase(
+                service, loadLocalUserIdPort, auditUseCase, securityReporter
+        );
     }
 
     @Bean
     LinkAuthenticatedUserUseCase linkAuthenticatedUserUseCase(
-            UserInvitationPersistencePort persistencePort
+            UserInvitationPersistencePort persistencePort,
+            LoadLocalUserIdPort loadLocalUserIdPort,
+            RecordSecurityAuditUseCase auditUseCase
     ) {
-        return new LinkAuthenticatedUserService(persistencePort);
+        LinkAuthenticatedUserUseCase service =
+                new LinkAuthenticatedUserService(persistencePort);
+        LinkAuthenticatedUserUseCase audited =
+                new AuditedLinkAuthenticatedUserUseCase(
+                        service, loadLocalUserIdPort, auditUseCase
+                );
+        return new TransactionalLinkAuthenticatedUserUseCase(audited);
     }
 
     @Bean

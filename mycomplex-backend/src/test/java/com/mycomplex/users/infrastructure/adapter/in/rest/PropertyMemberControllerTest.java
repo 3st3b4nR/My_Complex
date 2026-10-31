@@ -2,6 +2,7 @@ package com.mycomplex.users.infrastructure.adapter.in.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.slf4j.MDC;
 
 import com.mycomplex.users.application.exception.PropertyMembersAccessDeniedException;
 import com.mycomplex.users.application.exception.LastPropertyAdministratorException;
@@ -37,6 +39,7 @@ import com.mycomplex.users.domain.model.PropertyMemberInvitation;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.PropertyMemberDetailsResponse;
 import com.mycomplex.users.infrastructure.adapter.in.rest.mapper.PropertyMemberRestMapper;
+import com.mycomplex.observability.api.CorrelationIds;
 
 class PropertyMemberControllerTest {
 
@@ -199,5 +202,30 @@ class PropertyMemberControllerTest {
                 )
                 .anyMatch(component -> component.getName()
                         .equals("auth0Subject")));
+    }
+
+    @Test
+    void mapsUnexpectedErrorsToGenericResponseWithCorrelationId() {
+        UserRestExceptionHandler handler = new UserRestExceptionHandler();
+        String correlationId = UUID.randomUUID().toString();
+        MDC.put(CorrelationIds.MDC_KEY, correlationId);
+        try {
+            var response = handler.handleUnexpected(
+                    new IllegalStateException("database password secret")
+            );
+
+            assertEquals(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    response.getStatusCode()
+            );
+            assertEquals("UNEXPECTED_ERROR", response.getBody().code());
+            assertEquals(correlationId, response.getBody().correlationId());
+            assertNotEquals(
+                    "database password secret",
+                    response.getBody().message()
+            );
+        } finally {
+            MDC.remove(CorrelationIds.MDC_KEY);
+        }
     }
 }

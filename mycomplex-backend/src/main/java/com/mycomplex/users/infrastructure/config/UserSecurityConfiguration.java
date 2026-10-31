@@ -33,6 +33,7 @@ public class UserSecurityConfiguration {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(
                     "/actuator/health", "/actuator/info",
+                    "/actuator/prometheus",
                     "/api/public/**", "/error"
                 ).permitAll()
                 .anyRequest().authenticated()

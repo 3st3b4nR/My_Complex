@@ -4,6 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.mycomplex.users.application.exception.PropertyMembersAccessDeniedException;
 import com.mycomplex.users.application.exception.InvalidPropertyMemberUpdateException;
@@ -15,11 +18,17 @@ import com.mycomplex.users.application.exception.PropertyMemberBusinessConflictE
 import com.mycomplex.users.application.exception.UserInvitationException;
 import com.mycomplex.users.application.exception.UserErrorCode;
 import com.mycomplex.users.infrastructure.adapter.in.rest.dto.UserErrorResponse;
+import com.mycomplex.users.infrastructure.adapter.in.rest.dto.UnexpectedUserErrorResponse;
+import com.mycomplex.observability.api.CorrelationIds;
 
 @RestControllerAdvice(
         basePackages = "com.mycomplex.users.infrastructure.adapter.in.rest"
 )
 public class UserRestExceptionHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            UserRestExceptionHandler.class
+    );
 
     @ExceptionHandler(PropertyMembersAccessDeniedException.class)
     public ResponseEntity<Void> handlePropertyMembersAccessDenied(
@@ -113,6 +122,23 @@ public class UserRestExceptionHandler {
         };
         return ResponseEntity.status(status).body(
                 new UserErrorResponse(exception.code(), exception.safeMessage())
+        );
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<UnexpectedUserErrorResponse> handleUnexpected(
+            Exception exception
+    ) {
+        String correlationId = MDC.get(CorrelationIds.MDC_KEY);
+        LOGGER.atError()
+                .addKeyValue("error.type", exception.getClass().getName())
+                .log("Unexpected users API failure");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                new UnexpectedUserErrorResponse(
+                        UserErrorCode.UNEXPECTED_ERROR.value(),
+                        "No fue posible completar la operación.",
+                        correlationId
+                )
         );
     }
 }

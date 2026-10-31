@@ -17,7 +17,7 @@ class AuthenticatedUserLinkPersistence {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    void link(String auth0Subject) {
+    boolean link(String auth0Subject) {
         List<String> states = jdbcTemplate.query(
                 """
                 SELECT estado_registro FROM usuarios
@@ -27,7 +27,7 @@ class AuthenticatedUserLinkPersistence {
                 auth0Subject
         );
         if (states.isEmpty() || states.getFirst().equals("VINCULADO")) {
-            return;
+            return false;
         }
         int affected = jdbcTemplate.update(
                 """
@@ -47,5 +47,6 @@ class AuthenticatedUserLinkPersistence {
                     "La identidad autenticada no coincide con un estado vinculable."
             );
         }
+        return true;
     }
 }

@@ -49,7 +49,7 @@ backend/Auth0 y repositorio/runner CI. PostgreSQL no es una interfaz pública.
 
 | ID | STRIDE | Escenario, activo y actor | Vector | Prob. / impacto / riesgo | Controles actuales | Mitigación pendiente y residual | Evidencia / responsable sugerido |
 |---|---|---|---|---|---|---|---|
-| TM-S-01 | Spoofing | Atacante suplanta a un usuario mediante JWT falsificado | Token alterado, issuer o audience incorrectos | Baja / Alto / Medio | Resource Server valida JWT en Gateway y backend | Verificar configuración real por ambiente y rotación; residual Bajo | Security configurations y `application.yml` / Backend-DevOps |
+| TM-S-01 | Spoofing | Atacante suplanta a un usuario mediante JWT falsificado | Token alterado, issuer o audience incorrectos | Baja / Alto / Medio | Resource Server valida JWT en Gateway y backend | Verificar configuración real por ambiente y rotación; residual Bajo | Security configurations y `application.properties` / Backend-DevOps |
 | TM-S-02 | Spoofing | Robo y reutilización de Bearer token | XSS, equipo comprometido o fuga de logs | Media / Alto / Alto | Auth0 SDK; tokens no se imprimen deliberadamente; CI busca secretos | CSP y headers verificados en despliegue, vida útil/rotación del tenant, respuesta a incidentes; residual Medio | frontend `app.config.ts`, CI / Frontend-Security |
 | TM-S-03 | Spoofing | Backend usa una identidad Auth0 ajena al usuario local | Coincidencia insegura por correo | Baja / Alto / Medio | Búsqueda exacta, conexión esperada y `app_metadata.mycomplexUserId` | Monitorear conflictos y revisar scopes M2M; residual Bajo | `Auth0ExternalIdentityAdapter`, `InvitePropertyMemberServiceTest` / Backend |
 | TM-T-01 | Tampering | Modificación concurrente sobrescribe membresía o asignaciones | Request con versión obsoleta | Baja / Alto / Medio | `@Version`, locks, transacciones y rechazo de stale version | Mantener pruebas al ampliar operaciones; residual Bajo | persistence adapters e integration tests / Backend |
@@ -59,10 +59,10 @@ backend/Auth0 y repositorio/runner CI. PostgreSQL no es una interfaz pública.
 | TM-T-05 | Tampering | Se versiona un secreto; activos: credenciales/JWT; actor: tercero con acceso al historial | Commit accidental o log CI | Media / Alto / Alto | Gitleaks sobre historial, secretos externos y reportes redactados | Secret scanning remoto, rotación y runbook; residual Medio | E-14 / DevOps-Security |
 | TM-T-06 | Tampering | Imagen o workflow manipulado genera artefacto no confiable; actor: dependencia/colaborador comprometido | Base image, Action o workflow alterado | Media / Alto / Alto | Lockfiles, Trivy de imágenes, CodeQL, SBOM y revisión | Pinning/provenance y branch protection; residual Medio | E-14 / DevOps-Maintainers |
 | TM-T-07 | Tampering | Se asigna una unidad residencial ajena o se manipula la principal; actor: admin/cliente alterado | UUID foráneo, duplicado o múltiples principales | Baja / Alto / Medio | Scope por `propertyId`, validación, constraints y transacción | Mantener invariant en nuevas operaciones; residual Bajo | E-06, E-10, E-11 / Backend |
-| TM-R-01 | Repudiation | Administrador niega cambio de rol, desvinculación o invitación | No existe evento de auditoría durable | Alta / Alto / Alto | Correlation ID y timestamps UTC parciales | Diseñar auditoría estructurada, inmutable y consultable; residual Alto | `CorrelationIdFilter`; ausencia de audit port / Backend-Security |
-| TM-I-01 | Information Disclosure | Error REST revela stack trace, SQL, token o secreto; actor: atacante remoto | Excepción inesperada | Media / Alto / Alto | Handler usa códigos y mensajes seguros en casos conocidos | Configurar respuesta genérica global y verificar producción; residual Medio | E-09 / Backend |
+| TM-R-01 | Repudiation | Administrador niega cambio de rol, desvinculación o invitación | Evento omitido o almacenamiento de auditoría no disponible | Media / Alto / Alto | Auditoría append-only, correlation ID, timestamp UTC, métricas y alertas locales | Restringir acceso, operar retención y notificaciones en ambiente remoto; residual Medio | E-17 / Backend-Security |
+| TM-I-01 | Information Disclosure | Error REST revela stack trace, SQL, token o secreto; actor: atacante remoto | Excepción inesperada | Baja / Alto / Medio | Handler usa códigos, mensaje genérico y correlation ID sin exponer el stack | Verificar configuración y respuestas en ambiente remoto; residual Bajo | E-09, E-17 / Backend |
 | TM-I-02 | Information Disclosure | Usuario accede a miembros de otra copropiedad (IDOR) | Cambiar `propertyId` o `membershipId` | Baja / Alto / Medio | Autorización en servicio y consultas acotadas por propiedad | Conservar pruebas negativas en cada endpoint nuevo; residual Bajo | service/repository tests / Backend |
-| TM-I-03 | Information Disclosure | Endpoint operativo expone configuración o salud sensible | Actuator o error público | Baja / Medio / Bajo | Solo `health`/`info`; detalles restringidos o deshabilitados | Restringir en el borde de producción; residual Bajo | backend/gateway `application.yml` / DevOps |
+| TM-I-03 | Information Disclosure | Endpoint operativo expone configuración o salud sensible | Actuator o error público | Baja / Medio / Bajo | Actuator usa puerto de gestión interno; detalles restringidos o deshabilitados y Prometheus no se enruta por Gateway | Restringir la red de gestión en el despliegue; residual Bajo | backend/gateway `application.properties`, `compose.yaml` / DevOps |
 | TM-I-04 | Information Disclosure | Datos sensibles llegan a logs o artefactos CI | Logging de request/token o reporte publicado | Media / Alto / Alto | Redacción de Gitleaks y artefactos limitados; no se observa logging de tokens | Política de clasificación, masking y retención antes de auditoría; residual Medio | CI y Auth0 adapter / DevOps-Security |
 | TM-D-01 | Denial of Service | Automatización satura APIs o PostgreSQL | Requests repetidos a endpoints autenticados | Alta / Medio / Alto | Timeouts de integración y límites de pools/framework | Rate limiting/WAF administrado y métricas; residual Alto | no existe limiter general; WAF propuesto / DevOps |
 | TM-D-02 | Denial of Service | Invitaciones repetidas agotan cuota Auth0 o correo | Abuso de invite/resend | Media / Medio / Medio | Cooldown, máquina de estados, idempotencia y manejo 429 | Límite de borde por identidad/ruta y alerta; residual Medio | invitation adapter/tests / Backend-DevOps |
@@ -100,17 +100,18 @@ del escenario.
 
 ## Decisiones derivadas
 
-1. La prioridad de implementación es la trazabilidad de operaciones sensibles
-   (TM-R-01), seguida del control antiabuso en el borde (TM-D-01/TM-D-02).
+1. La trazabilidad de operaciones sensibles (TM-R-01) ya tiene una línea base
+   local; la siguiente prioridad es operar sus alertas y el control antiabuso
+   en el borde (TM-D-01/TM-D-02).
 2. La validación doble de JWT se conserva: el Gateway reduce superficie y el
    backend sigue siendo el punto de decisión de negocio.
 3. El identificador de copropiedad siempre se trata como dato no confiable; no
    constituye autorización por sí mismo.
 4. Auth0, PostgreSQL y GitHub Actions son dependencias confiables solo después
    de autenticación, configuración mínima y validación de sus respuestas.
-5. No se introduce un bus de eventos ni infraestructura de observabilidad en
-   esta fase; la auditoría debe diseñarse como puerto de aplicación antes de
-   seleccionar almacenamiento o plataforma operativa.
+5. La observabilidad local usa Prometheus, Grafana, Loki, Tempo y Alloy sin
+   introducir bus de eventos; la auditoría cruza un puerto de aplicación y un
+   adaptador PostgreSQL append-only.
 
 ## Límites de la evaluación
 

@@ -145,8 +145,8 @@ public class UserInvitationPersistenceAdapter
 
     @Override
     @Transactional
-    public void linkAuthenticatedUser(String auth0Subject) {
-        authenticatedUserLink.link(auth0Subject);
+    public boolean linkAuthenticatedUser(String auth0Subject) {
+        return authenticatedUserLink.link(auth0Subject);
     }
 
     private void lockActiveProperty(UUID propertyId) {

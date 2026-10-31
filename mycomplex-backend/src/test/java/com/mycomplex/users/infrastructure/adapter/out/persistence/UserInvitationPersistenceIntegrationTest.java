@@ -1,7 +1,9 @@
 package com.mycomplex.users.infrastructure.adapter.out.persistence;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -59,10 +61,10 @@ class UserInvitationPersistenceIntegrationTest {
         persistence.markInvited(member.userId(), member.membershipId());
         assertEquals("INVITADO", registrationState(member.userId()));
 
-        persistence.linkAuthenticatedUser(subject);
+        assertTrue(persistence.linkAuthenticatedUser(subject));
         assertEquals("VINCULADO", registrationState(member.userId()));
         Long version = version(member.userId());
-        persistence.linkAuthenticatedUser(subject);
+        assertFalse(persistence.linkAuthenticatedUser(subject));
         assertEquals(version, version(member.userId()));
     }
 

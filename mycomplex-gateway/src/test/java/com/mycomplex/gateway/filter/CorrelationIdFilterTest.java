@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
@@ -30,7 +31,8 @@ class CorrelationIdFilterTest {
 
         GatewayFilterChain chain = currentExchange -> {
             forwardedExchange.set(currentExchange);
-            return Mono.empty();
+            currentExchange.getResponse().setStatusCode(HttpStatus.OK);
+            return currentExchange.getResponse().setComplete();
         };
 
         filter.filter(exchange, chain).block();
@@ -48,6 +50,8 @@ class CorrelationIdFilterTest {
         assertThat(requestCorrelationId).isNotBlank();
         assertThat(responseCorrelationId)
                 .isEqualTo(requestCorrelationId);
+        assertThat(exchange.getResponse().getHeaders()
+                .get(CorrelationIdFilter.HEADER_NAME)).hasSize(1);
 
         assertThat(UUID.fromString(requestCorrelationId).toString())
                 .isEqualTo(requestCorrelationId);
@@ -72,7 +76,7 @@ class CorrelationIdFilterTest {
 
         GatewayFilterChain chain = currentExchange -> {
             forwardedExchange.set(currentExchange);
-            return Mono.empty();
+            return currentExchange.getResponse().setComplete();
         };
 
         filter.filter(exchange, chain).block();
@@ -92,5 +96,29 @@ class CorrelationIdFilterTest {
 
         assertThat(responseCorrelationId)
                 .isEqualTo(existingCorrelationId);
+    }
+
+    @Test
+    void replacesInvalidCorrelationIdBeforeForwardingOrLogging() {
+        CorrelationIdFilter filter = new CorrelationIdFilter();
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get("/api/auth/me")
+                        .header(
+                                CorrelationIdFilter.HEADER_NAME,
+                                "invalid\r\nforged"
+                        )
+                        .build()
+        );
+        AtomicReference<ServerWebExchange> forwarded = new AtomicReference<>();
+
+        filter.filter(exchange, current -> {
+            forwarded.set(current);
+            return current.getResponse().setComplete();
+        }).block();
+
+        String value = forwarded.get().getRequest().getHeaders()
+                .getFirst(CorrelationIdFilter.HEADER_NAME);
+        assertThat(UUID.fromString(value).toString()).isEqualTo(value);
+        assertThat(value).doesNotContain("\r", "\n", "invalid");
     }
 }

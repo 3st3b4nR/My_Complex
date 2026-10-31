@@ -6,7 +6,7 @@ el equipo conoce el residual; no significa que el control deje de ser necesario.
 
 | ID | Riesgo / amenazas | Prob. | Impacto | Nivel | Control existente | Tratamiento pendiente | Owner sugerido | Fase / estado |
 |---|---|---:|---:|---:|---|---|---|---|
-| R-01 | Sin auditoría durable de cambios administrativos (`TM-R-01`) | Alta | Alto | Alto | Correlation ID y UTC | Audit port, eventos estructurados, almacenamiento, retención y consulta | Backend + Security | Fase 5 / Abierto |
+| R-01 | Auditoría local sin operación remota completa (`TM-R-01`) | Media | Alto | Alto | Audit port, V9 append-only, eventos estructurados, correlation ID, alertas y runbooks | Alertmanager, receptor, control de acceso/retención remotos y respuesta operada | Backend + Security | Fase 5 / Mitigado parcialmente |
 | R-02 | Abuso automatizado o saturación de APIs (`TM-D-01`, `TM-D-02`) | Alta | Medio | Alto | Cooldown de resend, idempotencia, timeouts | Rate limiting/WAF administrado, métricas y alertas | DevOps + Backend | Despliegue / Abierto |
 | R-03 | Robo/replay de Bearer token (`TM-S-02`) | Media | Alto | Alto | Auth0 SDK, JWT corto según proveedor, doble validación | CSP/headers, política tenant, revocación y runbook; evaluar sender constraint solo si se justifica | Frontend + Auth0 owner | Antes de producción / Abierto |
 | R-04 | Exceso o fuga de privilegios M2M Auth0 (`TM-E-03`) | Media | Alto | Alto | Secreto fuera del código y acceso solo backend | Scope mínimo, rotación, identidad por ambiente y evidencia de configuración | Auth0 owner | Antes de ambiente remoto / Abierto |

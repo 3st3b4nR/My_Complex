@@ -23,6 +23,7 @@ public class GatewaySecurityConfig {
                         .pathMatchers(
                                 "/actuator/health",
                                 "/actuator/info",
+                                "/actuator/prometheus",
                                 "/error"
                         ).permitAll()
                         .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()

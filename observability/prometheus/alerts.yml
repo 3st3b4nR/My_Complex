@@ -1,0 +1,76 @@
+groups:
+  - name: mycomplex-availability
+    rules:
+      - alert: MyComplexBackendDown
+        expr: up{job="mycomplex-backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: MyComplex backend is down
+          description: Prometheus has not scraped the backend successfully for two minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/backend-down.md
+
+      - alert: MyComplexGatewayDown
+        expr: up{job="mycomplex-gateway"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: MyComplex gateway is down
+          description: Prometheus has not scraped the gateway successfully for two minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/gateway-down.md
+
+  - name: mycomplex-reliability
+    rules:
+      - alert: MyComplexHigh5xxRate
+        expr: sum(rate(http_server_requests_seconds_count{status=~"5.."}[5m])) / clamp_min(sum(rate(http_server_requests_seconds_count[5m])), 0.001) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Elevated HTTP 5xx rate
+          description: More than 5 percent of requests have returned 5xx for five minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/high-5xx-rate.md
+
+      - alert: MyComplexHighLatency
+        expr: histogram_quantile(0.95, sum by (le, application) (rate(http_server_requests_seconds_bucket[5m]))) > 1.5
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Elevated p95 request latency
+          description: The p95 request latency has exceeded 1.5 seconds for ten minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/high-latency.md
+
+  - name: mycomplex-security
+    rules:
+      - alert: MyComplexAdministrativeAccessDeniedSpike
+        expr: sum(increase(mycomplex_administrative_access_denied_total[10m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Administrative access denials increased
+          description: More than ten administrative access denials were observed in ten minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/anomalous-access-denied.md
+
+      - alert: MyComplexInvitationFailures
+        expr: sum(increase(mycomplex_invitation_failures_total[10m])) > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Repeated member invitation failures
+          description: More than three invitation failures were observed in ten minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/invitation-failures.md
+
+      - alert: MyComplexAuditPersistenceFailures
+        expr: sum(increase(mycomplex_audit_rejected_total{reason="persistence"}[5m])) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Security audit persistence failed
+          description: At least one durable security audit event could not be persisted.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/audit-failure.md

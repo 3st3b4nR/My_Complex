@@ -6,16 +6,16 @@ en el repositorio, no cumplimiento certificado.
 
 | Categoría | Aplicabilidad | Estado | Controles y evidencia | Brecha y riesgo residual | Acción / fase |
 |---|---|---|---|---|---|
-| A01 Broken Access Control | Alta | Partial | JWT, `PROPERTY_ADMIN`, scope por `propertyId` y pruebas negativas (E-01, E-02, E-04, E-11, E-12) | Un endpoint futuro puede omitir política; falta auditoría. Residual Medio | Tests negativos y audit port / Fase 5 |
+| A01 Broken Access Control | Alta | Partial | JWT, `PROPERTY_ADMIN`, scope por `propertyId`, pruebas negativas y auditoría de operaciones cubiertas (E-01, E-02, E-04, E-11, E-12, E-17) | Un endpoint futuro puede omitir política o auditoría. Residual Medio | Tests negativos y auditoría en cada operación nueva / Desarrollo continuo |
 | A02 Security Misconfiguration | Alta | Partial | Stateless, Basic/form deshabilitados, CORS allowlist y Actuator limitado (E-01, E-02, E-16) | Headers/TLS de producción no verificables. Residual Medio | Baseline y pruebas HTTP / Despliegue |
 | A03 Software Supply Chain Failures | Alta | Partial | Dependabot, lockfiles, CodeQL, Gitleaks, Trivy, SBOM y gates (E-14) | Pinning/provenance y branch protection no verificados. Residual Medio | Política de remediación y workflow endurecido / CI continuo |
 | A04 Cryptographic Failures | Alta | Partial | HTTPS hacia Auth0 y validación JWT por Spring Security/Auth0 (E-01, E-02, E-08) | TLS, at-rest y rotación remotos no existen. Residual Medio | Definirlos con Azure / Despliegue |
 | A05 Injection | Alta | Implemented | Bean Validation, UUID/enums, JPQL/JDBC parametrizado y CodeQL (E-05, E-06, E-10, E-14) | Puede reaparecer con consultas dinámicas. Residual Bajo | Revisión y pruebas por nueva entrada / Continuo |
-| A06 Insecure Design | Alta | Partial | Puertos, tenant isolation, transacciones, idempotencia y último admin (E-05 a E-13) | Antiabuso y auditoría no están implementados. Residual Medio | Registro de riesgos como criterio / Fase 5 |
+| A06 Insecure Design | Alta | Partial | Puertos, tenant isolation, transacciones, idempotencia, último admin y auditoría append-only (E-05 a E-13, E-17) | Antiabuso general y auditoría fuera de `users` siguen pendientes. Residual Medio | Registro de riesgos como criterio / Desarrollo continuo |
 | A07 Authentication Failures | Alta | Partial | Auth0 OIDC/SDK, issuer/audience, linking por `sub` y conexión exacta (E-01, E-02, E-08, E-15, E-16) | MFA y defensa de credenciales del tenant no verificadas. Residual Medio | Checklist del owner Auth0 / Antes de producción |
 | A08 Software or Data Integrity Failures | Alta | Partial | Locks, rollback, Flyway inmutable, estado durable de invitación y CI (E-05 a E-07, E-11, E-14) | Provenance y backups no verificados. Residual Medio | Pinning/provenance y backup / Despliegue |
-| A09 Security Logging and Alerting Failures | Alta | Not Implemented | Correlation ID, UTC y logs técnicos son solo base parcial (E-03, E-16) | Sin eventos, auditoría, retención ni alertas. Residual Alto | Audit port y observabilidad, expresamente pendientes / Fase 5 |
-| A10 Mishandling of Exceptional Conditions | Alta | Partial | Handler seguro conocido, timeouts, 429, estado recuperable y rollback (E-07 a E-09, E-11, E-13) | Excepción inesperada/degradación no verificadas E2E. Residual Medio | Fallback genérico, pruebas y runbooks / Estabilización |
+| A09 Security Logging and Alerting Failures | Alta | Partial | Correlation ID extremo a extremo, JSON ECS, auditoría durable, métricas, alertas locales y runbooks (`docs/observability/`) | No hay Alertmanager, receptor, operación real ni plataforma remota. Residual Medio | Validar retención, acceso, alertas y respuesta / Futuro ambiente Azure |
+| A10 Mishandling of Exceptional Conditions | Alta | Partial | Handler seguro con fallback genérico, correlation ID, timeouts, 429, estado recuperable y rollback (E-07 a E-09, E-11, E-13, E-17) | Degradación de infraestructura no verificada E2E en ambiente remoto. Residual Medio | Pruebas de resiliencia y runbooks / Futuro ambiente Azure |
 
 ## Controles transversales que deben mantenerse
 

@@ -64,8 +64,10 @@ Controles presentes:
 
 Brechas:
 
-- No existe inventario ni persistencia de eventos de seguridad/auditoría.
-- No existe alertamiento ante denegaciones repetidas o abuso.
+- La auditoría durable cubre las operaciones administrativas actuales de
+  `users`; otros módulos futuros deberán incorporarse explícitamente.
+- Las alertas locales detectan denegaciones repetidas, pero no existe todavía
+  Alertmanager ni receptor operado.
 - No hay rate limiting general en el borde.
 - No están definidos retención, integridad y acceso a logs de producción.
 - El despliegue HTTPS, HSTS, segmentación y gestión de secretos aún no existe.
@@ -78,8 +80,8 @@ Brechas:
    privada de PostgreSQL.
 2. **Antes de pruebas públicas**: rate limiting administrado en el borde,
    política de WAF en modo detección y verificación de headers HTTP.
-3. **Antes de producción**: auditoría estructurada de operaciones sensibles,
-   retención, acceso restringido, alertas y runbook de incidentes.
+3. **Antes de producción**: validar retención y acceso restringido para logs y
+   auditoría, operar Alertmanager/receptores y ensayar los runbooks.
 4. **Operación continua**: revisar scopes, dependencias, SBOM, hallazgos y
    accesos; revocar credenciales y sesiones ante incidentes.
 

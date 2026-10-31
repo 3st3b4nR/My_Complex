@@ -1,0 +1,114 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "stat", "title": "Backend availability", "id": 1,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "up{job=\"mycomplex-backend\"}", "refId": "A"}],
+      "fieldConfig": {"defaults": {"mappings": [{"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}], "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "green", "value": 1}]}}, "overrides": []},
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "textMode": "auto"},
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+    },
+    {
+      "type": "stat", "title": "Gateway availability", "id": 2,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "up{job=\"mycomplex-gateway\"}", "refId": "A"}],
+      "fieldConfig": {"defaults": {"mappings": [{"type": "value", "options": {"0": {"text": "DOWN", "color": "red"}, "1": {"text": "UP", "color": "green"}}}], "thresholds": {"mode": "absolute", "steps": [{"color": "red"}, {"color": "green", "value": 1}]}}, "overrides": []},
+      "options": {"colorMode": "background", "graphMode": "none", "justifyMode": "center", "textMode": "auto"},
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0}
+    },
+    {
+      "type": "timeseries", "title": "Requests per second", "id": 3,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (application) (rate(http_server_requests_seconds_count[5m]))", "legendFormat": "{{application}}", "refId": "A"}],
+      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+    },
+    {
+      "type": "timeseries", "title": "HTTP errors 4xx / 5xx", "id": 4,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "sum by (application) (rate(http_server_requests_seconds_count{status=~\"4..\"}[5m]))", "legendFormat": "{{application}} 4xx", "refId": "A"},
+        {"expr": "sum by (application) (rate(http_server_requests_seconds_count{status=~\"5..\"}[5m]))", "legendFormat": "{{application}} 5xx", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+    },
+    {
+      "type": "timeseries", "title": "Request latency p50 / p95 / p99", "id": 5,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "histogram_quantile(0.50, sum by (le, application) (rate(http_server_requests_seconds_bucket[5m])))", "legendFormat": "{{application}} p50", "refId": "A"},
+        {"expr": "histogram_quantile(0.95, sum by (le, application) (rate(http_server_requests_seconds_bucket[5m])))", "legendFormat": "{{application}} p95", "refId": "B"},
+        {"expr": "histogram_quantile(0.99, sum by (le, application) (rate(http_server_requests_seconds_bucket[5m])))", "legendFormat": "{{application}} p99", "refId": "C"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+    },
+    {
+      "type": "timeseries", "title": "JVM memory", "id": 6,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (application, area) (jvm_memory_used_bytes)", "legendFormat": "{{application}} {{area}}", "refId": "A"}],
+      "fieldConfig": {"defaults": {"unit": "bytes"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 16}
+    },
+    {
+      "type": "timeseries", "title": "Live JVM threads", "id": 7,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "jvm_threads_live_threads", "legendFormat": "{{application}}", "refId": "A"}],
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 16}
+    },
+    {
+      "type": "timeseries", "title": "HikariCP connections", "id": 8,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "hikaricp_connections_active", "legendFormat": "active", "refId": "A"},
+        {"expr": "hikaricp_connections_pending", "legendFormat": "pending", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 16}
+    },
+    {
+      "type": "timeseries", "title": "Administrative events", "id": 9,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (event) (increase(mycomplex_administrative_events_total[1h]))", "legendFormat": "{{event}}", "refId": "A"}],
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 24}
+    },
+    {
+      "type": "timeseries", "title": "Invitation failures", "id": 10,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (operation, reason) (increase(mycomplex_invitation_failures_total[1h]))", "legendFormat": "{{operation}} {{reason}}", "refId": "A"}],
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 24}
+    },
+    {
+      "type": "timeseries", "title": "Administrative access denied", "id": 11,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [{"expr": "sum by (operation) (increase(mycomplex_administrative_access_denied_total[1h]))", "legendFormat": "{{operation}}", "refId": "A"}],
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 24}
+    },
+    {
+      "type": "logs", "title": "Recent application logs", "id": 12,
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [{"expr": "{service_name=~\"mycomplex-(backend|gateway)\"}", "refId": "A"}],
+      "options": {"dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": true, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 32}
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 42,
+  "tags": ["mycomplex", "observability"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "timezone": "browser",
+  "title": "MyComplex Overview",
+  "uid": "mycomplex-overview",
+  "version": 1
+}

@@ -26,7 +26,8 @@ public enum UserErrorCode {
     AUTH0_UNAVAILABLE,
     AUTH0_INVITATION_UNAVAILABLE,
     AUTH0_IDENTITY_ALREADY_EXISTS,
-    AUTH0_IDENTITY_CONFLICT;
+    AUTH0_IDENTITY_CONFLICT,
+    UNEXPECTED_ERROR;
 
     public String value() {
         return name();

@@ -44,15 +44,23 @@ services:
       AUTH0_MANAGEMENT_AUDIENCE: ${AUTH0_MANAGEMENT_AUDIENCE}
       AUTH0_DATABASE_CONNECTION: ${AUTH0_DATABASE_CONNECTION}
       AUTH0_APPLICATION_CLIENT_ID: ${AUTH0_APPLICATION_CLIENT_ID}
+      MANAGEMENT_SERVER_PORT: "9080"
+      OBSERVABILITY_LOG_FILE: /var/log/mycomplex/backend.json
+      OBSERVABILITY_TRACING_SAMPLING_PROBABILITY: ${OBSERVABILITY_TRACING_SAMPLING_PROBABILITY:-0.10}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:-http://tempo:4318/v1/traces}
+      SPRING_REACTOR_CONTEXT_PROPAGATION: auto
     expose:
       - "8080"
+      - "9080"
+    volumes:
+      - mycomplex_backend_logs:/var/log/mycomplex
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O - http://localhost:8080/actuator/health > /dev/null 2>&1 || exit 1
+        - wget -q -O - http://localhost:9080/actuator/health > /dev/null 2>&1 || exit 1
       interval: 10s
       timeout: 5s
       retries: 10
@@ -69,15 +77,23 @@ services:
       AUTH0_ISSUER: ${AUTH0_ISSUER}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
       BACKEND_URL: http://backend:8080
+      MANAGEMENT_SERVER_PORT: "9081"
+      OBSERVABILITY_LOG_FILE: /var/log/mycomplex/gateway.json
+      OBSERVABILITY_TRACING_SAMPLING_PROBABILITY: ${OBSERVABILITY_TRACING_SAMPLING_PROBABILITY:-0.10}
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:-http://tempo:4318/v1/traces}
     ports:
       - "8081:8081"
+    expose:
+      - "9081"
+    volumes:
+      - mycomplex_gateway_logs:/var/log/mycomplex
     depends_on:
       backend:
         condition: service_healthy
     healthcheck:
       test:
         - CMD-SHELL
-        - wget -q -O - http://localhost:8081/actuator/health > /dev/null 2>&1 || exit 1
+        - wget -q -O - http://localhost:9081/actuator/health > /dev/null 2>&1 || exit 1
       interval: 10s
       timeout: 5s
       retries: 10
@@ -86,3 +102,7 @@ services:
 volumes:
   mycomplex_postgres_data:
     name: mycomplex_postgres_data
+  mycomplex_backend_logs:
+    name: mycomplex_backend_logs
+  mycomplex_gateway_logs:
+    name: mycomplex_gateway_logs

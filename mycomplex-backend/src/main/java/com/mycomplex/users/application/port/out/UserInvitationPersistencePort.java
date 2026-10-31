@@ -25,5 +25,5 @@ public interface UserInvitationPersistencePort {
 
     void recordInvitationFailure(UUID userId, String safeError);
 
-    void linkAuthenticatedUser(String auth0Subject);
+    boolean linkAuthenticatedUser(String auth0Subject);
 }

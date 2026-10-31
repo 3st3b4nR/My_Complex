@@ -1,0 +1,29 @@
+loki.source.file "backend" {
+  targets = [{
+    __path__     = "/var/log/mycomplex/backend/backend.json",
+    service_name = "mycomplex-backend",
+  }]
+  forward_to = [loki.write.local.receiver]
+  file_match {
+    enabled     = true
+    sync_period = "5s"
+  }
+}
+
+loki.source.file "gateway" {
+  targets = [{
+    __path__     = "/var/log/mycomplex/gateway/gateway.json",
+    service_name = "mycomplex-gateway",
+  }]
+  forward_to = [loki.write.local.receiver]
+  file_match {
+    enabled     = true
+    sync_period = "5s"
+  }
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

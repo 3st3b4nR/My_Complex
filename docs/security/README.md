@@ -33,7 +33,7 @@ dinámicas y cualquier recurso de producción aún inexistente.
 | Validación e inyección | Implementadas | DTO con Bean Validation y JDBC/JPA parametrizado |
 | Concurrencia | Implementada | `@Version`, locks y transacciones en operaciones sensibles |
 | Seguridad de dependencias | Implementada en CI | CodeQL, Gitleaks, Trivy, Dependabot y SBOM CycloneDX |
-| Registro de seguridad | Parcial | Correlation ID y UTC; falta auditoría persistente y alertamiento |
+| Registro de seguridad | Implementado para operaciones administrativas cubiertas | Correlation ID, logs JSON, auditoría persistente append-only, métricas y alertas locales |
 | Antiabuso | Parcial | Cooldown de reenvío; falta rate limiting general en el borde |
 | TLS y headers de producción | Pendiente del despliegue | No existe aún arquitectura Azure aprobada |
 
@@ -80,7 +80,8 @@ y la clasificación de riesgos se alinea con
 | E-13 | `mycomplex-backend/src/test/java/com/mycomplex/users/application/service/InvitePropertyMemberServiceTest.java` | Ownership de identidad, no duplicación y recuperación |
 | E-14 | `.github/workflows/ci.yml` | Pruebas, cobertura, CodeQL, Gitleaks, Trivy y SBOM |
 | E-15 | `mycomplex-frontend/src/app/app.config.ts` | Auth0 Angular SDK e interceptor HTTP para la API permitida |
-| E-16 | `mycomplex-backend/src/main/resources/application.yml` y `mycomplex-gateway/src/main/resources/application.yml` | issuer, audience, Actuator y configuración por ambiente |
+| E-16 | `mycomplex-backend/src/main/resources/application.properties` y `mycomplex-gateway/src/main/resources/application.properties` | issuer, audience, Actuator, métricas, trazas y logging estructurado |
+| E-17 | `mycomplex-backend/src/main/java/com/mycomplex/observability/`, `observability/` y `docs/observability/` | Auditoría durable, métricas, logs, trazas, alertas, dashboard y runbooks |
 
 ## Reglas que deben preservarse
 

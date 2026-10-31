@@ -15,7 +15,7 @@ public class LinkAuthenticatedUserService
     }
 
     @Override
-    public void link(String auth0Subject) {
-        persistencePort.linkAuthenticatedUser(auth0Subject);
+    public boolean link(String auth0Subject) {
+        return persistencePort.linkAuthenticatedUser(auth0Subject);
     }
 }
