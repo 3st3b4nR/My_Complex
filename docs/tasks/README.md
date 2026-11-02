@@ -20,5 +20,11 @@ Los estados permitidos son `PENDING`, `IN_PROGRESS`, `COMPLETED` y
 optimista y generan auditoría durable. La asignación y reasignación registran
 un evento de notificación en la misma transacción de negocio.
 
+La interfaz separa `PENDING` e `IN_PROGRESS` en **Tareas activas**, mientras que
+`COMPLETED` y `CANCELLED` aparecen en **Historial**. Las tareas vencidas siguen
+activas hasta que se completen o cancelen. Los registros históricos son de
+consulta y se conservan físicamente para trazabilidad; no pueden editarse,
+reasignarse, reabrirse ni cambiar nuevamente de estado.
+
 `tasks` consume exclusivamente las APIs públicas de `users`, `notifications` y
 `observability`; no accede a repositorios internos de otros módulos.

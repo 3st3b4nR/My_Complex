@@ -23,15 +23,29 @@
       No pudimos cargar las tareas. <button (click)="load()">Reintentar</button>
     </section>
   } @else {
+    <nav class="task-tabs" aria-label="Vistas de tareas">
+      <button type="button"
+        [class.task-tab--active]="selectedView() === 'active'"
+        [attr.aria-pressed]="selectedView() === 'active'"
+        (click)="selectView('active')">
+        Tareas activas
+      </button>
+      <button type="button"
+        [class.task-tab--active]="selectedView() === 'history'"
+        [attr.aria-pressed]="selectedView() === 'history'"
+        (click)="selectView('history')">
+        Historial
+      </button>
+    </nav>
+
     <section class="filters" aria-label="Filtros de tareas">
       <input [formControl]="filters.controls.search"
         placeholder="Buscar por tarea o trabajador" />
       <select [formControl]="filters.controls.status">
         <option value="">Todos los estados</option>
-        <option value="PENDING">Pendiente</option>
-        <option value="IN_PROGRESS">En progreso</option>
-        <option value="COMPLETED">Completada</option>
-        <option value="CANCELLED">Cancelada</option>
+        @for (taskStatus of statusOptions(); track taskStatus) {
+          <option [value]="taskStatus">{{ statusLabel(taskStatus) }}</option>
+        }
       </select>
       <select [formControl]="filters.controls.priority">
         <option value="">Todas las prioridades</option>
@@ -54,17 +68,27 @@
       <p class="action-error" role="alert">{{ actionError() }}</p>
     }
 
-    <div class="workspace">
+    <div class="workspace" [class.workspace--history]="selectedView() === 'history'">
       <section aria-labelledby="task-list-title">
         <div class="section-title">
-          <h2 id="task-list-title">Tareas</h2>
-          <button type="button" (click)="newTask()">Asignar tarea</button>
+          <h2 id="task-list-title">
+            {{ selectedView() === 'active' ? 'Tareas activas' : 'Historial' }}
+          </h2>
+          @if (selectedView() === 'active') {
+            <button type="button" (click)="newTask()">Asignar tarea</button>
+          }
         </div>
-        @if (tasks().length === 0) {
-          <div class="state">No hay tareas para los filtros seleccionados.</div>
+        @if (visibleTasks().length === 0) {
+          @if (selectedView() === 'active') {
+            <div class="state">No hay tareas activas para los filtros seleccionados.</div>
+          } @else {
+            <div class="state">
+              Todavía no hay tareas completadas o canceladas para los filtros seleccionados.
+            </div>
+          }
         } @else {
           <div class="task-list">
-            @for (task of tasks(); track task.id) {
+            @for (task of visibleTasks(); track task.id) {
               <article [class.overdue]="task.overdue">
                 <div class="badges">
                   <span>{{ priorityLabel(task.priority) }}</span>
@@ -84,18 +108,16 @@
                     <p><strong>Ubicación:</strong> {{ task.location || 'No indicada' }}</p>
                     <p><strong>Observación:</strong> {{ task.administrativeNote || 'Sin observación' }}</p>
                   </details>
-                  <button type="button" (click)="edit(task)"
-                    [disabled]="task.status === 'COMPLETED' || task.status === 'CANCELLED'">
-                    Editar
-                  </button>
-                  @if (task.status === 'PENDING') {
-                    <button type="button" (click)="changeStatus(task, 'IN_PROGRESS')">Iniciar</button>
-                  }
-                  @if (task.status === 'IN_PROGRESS') {
-                    <button type="button" (click)="changeStatus(task, 'COMPLETED')">Completar</button>
-                  }
-                  @if (task.status === 'PENDING' || task.status === 'IN_PROGRESS') {
-                    <button type="button" class="danger" (click)="changeStatus(task, 'CANCELLED')">Cancelar</button>
+                  @if (selectedView() === 'active') {
+                    <button type="button" (click)="edit(task)">Editar</button>
+                    @if (task.status === 'PENDING') {
+                      <button type="button" (click)="changeStatus(task, 'IN_PROGRESS')">Iniciar</button>
+                    }
+                    @if (task.status === 'IN_PROGRESS') {
+                      <button type="button" (click)="changeStatus(task, 'COMPLETED')">Completar</button>
+                    }
+                    <button type="button" class="danger"
+                      (click)="changeStatus(task, 'CANCELLED')">Cancelar</button>
                   }
                 </div>
               </article>
@@ -104,30 +126,32 @@
         }
       </section>
 
-      <section class="editor" aria-labelledby="task-editor-title">
-        <h2 id="task-editor-title">{{ isEditing() ? 'Editar tarea' : 'Nueva tarea' }}</h2>
-        <form [formGroup]="form" (ngSubmit)="save()">
-          <label>Título<input formControlName="title" /></label>
-          <label>Descripción<textarea formControlName="description" rows="5"></textarea></label>
-          <label>Prioridad<select formControlName="priority">
-            <option value="LOW">Baja</option><option value="MEDIUM">Media</option>
-            <option value="HIGH">Alta</option><option value="URGENT">Urgente</option>
-          </select></label>
-          <label>Trabajador<select formControlName="assignedMembershipId">
-            <option value="">Selecciona un trabajador</option>
-            @for (worker of workers(); track worker.membershipId) {
-              <option [value]="worker.membershipId">{{ worker.displayName }}</option>
-            }
-          </select></label>
-          <label>Fecha límite<input type="datetime-local" formControlName="dueAt" /></label>
-          <label>Ubicación<input formControlName="location" /></label>
-          <label>Observación administrativa<textarea formControlName="administrativeNote"></textarea></label>
-          <div class="actions">
-            <button type="submit" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar' }}</button>
-            <button type="button" class="secondary" (click)="newTask()">Limpiar</button>
-          </div>
-        </form>
-      </section>
+      @if (selectedView() === 'active') {
+        <section class="editor" aria-labelledby="task-editor-title">
+          <h2 id="task-editor-title">{{ isEditing() ? 'Editar tarea' : 'Nueva tarea' }}</h2>
+          <form [formGroup]="form" (ngSubmit)="save()">
+            <label>Título<input formControlName="title" /></label>
+            <label>Descripción<textarea formControlName="description" rows="5"></textarea></label>
+            <label>Prioridad<select formControlName="priority">
+              <option value="LOW">Baja</option><option value="MEDIUM">Media</option>
+              <option value="HIGH">Alta</option><option value="URGENT">Urgente</option>
+            </select></label>
+            <label>Trabajador<select formControlName="assignedMembershipId">
+              <option value="">Selecciona un trabajador</option>
+              @for (worker of workers(); track worker.membershipId) {
+                <option [value]="worker.membershipId">{{ worker.displayName }}</option>
+              }
+            </select></label>
+            <label>Fecha límite<input type="datetime-local" formControlName="dueAt" /></label>
+            <label>Ubicación<input formControlName="location" /></label>
+            <label>Observación administrativa<textarea formControlName="administrativeNote"></textarea></label>
+            <div class="actions">
+              <button type="submit" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar' }}</button>
+              <button type="button" class="secondary" (click)="newTask()">Limpiar</button>
+            </div>
+          </form>
+        </section>
+      }
     </div>
   }
 </main>

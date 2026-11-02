@@ -24,6 +24,14 @@ import { PropertyApiService }
   from '../../../property-selection/data-access/property-api.service';
 
 type PageStatus = 'loading' | 'ready' | 'forbidden' | 'not-found' | 'error';
+type TaskView = 'active' | 'history';
+
+const ACTIVE_TASK_STATUSES: readonly TaskStatus[] = [
+  'PENDING', 'IN_PROGRESS'
+];
+const HISTORY_TASK_STATUSES: readonly TaskStatus[] = [
+  'COMPLETED', 'CANCELLED'
+];
 
 @Component({
   selector: 'app-task-management-page',
@@ -41,12 +49,22 @@ export class TaskManagementPage {
     this.route.snapshot.paramMap.get('propertyId') ?? '';
   protected readonly status = signal<PageStatus>('loading');
   protected readonly tasks = signal<AdministrativeTask[]>([]);
+  protected readonly selectedView = signal<TaskView>('active');
   protected readonly propertyName = signal('');
   protected readonly workers = signal<TaskWorker[]>([]);
   protected readonly selected = signal<AdministrativeTask | null>(null);
   protected readonly saving = signal(false);
   protected readonly actionError = signal('');
   protected readonly isEditing = computed(() => this.selected() !== null);
+  protected readonly statusOptions = computed(() =>
+    this.selectedView() === 'active'
+      ? ACTIVE_TASK_STATUSES
+      : HISTORY_TASK_STATUSES
+  );
+  protected readonly visibleTasks = computed(() => {
+    const statuses = this.statusOptions();
+    return this.tasks().filter(task => statuses.includes(task.status));
+  });
 
   protected readonly filters = new FormGroup({
     search: new FormControl('', { nonNullable: true }),
@@ -125,6 +143,18 @@ export class TaskManagementPage {
     this.load();
   }
 
+  protected selectView(view: TaskView): void {
+    if (view === this.selectedView()) return;
+    this.selectedView.set(view);
+    this.selected.set(null);
+    this.actionError.set('');
+
+    if (this.filters.controls.status.value) {
+      this.filters.controls.status.setValue('');
+      this.load();
+    }
+  }
+
   protected edit(task: AdministrativeTask): void {
     this.selected.set(task);
     this.actionError.set('');
@@ -187,7 +217,15 @@ export class TaskManagementPage {
     this.api.changeStatus(
       this.propertyId, task.id, status, task.version
     ).subscribe({
-      next: () => this.load(),
+      next: updatedTask => {
+        this.tasks.update(tasks => tasks.map(current =>
+          current.id === updatedTask.id ? updatedTask : current
+        ));
+        if (this.selected()?.id === updatedTask.id
+          && HISTORY_TASK_STATUSES.includes(updatedTask.status)) {
+          this.selected.set(null);
+        }
+      },
       error: error => this.actionError.set(error.error?.message
         ?? 'No fue posible actualizar el estado.')
     });

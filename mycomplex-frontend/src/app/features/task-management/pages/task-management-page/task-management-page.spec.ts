@@ -21,10 +21,35 @@ const TASK: AdministrativeTask = {
   notificationStatus: 'PENDING'
 };
 
+const IN_PROGRESS_TASK: AdministrativeTask = {
+  ...TASK,
+  id: 'task-2',
+  title: 'Pintar portería',
+  status: 'IN_PROGRESS',
+  version: 1
+};
+const COMPLETED_TASK: AdministrativeTask = {
+  ...TASK,
+  id: 'task-3',
+  title: 'Limpiar tanque',
+  status: 'COMPLETED',
+  version: 2
+};
+const CANCELLED_TASK: AdministrativeTask = {
+  ...TASK,
+  id: 'task-4',
+  title: 'Cambiar luminaria',
+  status: 'CANCELLED',
+  version: 3
+};
+const ALL_TASKS = [
+  TASK, IN_PROGRESS_TASK, COMPLETED_TASK, CANCELLED_TASK
+];
+
 describe('TaskManagementPage', () => {
   async function createPage(overrides: Record<string, unknown> = {}) {
     const api = {
-      find: vi.fn().mockReturnValue(of([TASK])),
+      find: vi.fn().mockReturnValue(of(ALL_TASKS)),
       findWorkers: vi.fn().mockReturnValue(of([{
         membershipId: 'member-1', displayName: 'Ana Trabajadora'
       }])),
@@ -59,19 +84,56 @@ describe('TaskManagementPage', () => {
       properties };
   }
 
-  it('loads the selected property, workers and real task list', async () => {
+  it('opens active tasks and excludes completed and cancelled tasks', async () => {
     const { fixture, api } = await createPage();
+    const content = fixture.nativeElement.textContent;
 
-    expect(fixture.nativeElement.textContent).toContain('Los Cerezos');
-    expect(fixture.nativeElement.textContent).toContain('Revisar ascensor');
-    expect(fixture.nativeElement.textContent).toContain('Ana Trabajadora');
+    expect(content).toContain('Los Cerezos');
+    expect(content).toContain('Revisar ascensor');
+    expect(content).toContain('Pintar portería');
+    expect(content).not.toContain('Limpiar tanque');
+    expect(content).not.toContain('Cambiar luminaria');
+    expect(fixture.nativeElement.querySelector('.editor')).not.toBeNull();
+    const activeTab = fixture.nativeElement.querySelector(
+      '.task-tabs button:first-child'
+    );
+    expect(activeTab.getAttribute('aria-pressed')).toBe('true');
     expect(api.find).toHaveBeenCalledWith('property-1', expect.any(Object));
+  });
+
+  it('switches to read-only history with only terminal tasks', async () => {
+    const { fixture } = await createPage();
+    const historyTab = fixture.nativeElement.querySelector(
+      '.task-tabs button:last-child'
+    ) as HTMLButtonElement;
+
+    historyTab.click();
+    fixture.detectChanges();
+
+    const content = fixture.nativeElement.textContent;
+    expect(historyTab.getAttribute('aria-pressed')).toBe('true');
+    expect(content).toContain('Limpiar tanque');
+    expect(content).toContain('Cambiar luminaria');
+    expect(content).not.toContain('Revisar ascensor');
+    expect(content).not.toContain('Pintar portería');
+    expect(fixture.nativeElement.querySelector('.editor')).toBeNull();
+    const actions = Array.from(
+      fixture.nativeElement.querySelectorAll('article button')
+    ).map((button: any) => button.textContent.trim());
+    expect(actions).not.toContain('Editar');
+    expect(actions).not.toContain('Iniciar');
+    expect(actions).not.toContain('Completar');
+    expect(actions).not.toContain('Cancelar');
   });
 
   it('renders the empty and unavailable property states', async () => {
     const empty = await createPage({ find: vi.fn().mockReturnValue(of([])) });
     expect(empty.fixture.nativeElement.textContent)
-      .toContain('No hay tareas para los filtros seleccionados.');
+      .toContain('No hay tareas activas para los filtros seleccionados.');
+    empty.component.selectView('history');
+    empty.fixture.detectChanges();
+    expect(empty.fixture.nativeElement.textContent)
+      .toContain('Todavía no hay tareas completadas o canceladas');
 
     TestBed.resetTestingModule();
     const unavailable = await createPage();
@@ -108,6 +170,19 @@ describe('TaskManagementPage', () => {
 
     expect(api.find).toHaveBeenLastCalledWith('property-1', {
       search: 'ascensor', status: 'PENDING', priority: 'HIGH',
+      assignedMembershipId: 'member-1', overdue: true
+    });
+
+    component.selectView('history');
+    expect(component.filters.controls.status.value).toBe('');
+    expect(api.find).toHaveBeenLastCalledWith('property-1', {
+      search: 'ascensor', status: undefined, priority: 'HIGH',
+      assignedMembershipId: 'member-1', overdue: true
+    });
+    component.filters.controls.status.setValue('COMPLETED');
+    component.load();
+    expect(api.find).toHaveBeenLastCalledWith('property-1', {
+      search: 'ascensor', status: 'COMPLETED', priority: 'HIGH',
       assignedMembershipId: 'member-1', overdue: true
     });
 
@@ -155,17 +230,39 @@ describe('TaskManagementPage', () => {
     expect(component.saving()).toBe(false);
   });
 
-  it('changes and cancels status while preserving controlled errors', async () => {
+  it('moves completed and cancelled tasks to history without duplicates', async () => {
     const changeStatus = vi.fn()
-      .mockReturnValueOnce(of({ ...TASK, status: 'IN_PROGRESS' }))
-      .mockReturnValueOnce(throwError(() => ({})));
-    const { component, api } = await createPage({ changeStatus });
+      .mockReturnValueOnce(of({
+        ...TASK, status: 'CANCELLED', version: 1
+      }))
+      .mockReturnValueOnce(of({
+        ...IN_PROGRESS_TASK, status: 'COMPLETED', version: 2
+      }));
+    const { component } = await createPage({
+      find: vi.fn().mockReturnValue(of([TASK, IN_PROGRESS_TASK])),
+      changeStatus
+    });
 
-    component.changeStatus(TASK, 'IN_PROGRESS');
+    component.changeStatus(TASK, 'CANCELLED');
     expect(changeStatus).toHaveBeenCalledWith(
-      'property-1', 'task-1', 'IN_PROGRESS', 0
+      'property-1', 'task-1', 'CANCELLED', 0
     );
-    expect(api.find).toHaveBeenCalledTimes(2);
+    component.changeStatus(IN_PROGRESS_TASK, 'COMPLETED');
+
+    expect(component.visibleTasks()).toEqual([]);
+    expect(component.tasks()).toHaveLength(2);
+    component.selectedView.set('history');
+    expect(component.visibleTasks().map((task: AdministrativeTask) => task.id))
+      .toEqual(['task-1', 'task-2']);
+    expect(new Set(component.tasks().map((task: AdministrativeTask) => task.id)).size)
+      .toBe(2);
+  });
+
+  it('keeps status update failures controlled', async () => {
+    const changeStatus = vi.fn().mockReturnValue(
+      throwError(() => ({}))
+    );
+    const { component } = await createPage({ changeStatus });
 
     component.changeStatus(TASK, 'CANCELLED');
     expect(component.actionError())
