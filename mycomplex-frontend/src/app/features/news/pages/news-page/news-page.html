@@ -1,0 +1,309 @@
+<main class="news-page">
+  <header class="page-header">
+    <img
+      ngSrc="/assets/branding/mycomplex-logo.png"
+      alt="MyComplex"
+      width="230"
+      height="70"
+      priority
+    />
+
+    <div class="header-actions">
+      <button
+        class="header-button"
+        type="button"
+        (click)="changeProperty()"
+      >
+        Cambiar copropiedad
+      </button>
+
+      <app-push-notification-button />
+
+      <button
+        class="logout-button"
+        type="button"
+        (click)="logout()"
+      >
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <div class="page-layout">
+    <aside class="page-sidebar">
+      @if (property(); as currentProperty) {
+        <div class="property-summary">
+          <span class="property-mark" aria-hidden="true">MC</span>
+
+          <div>
+            <span>Copropiedad actual</span>
+            <strong>{{ currentProperty.name }}</strong>
+            <small>{{ currentProperty.city }}</small>
+          </div>
+        </div>
+      }
+
+      <nav aria-label="Navegación principal">
+        <a
+          class="navigation-item"
+          [routerLink]="[
+            '/properties',
+            propertyId,
+            'dashboard'
+          ]"
+        >
+          Inicio
+        </a>
+
+        <a class="navigation-item navigation-item--active">
+          Noticias
+        </a>
+
+        <span class="navigation-item navigation-item--disabled">
+          Copropiedad
+        </span>
+        <span class="navigation-item navigation-item--disabled">
+          Usuarios y residentes
+        </span>
+        <span class="navigation-item navigation-item--disabled">
+          Visitantes
+        </span>
+        <span class="navigation-item navigation-item--disabled">
+          Reservas
+        </span>
+      </nav>
+    </aside>
+
+    <section class="page-content">
+      <div class="content-heading">
+        <div>
+          <span class="eyebrow">Comunicaciones</span>
+          <h1>Noticias de la copropiedad</h1>
+          <p>
+            Consulta los avisos y novedades publicados para toda la
+            comunidad.
+          </p>
+        </div>
+
+        @if (isAdministrator()) {
+          <button
+            class="primary-button"
+            type="button"
+            (click)="openCreateForm()"
+          >
+            Crear noticia
+          </button>
+        }
+      </div>
+
+      @if (formVisible() && isAdministrator()) {
+        <section class="editor-panel" aria-labelledby="editor-title">
+          <div class="editor-heading">
+            <div>
+              <span>Publicación</span>
+              <h2 id="editor-title">
+                {{ editingNews() ? 'Editar noticia' : 'Nueva noticia' }}
+              </h2>
+            </div>
+
+            <button
+              class="close-button"
+              type="button"
+              aria-label="Cerrar formulario"
+              (click)="closeForm()"
+            >
+              ×
+            </button>
+          </div>
+
+          <form [formGroup]="newsForm" (ngSubmit)="submit()">
+            <label>
+              <span>Título</span>
+              <input
+                type="text"
+                formControlName="title"
+                maxlength="180"
+                placeholder="Escribe el título de la noticia"
+              />
+            </label>
+
+            @if (
+              newsForm.controls.title.touched &&
+              newsForm.controls.title.invalid
+            ) {
+              <small class="field-error">
+                El título es obligatorio y admite máximo 180 caracteres.
+              </small>
+            }
+
+            <label>
+              <span>Contenido</span>
+              <textarea
+                formControlName="content"
+                rows="7"
+                placeholder="Escribe la información para la comunidad"
+              ></textarea>
+            </label>
+
+            @if (
+              newsForm.controls.content.touched &&
+              newsForm.controls.content.invalid
+            ) {
+              <small class="field-error">
+                El contenido de la noticia es obligatorio.
+              </small>
+            }
+
+            <label class="file-control">
+              <span>Imagen opcional</span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                (change)="selectImage($event)"
+              />
+              <small>
+                PNG, JPG o WEBP. Tamaño máximo permitido: 5 MB.
+              </small>
+            </label>
+
+            @if (selectedImage(); as image) {
+              <p class="selected-file">Imagen seleccionada: {{ image.name }}</p>
+            }
+
+            @if (editingNews()?.imageAvailable && !selectedImage()) {
+              <p class="selected-file">
+                Se conservará la imagen actual si no seleccionas otra.
+              </p>
+            }
+
+            @if (formError(); as error) {
+              <p class="form-error" role="alert">{{ error }}</p>
+            }
+
+            <div class="form-actions">
+              <button
+                class="secondary-button"
+                type="button"
+                [disabled]="saving()"
+                (click)="closeForm()"
+              >
+                Cancelar
+              </button>
+
+              <button
+                class="primary-button"
+                type="submit"
+                [disabled]="saving()"
+              >
+                {{
+                  saving()
+                    ? 'Guardando…'
+                    : editingNews()
+                      ? 'Guardar cambios'
+                      : 'Publicar noticia'
+                }}
+              </button>
+            </div>
+          </form>
+        </section>
+      }
+
+      @if (pageError(); as error) {
+        <div class="page-alert" role="alert">
+          <span>{{ error }}</span>
+          <button type="button" (click)="backToDashboard()">
+            Volver al panel
+          </button>
+        </div>
+      }
+
+      @if (loading()) {
+        <div class="loading-state" role="status">
+          <span class="loading-indicator"></span>
+          <p>Cargando noticias…</p>
+        </div>
+      } @else if (!pageError() && news().length === 0) {
+        <div class="empty-state">
+          <span aria-hidden="true">NC</span>
+          <h2>Aún no hay noticias</h2>
+          <p>
+            Las publicaciones de la administración aparecerán aquí.
+          </p>
+
+          @if (isAdministrator()) {
+            <button
+              class="primary-button"
+              type="button"
+              (click)="openCreateForm()"
+            >
+              Publicar la primera noticia
+            </button>
+          }
+        </div>
+      } @else {
+        <div class="news-grid">
+          @for (item of news(); track item.newsId) {
+            <article class="news-card">
+              @if (imageUrl(item.newsId); as image) {
+                <img
+                  class="news-image"
+                  [src]="image"
+                  [alt]="'Imagen de ' + item.title"
+                />
+              }
+
+              <div class="news-card__content">
+                <div class="news-meta">
+                  <span>Noticia</span>
+                  <time [attr.datetime]="item.publishedAt">
+                    {{ item.publishedAt | date:'dd/MM/yyyy, HH:mm':'UTC' }} UTC
+                  </time>
+                </div>
+
+                <h2>{{ item.title }}</h2>
+                <p>{{ item.content }}</p>
+
+                @if (isAdministrator()) {
+                  <div class="card-actions">
+                    <button
+                      type="button"
+                      (click)="openEditForm(item)"
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      class="danger-button"
+                      type="button"
+                      [disabled]="deletingNewsId() === item.newsId"
+                      (click)="deleteNews(item)"
+                    >
+                      {{
+                        deletingNewsId() === item.newsId
+                          ? 'Eliminando…'
+                          : 'Eliminar'
+                      }}
+                    </button>
+                  </div>
+                }
+              </div>
+            </article>
+          }
+        </div>
+
+        @if (canLoadMore()) {
+          <div class="load-more">
+            <button
+              class="secondary-button"
+              type="button"
+              [disabled]="loadingMore()"
+              (click)="loadMore()"
+            >
+              {{ loadingMore() ? 'Cargando…' : 'Cargar más noticias' }}
+            </button>
+          </div>
+        }
+      }
+    </section>
+  </div>
+</main>

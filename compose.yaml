@@ -1,6 +1,23 @@
 name: mycomplex
 
 services:
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.37.0
+    container_name: mycomplex-azurite
+    restart: unless-stopped
+    command:
+      - azurite-blob
+      - --blobHost
+      - 0.0.0.0
+      - --blobPort
+      - "10000"
+      - --location
+      - /data
+    ports:
+      - "127.0.0.1:10000:10000"
+    volumes:
+      - mycomplex_azurite_data:/data
+
   postgres:
     image: postgres:17-alpine
     container_name: mycomplex-postgres
@@ -33,16 +50,34 @@ services:
     restart: unless-stopped
     environment:
       SPRING_DOCKER_COMPOSE_ENABLED: "false"
+
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
       AUTH0_ISSUER: ${AUTH0_ISSUER}
       AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+
+      AZURE_STORAGE_CONNECTION_STRING: ${AZURE_STORAGE_CONNECTION_STRING}
+      AZURE_STORAGE_CONTAINER: ${AZURE_STORAGE_CONTAINER}
+
+      RESEND_ENABLED: ${RESEND_ENABLED:-false}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+
+      FIREBASE_ENABLED: ${FIREBASE_ENABLED:-false}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:4200}
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/firebase-service-account.json
+    volumes:
+      - ${FIREBASE_CREDENTIALS_PATH}:/run/secrets/firebase-service-account.json:ro
     expose:
       - "8080"
     depends_on:
       postgres:
         condition: service_healthy
+      azurite:
+        condition: service_started
     healthcheck:
       test:
         - CMD-SHELL
@@ -80,3 +115,6 @@ services:
 volumes:
   mycomplex_postgres_data:
     name: mycomplex_postgres_data
+
+  mycomplex_azurite_data:
+    name: mycomplex_azurite_data
