@@ -128,6 +128,7 @@ jobs:
       POSTGRES_PASSWORD: mycomplex_build
       AUTH0_ISSUER: https://auth0.test/
       AUTH0_AUDIENCE: https://api.mycomplex.test
+      FIREBASE_CREDENTIALS_PATH: /tmp/firebase-service-account.json
 
     steps:
       - name: Download repository
