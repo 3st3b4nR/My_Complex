@@ -87,13 +87,41 @@ class ResidentialMigrationIntegrationTest {
                 """,
                 Integer.class
         );
+        Integer estebanOwnerRelationshipCount = jdbcTemplate.queryForObject(
+                """
+                SELECT COUNT(*)
+                FROM usuarios usuario
+                JOIN usuarios_copropiedades membresia
+                  ON membresia.usuario_id = usuario.id
+                JOIN usuarios_copropiedades_unidades relacion
+                  ON relacion.usuario_copropiedad_id = membresia.id
+                WHERE usuario.id =
+                    '60000000-0000-0000-0000-000000000005'
+                  AND usuario.correo = 'esteban.roldanrm@gmail.com'
+                  AND membresia.id =
+                    '70000000-0000-0000-0000-000000000005'
+                  AND membresia.copropiedad_id = ?
+                  AND membresia.rol = 'PROPIETARIO'
+                  AND membresia.estado = 'ACTIVA'
+                  AND relacion.id =
+                    '80000000-0000-0000-0000-000000000006'
+                  AND relacion.unidad_residencial_id =
+                    '50000000-0000-0000-0000-000000000102'
+                  AND relacion.tipo_vinculacion = 'PROPIETARIO'
+                  AND relacion.es_principal = TRUE
+                  AND relacion.estado = 'ACTIVA'
+                """,
+                Integer.class,
+                LOS_CEREZOS_ID
+        );
 
         assertEquals(2, structureCount);
         assertEquals(4, unitCount);
-        assertEquals(5, relationshipCount);
-        assertEquals(5, memberCount);
+        assertEquals(6, relationshipCount);
+        assertEquals(6, memberCount);
         assertEquals(0, johnUnitCount);
         assertEquals(2, carolinaUnitCount);
+        assertEquals(1, estebanOwnerRelationshipCount);
     }
 
     @Test

@@ -14,7 +14,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mycomplex.users.domain.model.PropertyMember;
+import com.mycomplex.users.domain.model.MembershipStatus;
+import com.mycomplex.users.domain.model.PropertyRole;
+import com.mycomplex.users.domain.model.ResidentialRelationshipStatus;
 import com.mycomplex.users.domain.model.ResidentialRelationshipType;
+import com.mycomplex.users.domain.model.UserStatus;
 import com.mycomplex.users.infrastructure.adapter.out.persistence.PropertyMemberPersistenceAdapter;
 import com.mycomplex.users.infrastructure.adapter.out.persistence.dbo.PropertyMemberRow;
 
@@ -321,8 +325,12 @@ class UserPropertyJpaRepositoryTest {
                 members,
                 "60000000-0000-0000-0000-000000000003"
         );
+        PropertyMember esteban = memberById(
+                members,
+                "60000000-0000-0000-0000-000000000005"
+        );
 
-        assertEquals(5, members.size());
+        assertEquals(6, members.size());
         assertTrue(john.units().isEmpty());
         assertEquals(2, carolina.units().size());
         assertEquals(ana.units().getFirst().unit().id(),
@@ -334,6 +342,26 @@ class UserPropertyJpaRepositoryTest {
         assertEquals(
                 ResidentialRelationshipType.RESIDENT,
                 luis.units().getFirst().relationshipType()
+        );
+        assertEquals("Esteban", esteban.firstNames());
+        assertEquals("Roldan Marin", esteban.lastNames());
+        assertEquals("esteban.roldanrm@gmail.com", esteban.email());
+        assertEquals(PropertyRole.OWNER, esteban.role());
+        assertEquals(UserStatus.ACTIVE, esteban.userStatus());
+        assertEquals(MembershipStatus.ACTIVE, esteban.membershipStatus());
+        assertEquals(1, esteban.units().size());
+        assertEquals(
+                UUID.fromString("50000000-0000-0000-0000-000000000102"),
+                esteban.units().getFirst().unit().id()
+        );
+        assertEquals(
+                ResidentialRelationshipType.OWNER,
+                esteban.units().getFirst().relationshipType()
+        );
+        assertTrue(esteban.units().getFirst().primary());
+        assertEquals(
+                ResidentialRelationshipStatus.ACTIVE,
+                esteban.units().getFirst().status()
         );
     }
 

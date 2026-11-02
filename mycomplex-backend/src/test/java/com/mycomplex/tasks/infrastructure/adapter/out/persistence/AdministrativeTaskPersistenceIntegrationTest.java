@@ -40,7 +40,7 @@ class AdministrativeTaskPersistenceIntegrationTest {
 
     @Test
     void persistsTaskAndOutboxAtomicallyAndRejectsStaleVersion() {
-        assertCleanFlywayHistoryAndV10Schema();
+        assertCleanFlywayHistoryThroughV11AndTaskSchema();
         UUID workerUserId = UUID.randomUUID();
         UUID workerMembershipId = UUID.randomUUID();
         UUID secondWorkerUserId = UUID.randomUUID();
@@ -108,7 +108,7 @@ class AdministrativeTaskPersistenceIntegrationTest {
         assertThat(taskAuditCount).isEqualTo(1);
     }
 
-    private void assertCleanFlywayHistoryAndV10Schema() {
+    private void assertCleanFlywayHistoryThroughV11AndTaskSchema() {
         Integer migrationCount = jdbcTemplate.queryForObject("""
                 SELECT COUNT(*) FROM flyway_schema_history
                 WHERE success = TRUE AND version IS NOT NULL
@@ -120,6 +120,17 @@ class AdministrativeTaskPersistenceIntegrationTest {
         Integer v10Count = jdbcTemplate.queryForObject("""
                 SELECT COUNT(*) FROM flyway_schema_history
                 WHERE version = '10' AND success = TRUE
+                """, Integer.class);
+        Integer v11Count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM flyway_schema_history
+                WHERE version = '11' AND success = TRUE
+                """, Integer.class);
+        Integer v11RecipientCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM usuarios
+                WHERE id = '60000000-0000-0000-0000-000000000005'
+                  AND auth0_subject = 'seed|esteban.roldan.propietario'
+                  AND correo = 'esteban.roldanrm@gmail.com'
+                  AND estado = 'ACTIVO'
                 """, Integer.class);
         Integer duplicatedVersions = jdbcTemplate.queryForObject("""
                 SELECT COUNT(*) FROM (
@@ -168,9 +179,11 @@ class AdministrativeTaskPersistenceIntegrationTest {
                   )
                 """, Integer.class);
 
-        assertThat(migrationCount).isEqualTo(10);
+        assertThat(migrationCount).isEqualTo(11);
         assertThat(v2Count).isEqualTo(1);
         assertThat(v10Count).isEqualTo(1);
+        assertThat(v11Count).isEqualTo(1);
+        assertThat(v11RecipientCount).isEqualTo(1);
         assertThat(duplicatedVersions).isZero();
         assertThat(tableCount).isEqualTo(3);
         assertThat(validatedForeignKeys).isEqualTo(7);
