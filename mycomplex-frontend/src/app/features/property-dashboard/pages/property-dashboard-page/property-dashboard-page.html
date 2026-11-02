@@ -121,6 +121,16 @@
                 >
                   Gestión de usuarios
                 </a>
+                <a
+                  class="navigation-item"
+                  [routerLink]="[
+                    '/properties',
+                    state.property.propertyId,
+                    'tasks'
+                  ]"
+                >
+                  Gestión de tareas
+                </a>
               }
               <span class="navigation-item">Visitantes</span>
               <span class="navigation-item">Reservas</span>
@@ -181,6 +191,22 @@
                     <p>
                       Consulta las personas vinculadas y sus roles en
                       la copropiedad.
+                    </p>
+                  </a>
+                  <a
+                    class="module-card module-card--link"
+                    [routerLink]="[
+                      '/properties',
+                      state.property.propertyId,
+                      'tasks'
+                    ]"
+                  >
+                    <span class="module-card__mark" aria-hidden="true">
+                      GT
+                    </span>
+                    <h3>Gestión de tareas</h3>
+                    <p>
+                      Asigna actividades a trabajadores y consulta su avance.
                     </p>
                   </a>
                 }

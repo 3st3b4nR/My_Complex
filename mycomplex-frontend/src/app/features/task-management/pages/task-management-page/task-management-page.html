@@ -1,0 +1,133 @@
+<main class="tasks-page">
+  <header>
+    <div>
+      <span>Panel administrativo</span>
+      <h1>Gestión de tareas</h1>
+      <p>{{ propertyName() || 'Copropiedad seleccionada' }} · Crea, asigna y realiza seguimiento.</p>
+    </div>
+    <a [routerLink]="['/properties', propertyId, 'dashboard']">Volver al panel</a>
+  </header>
+
+  @if (status() === 'loading') {
+    <section class="state" role="status">Cargando tareas…</section>
+  } @else if (status() === 'forbidden') {
+    <section class="state state--error" role="alert">
+      No tienes permisos para administrar tareas de esta copropiedad.
+    </section>
+  } @else if (status() === 'not-found') {
+    <section class="state state--error" role="alert">
+      La copropiedad no está disponible para tu usuario.
+    </section>
+  } @else if (status() === 'error') {
+    <section class="state state--error" role="alert">
+      No pudimos cargar las tareas. <button (click)="load()">Reintentar</button>
+    </section>
+  } @else {
+    <section class="filters" aria-label="Filtros de tareas">
+      <input [formControl]="filters.controls.search"
+        placeholder="Buscar por tarea o trabajador" />
+      <select [formControl]="filters.controls.status">
+        <option value="">Todos los estados</option>
+        <option value="PENDING">Pendiente</option>
+        <option value="IN_PROGRESS">En progreso</option>
+        <option value="COMPLETED">Completada</option>
+        <option value="CANCELLED">Cancelada</option>
+      </select>
+      <select [formControl]="filters.controls.priority">
+        <option value="">Todas las prioridades</option>
+        <option value="LOW">Baja</option><option value="MEDIUM">Media</option>
+        <option value="HIGH">Alta</option><option value="URGENT">Urgente</option>
+      </select>
+      <select [formControl]="filters.controls.assignedMembershipId">
+        <option value="">Todos los trabajadores</option>
+        @for (worker of workers(); track worker.membershipId) {
+          <option [value]="worker.membershipId">{{ worker.displayName }}</option>
+        }
+      </select>
+      <label class="checkbox"><input type="checkbox"
+        [formControl]="filters.controls.overdue" /> Solo vencidas</label>
+      <button type="button" (click)="load()">Aplicar</button>
+      <button type="button" class="secondary" (click)="clearFilters()">Limpiar</button>
+    </section>
+
+    @if (actionError()) {
+      <p class="action-error" role="alert">{{ actionError() }}</p>
+    }
+
+    <div class="workspace">
+      <section aria-labelledby="task-list-title">
+        <div class="section-title">
+          <h2 id="task-list-title">Tareas</h2>
+          <button type="button" (click)="newTask()">Asignar tarea</button>
+        </div>
+        @if (tasks().length === 0) {
+          <div class="state">No hay tareas para los filtros seleccionados.</div>
+        } @else {
+          <div class="task-list">
+            @for (task of tasks(); track task.id) {
+              <article [class.overdue]="task.overdue">
+                <div class="badges">
+                  <span>{{ priorityLabel(task.priority) }}</span>
+                  <span>{{ statusLabel(task.status) }}</span>
+                  @if (task.overdue) { <strong>Vencida</strong> }
+                </div>
+                <h3>{{ task.title }}</h3>
+                <p>{{ task.description }}</p>
+                <dl>
+                  <div><dt>Asignada a</dt><dd>{{ task.assignedWorkerName }}</dd></div>
+                  <div><dt>Fecha límite</dt><dd>{{ task.dueAt | date:'medium' }}</dd></div>
+                  <div><dt>Notificación</dt><dd>{{ task.notificationStatus || 'Sin evento' }}</dd></div>
+                </dl>
+                <div class="actions">
+                  <details>
+                    <summary>Ver detalle</summary>
+                    <p><strong>Ubicación:</strong> {{ task.location || 'No indicada' }}</p>
+                    <p><strong>Observación:</strong> {{ task.administrativeNote || 'Sin observación' }}</p>
+                  </details>
+                  <button type="button" (click)="edit(task)"
+                    [disabled]="task.status === 'COMPLETED' || task.status === 'CANCELLED'">
+                    Editar
+                  </button>
+                  @if (task.status === 'PENDING') {
+                    <button type="button" (click)="changeStatus(task, 'IN_PROGRESS')">Iniciar</button>
+                  }
+                  @if (task.status === 'IN_PROGRESS') {
+                    <button type="button" (click)="changeStatus(task, 'COMPLETED')">Completar</button>
+                  }
+                  @if (task.status === 'PENDING' || task.status === 'IN_PROGRESS') {
+                    <button type="button" class="danger" (click)="changeStatus(task, 'CANCELLED')">Cancelar</button>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="editor" aria-labelledby="task-editor-title">
+        <h2 id="task-editor-title">{{ isEditing() ? 'Editar tarea' : 'Nueva tarea' }}</h2>
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <label>Título<input formControlName="title" /></label>
+          <label>Descripción<textarea formControlName="description" rows="5"></textarea></label>
+          <label>Prioridad<select formControlName="priority">
+            <option value="LOW">Baja</option><option value="MEDIUM">Media</option>
+            <option value="HIGH">Alta</option><option value="URGENT">Urgente</option>
+          </select></label>
+          <label>Trabajador<select formControlName="assignedMembershipId">
+            <option value="">Selecciona un trabajador</option>
+            @for (worker of workers(); track worker.membershipId) {
+              <option [value]="worker.membershipId">{{ worker.displayName }}</option>
+            }
+          </select></label>
+          <label>Fecha límite<input type="datetime-local" formControlName="dueAt" /></label>
+          <label>Ubicación<input formControlName="location" /></label>
+          <label>Observación administrativa<textarea formControlName="administrativeNote"></textarea></label>
+          <div class="actions">
+            <button type="submit" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar' }}</button>
+            <button type="button" class="secondary" (click)="newTask()">Limpiar</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  }
+</main>

@@ -38,6 +38,15 @@ export const routes: Routes = [
     title: 'Gestión de usuarios | MyComplex'
   },
   {
+    path: 'properties/:propertyId/tasks',
+    loadComponent: () =>
+      import(
+        './features/task-management/pages/task-management-page/task-management-page'
+      ).then(component => component.TaskManagementPage),
+    canActivate: [authGuardFn],
+    title: 'Gestión de tareas | MyComplex'
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'login'

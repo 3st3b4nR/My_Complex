@@ -3,13 +3,14 @@ package com.mycomplex.observability.infrastructure.adapter.out.metrics;
 import org.springframework.stereotype.Component;
 
 import com.mycomplex.observability.api.SecurityAuditEventType;
+import com.mycomplex.observability.api.TaskOperationalMetrics;
 import com.mycomplex.observability.application.port.out.ObservabilityMetricsPort;
 
 import io.micrometer.core.instrument.MeterRegistry;
 
 @Component
 public class MicrometerObservabilityMetricsAdapter
-        implements ObservabilityMetricsPort {
+        implements ObservabilityMetricsPort, TaskOperationalMetrics {
 
     private final MeterRegistry registry;
 
@@ -51,6 +52,54 @@ public class MicrometerObservabilityMetricsAdapter
         ).increment();
     }
 
+    @Override
+    public void taskCreated(String priority) {
+        registry.counter(
+                "mycomplex.tasks.created",
+                "priority", normalizePriority(priority)
+        ).increment();
+    }
+
+    @Override
+    public void taskAssignment(boolean reassignment) {
+        registry.counter(
+                "mycomplex.task.assignments",
+                "operation", reassignment ? "reassign" : "assign"
+        ).increment();
+    }
+
+    @Override
+    public void taskStatusChanged(String status) {
+        registry.counter(
+                "mycomplex.task.status.changes",
+                "status", normalizeTaskStatus(status)
+        ).increment();
+    }
+
+    @Override
+    public void fcmDelivery(String result) {
+        registry.counter(
+                "mycomplex.fcm.deliveries",
+                "result", normalizeDeliveryResult(result)
+        ).increment();
+    }
+
+    @Override
+    public void fcmDeliveryFailure(String reason) {
+        registry.counter(
+                "mycomplex.fcm.delivery.failures",
+                "reason", normalizeFcmReason(reason)
+        ).increment();
+    }
+
+    @Override
+    public void fcmDeliveryRetry(String reason) {
+        registry.counter(
+                "mycomplex.fcm.delivery.retries",
+                "reason", normalizeFcmReason(reason)
+        ).increment();
+    }
+
     private String normalizeOperation(String value) {
         return switch (value) {
             case "member_registration", "membership_update",
@@ -72,6 +121,38 @@ public class MicrometerObservabilityMetricsAdapter
             case "AUTH0_UNAVAILABLE", "AUTH0_INVITATION_UNAVAILABLE" ->
                     "unavailable";
             case "AUTH0_PERMISSION_DENIED" -> "permission_denied";
+            default -> "other";
+        };
+    }
+
+    private String normalizePriority(String value) {
+        return switch (value == null ? "" : value) {
+            case "LOW", "MEDIUM", "HIGH", "URGENT" ->
+                    value.toLowerCase();
+            default -> "other";
+        };
+    }
+
+    private String normalizeTaskStatus(String value) {
+        return switch (value == null ? "" : value) {
+            case "PENDING", "IN_PROGRESS", "COMPLETED", "CANCELLED" ->
+                    value.toLowerCase();
+            default -> "other";
+        };
+    }
+
+    private String normalizeDeliveryResult(String value) {
+        return switch (value == null ? "" : value) {
+            case "SENT", "FAILED", "NO_DESTINATION", "NOT_CONFIGURED" ->
+                    value.toLowerCase();
+            default -> "other";
+        };
+    }
+
+    private String normalizeFcmReason(String value) {
+        return switch (value == null ? "" : value) {
+            case "unavailable", "rate_limited", "invalid_destination",
+                    "permission_denied", "not_configured" -> value;
             default -> "other";
         };
     }

@@ -99,7 +99,29 @@
       "datasource": {"type": "loki", "uid": "loki"},
       "targets": [{"expr": "{service_name=~\"mycomplex-(backend|gateway)\"}", "refId": "A"}],
       "options": {"dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": true, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
-      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 32}
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 40}
+    },
+    {
+      "type": "timeseries", "title": "Administrative tasks", "id": 13,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "sum by (priority) (increase(mycomplex_tasks_created_total[1h]))", "legendFormat": "created {{priority}}", "refId": "A"},
+        {"expr": "sum by (operation) (increase(mycomplex_task_assignments_total[1h]))", "legendFormat": "assignment {{operation}}", "refId": "B"},
+        {"expr": "sum by (status) (increase(mycomplex_task_status_changes_total[1h]))", "legendFormat": "status {{status}}", "refId": "C"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32}
+    },
+    {
+      "type": "timeseries", "title": "FCM delivery outcomes", "id": 14,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "sum by (result) (increase(mycomplex_fcm_deliveries_total[1h]))", "legendFormat": "{{result}}", "refId": "A"},
+        {"expr": "sum by (reason) (increase(mycomplex_fcm_delivery_failures_total[1h]))", "legendFormat": "failure {{reason}}", "refId": "B"},
+        {"expr": "sum by (reason) (increase(mycomplex_fcm_delivery_retries_total[1h]))", "legendFormat": "retry {{reason}}", "refId": "C"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32}
     }
   ],
   "refresh": "15s",

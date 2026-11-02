@@ -17,7 +17,8 @@ import com.mycomplex.observability.domain.SecurityAuditEvent;
 public final class SecurityAuditService implements RecordSecurityAuditUseCase {
 
     private static final Set<String> ALLOWED_METADATA_KEYS = Set.of(
-            "registrationMode", "changedField", "invitationMode"
+            "registrationMode", "changedField", "invitationMode",
+            "priority", "assignmentAction", "previousStatus", "newStatus"
     );
     private static final int MAX_METADATA_VALUE_LENGTH = 80;
 

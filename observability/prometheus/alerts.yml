@@ -74,3 +74,15 @@ groups:
           summary: Security audit persistence failed
           description: At least one durable security audit event could not be persisted.
           runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/audit-failure.md
+
+  - name: mycomplex-tasks-notifications
+    rules:
+      - alert: MyComplexFcmDeliveryFailures
+        expr: sum(increase(mycomplex_fcm_delivery_failures_total[15m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Repeated FCM delivery failures
+          description: More than five FCM delivery failures occurred in fifteen minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/fcm-delivery-failures.md

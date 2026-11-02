@@ -1,0 +1,20 @@
+<aside class="notification-card" aria-labelledby="notification-title">
+  <div>
+    <h2 id="notification-title">Notificaciones de tareas</h2>
+    @switch (notifications.state()) {
+      @case ('enabled') { <p>Las notificaciones están activadas en este navegador.</p> }
+      @case ('blocked') { <p>El navegador bloqueó el permiso. Puedes habilitarlo desde su configuración.</p> }
+      @case ('unsupported') { <p>Este navegador no admite notificaciones push.</p> }
+      @case ('disabled') { <p>Las notificaciones aún no están configuradas por el administrador.</p> }
+      @case ('error') { <p>No fue posible actualizar la configuración. Inténtalo nuevamente.</p> }
+      @default { <p>Actívalas para recibir avisos cuando te asignen una tarea.</p> }
+    }
+  </div>
+  @if (notifications.state() === 'available' || notifications.state() === 'error') {
+    <button type="button" (click)="notifications.activate()">Activar</button>
+  } @else if (notifications.state() === 'enabled') {
+    <button type="button" class="secondary" (click)="notifications.deactivate()">Desactivar</button>
+  } @else if (notifications.state() === 'activating') {
+    <button type="button" disabled>Activando…</button>
+  }
+</aside>

@@ -25,6 +25,7 @@ import {
   AssignedProperty,
   PropertyRole
 } from '../../models/assigned-property';
+import { NotificationActivation } from '../../../notifications/components/notification-activation/notification-activation';
 
 type PropertySelectionState =
   | {
@@ -44,7 +45,8 @@ type PropertySelectionState =
   selector: 'app-property-selection-page',
   imports: [
     AsyncPipe,
-    NgOptimizedImage
+    NgOptimizedImage,
+    NotificationActivation
   ],
   templateUrl: './property-selection-page.html',
   styleUrl: './property-selection-page.scss',
