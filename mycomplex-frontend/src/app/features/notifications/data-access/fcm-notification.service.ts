@@ -74,14 +74,18 @@ export class FcmNotificationService {
         apiUrl: environment.apiUrl
       });
       onRegistered(messaging, async installationIdentifier => {
-        const response = await firstValueFrom(
-          this.http.post<InstallationResponse>(
-            `${environment.apiUrl}/api/me/fcm-installations`,
-            { installationId: installationIdentifier }
-          )
-        );
-        localStorage.setItem(FcmNotificationService.STORAGE_KEY, response.id);
-        this.state.set('enabled');
+        try {
+          const response = await firstValueFrom(
+            this.http.post<InstallationResponse>(
+              `${environment.apiUrl}/api/me/fcm-installations`,
+              { installationId: installationIdentifier }
+            )
+          );
+          localStorage.setItem(FcmNotificationService.STORAGE_KEY, response.id);
+          this.state.set('enabled');
+        } catch {
+          this.state.set('error');
+        }
       });
       onUnregistered(messaging, () => {
         localStorage.removeItem(FcmNotificationService.STORAGE_KEY);

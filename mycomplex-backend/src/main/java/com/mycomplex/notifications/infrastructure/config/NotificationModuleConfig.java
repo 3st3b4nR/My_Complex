@@ -11,6 +11,7 @@ import com.mycomplex.notifications.application.port.in.ManageFcmInstallationUseC
 import com.mycomplex.notifications.application.port.out.FcmDeliveryPort;
 import com.mycomplex.notifications.application.port.out.FcmInstallationPort;
 import com.mycomplex.notifications.application.port.out.FcmOutboxPort;
+import com.mycomplex.notifications.application.port.out.FirebaseWebConfigPort;
 import com.mycomplex.notifications.application.service.FindFirebaseWebConfigService;
 import com.mycomplex.notifications.application.service.ManageFcmInstallationService;
 import com.mycomplex.notifications.application.service.TaskNotificationOutboxService;
@@ -36,9 +37,9 @@ public class NotificationModuleConfig {
 
     @Bean
     FindFirebaseWebConfigUseCase findFirebaseWebConfigUseCase(
-            FcmProperties properties,
+            FirebaseWebConfigPort configPort,
             FcmDeliveryPort delivery
     ) {
-        return new FindFirebaseWebConfigService(properties, delivery);
+        return new FindFirebaseWebConfigService(configPort, delivery);
     }
 }

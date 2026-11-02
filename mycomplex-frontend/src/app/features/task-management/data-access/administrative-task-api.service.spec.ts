@@ -69,4 +69,60 @@ describe('AdministrativeTaskApiService', () => {
     patch.flush({});
     http.verify();
   });
+
+  it('loads workers and updates a task in the selected property', () => {
+    TestBed.configureTestingModule({ providers: [
+      AdministrativeTaskApiService,
+      provideHttpClient(),
+      provideHttpClientTesting()
+    ] });
+    const service = TestBed.inject(AdministrativeTaskApiService);
+    const http = TestBed.inject(HttpTestingController);
+    const propertyId = '10000000-0000-0000-0000-000000000001';
+    const taskId = '90000000-0000-0000-0000-000000000001';
+    const request = {
+      title: 'Actualizar ascensor', description: 'Revisión completa',
+      priority: 'URGENT' as const, location: 'Torre 1',
+      dueAt: '2026-12-02T12:00:00Z', administrativeNote: 'Prioritaria',
+      assignedMembershipId: '70000000-0000-0000-0000-000000000001',
+      version: 3
+    };
+
+    service.findWorkers(propertyId).subscribe(workers =>
+      expect(workers[0].displayName).toBe('Ana Trabajadora'));
+    const workers = http.expectOne(
+      `${environment.apiUrl}/api/properties/${propertyId}/task-workers`
+    );
+    expect(workers.request.method).toBe('GET');
+    workers.flush([{ membershipId: 'member-1', displayName: 'Ana Trabajadora' }]);
+
+    service.update(propertyId, taskId, request).subscribe();
+    const update = http.expectOne(
+      `${environment.apiUrl}/api/properties/${propertyId}/tasks/${taskId}`
+    );
+    expect(update.request.method).toBe('PUT');
+    expect(update.request.body).toEqual(request);
+    update.flush({});
+    http.verify();
+  });
+
+  it('omits empty filters from the request', () => {
+    TestBed.configureTestingModule({ providers: [
+      AdministrativeTaskApiService,
+      provideHttpClient(),
+      provideHttpClientTesting()
+    ] });
+    const service = TestBed.inject(AdministrativeTaskApiService);
+    const http = TestBed.inject(HttpTestingController);
+
+    service.find('property-1', {
+      search: '', assignedMembershipId: '', overdue: false
+    }).subscribe();
+
+    const request = http.expectOne(candidate =>
+      candidate.url.endsWith('/api/properties/property-1/tasks'));
+    expect(request.request.params.keys()).toEqual([]);
+    request.flush([]);
+    http.verify();
+  });
 });
