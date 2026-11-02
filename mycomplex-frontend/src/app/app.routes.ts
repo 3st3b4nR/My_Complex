@@ -29,6 +29,15 @@ export const routes: Routes = [
     title: 'Panel de administración | MyComplex'
   },
   {
+    path: 'properties/:propertyId/news',
+    loadComponent: () =>
+      import(
+        './features/news/pages/news-page/news-page'
+      ).then(component => component.NewsPage),
+    canActivate: [authGuardFn],
+    title: 'Noticias | MyComplex'
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'login'

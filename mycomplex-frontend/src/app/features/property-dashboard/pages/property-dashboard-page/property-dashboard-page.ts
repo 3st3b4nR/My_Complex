@@ -11,7 +11,8 @@ import {
 
 import {
   ActivatedRoute,
-  Router
+  Router,
+  RouterLink
 } from '@angular/router';
 
 import { AuthService } from '@auth0/auth0-angular';
@@ -26,6 +27,8 @@ import {
 } from 'rxjs';
 
 import { PropertyApiService } from '../../../property-selection/data-access/property-api.service';
+import { PushNotificationButton } from '../../../../shared/notifications/ui/push-notification-button/push-notification-button';
+import { PushNotificationsService } from '../../../../shared/notifications/data-access/push-notifications.service';
 
 import {
   AssignedProperty,
@@ -54,7 +57,9 @@ type PropertyDashboardState =
   selector: 'app-property-dashboard-page',
   imports: [
     AsyncPipe,
-    NgOptimizedImage
+    NgOptimizedImage,
+    PushNotificationButton,
+    RouterLink
   ],
   templateUrl: './property-dashboard-page.html',
   styleUrl: './property-dashboard-page.scss',
@@ -66,6 +71,9 @@ export class PropertyDashboardPage {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly propertyApi = inject(PropertyApiService);
+  private readonly pushNotifications = inject(
+    PushNotificationsService
+  );
 
   protected readonly user$ = this.authService.user$;
 
@@ -120,7 +128,8 @@ export class PropertyDashboardPage {
     this.router.navigate(['/select-property']);
   }
 
-  protected logout(): void {
+  protected async logout(): Promise<void> {
+    await this.pushNotifications.deactivate();
     this.authService.logout({
       logoutParams: {
         returnTo: window.location.origin

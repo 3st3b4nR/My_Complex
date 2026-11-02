@@ -1,4 +1,8 @@
 services:
+	ports:
+	  - "127.0.0.1:10000:10000"
+	volumes:
+	  - mycomplex_azurite_data:/data
   postgres:
     image: postgres:17-alpine
     container_name: mycomplex-postgres

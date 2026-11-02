@@ -1,0 +1,14 @@
+<button
+  type="button"
+  [disabled]="state() !== 'inactive' && state() !== 'error'"
+  (click)="enable()"
+>
+  @switch (state()) {
+    @case ('enabled') { Notificaciones activadas }
+    @case ('enabling') { Activando... }
+    @case ('denied') { Notificaciones bloqueadas }
+    @case ('unavailable') { Notificaciones no disponibles }
+    @case ('error') { Reintentar notificaciones }
+    @default { Activar notificaciones }
+  }
+</button>

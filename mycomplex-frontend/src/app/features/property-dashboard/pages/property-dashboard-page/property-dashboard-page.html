@@ -24,6 +24,8 @@
         Cambiar copropiedad
       </button>
 
+      <app-push-notification-button />
+
       <button
         class="logout-button"
         type="button"
@@ -109,6 +111,17 @@
                 Inicio
               </a>
 
+              <a
+                class="navigation-item"
+                [routerLink]="[
+                  '/properties',
+                  state.property.propertyId,
+                  'news'
+                ]"
+              >
+                Noticias
+              </a>
+
               <span class="navigation-item">Copropiedad</span>
               <span class="navigation-item">Usuarios y residentes</span>
               <span class="navigation-item">Visitantes</span>
@@ -186,15 +199,22 @@
                   </p>
                 </article>
 
-                <article class="module-card">
+                <a
+                  class="module-card module-card--link"
+                  [routerLink]="[
+                    '/properties',
+                    state.property.propertyId,
+                    'news'
+                  ]"
+                >
                   <span class="module-card__mark" aria-hidden="true">
                     CO
                   </span>
-                  <h3>Comunicaciones</h3>
+                  <h3>Noticias</h3>
                   <p>
-                    Publica avisos y envía información a la comunidad.
+                    Publica avisos y mantén informada a la comunidad.
                   </p>
-                </article>
+                </a>
 
                 <article class="module-card">
                   <span class="module-card__mark" aria-hidden="true">
