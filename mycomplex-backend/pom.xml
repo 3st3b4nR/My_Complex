@@ -33,6 +33,7 @@
 		<jacoco.version>0.8.14</jacoco.version>
 		<cyclonedx.version>2.9.1</cyclonedx.version>
 		<firebase-admin.version>9.11.0</firebase-admin.version>
+		<guava.version>33.7.2-jre</guava.version>
 	</properties>
 		<dependencyManagement>
     <dependencies>
@@ -43,6 +44,11 @@
             <type>pom</type>
             <scope>import</scope>
         </dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
+		</dependency>
     </dependencies>
 </dependencyManagement>
 	<dependencies>
