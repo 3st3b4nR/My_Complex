@@ -6,6 +6,12 @@ solución de producción.
 La fase incorpora métricas Prometheus, logs ECS en Loki, trazas OpenTelemetry
 en Tempo, dashboard Grafana, alertas locales y auditoría durable append-only.
 
+Las señales automáticas de Spring Boot cubren disponibilidad, JVM, pool JDBC,
+tráfico HTTP, latencia y errores de todas las rutas actuales del backend y el
+Gateway. El dashboard agrupa explícitamente las rutas de noticias y reuniones.
+Las observaciones específicas cubren Resend, imágenes de noticias en Azure
+Blob/Azurite, Firebase FCM y los lotes programados de recordatorios.
+
 ## Inicio rápido
 
 Defina en la sesión local `GRAFANA_ADMIN_USER` y
@@ -35,3 +41,7 @@ Todos los puertos están ligados a loopback. Los management ports `9080` y
 
 Las alertas se evalúan en Prometheus. No se envían notificaciones: Alertmanager
 y un receptor requieren una decisión operativa futura.
+
+Las etiquetas de métricas son de baja cardinalidad. Correos, subjects Auth0,
+identificadores, enlaces, rutas Blob y contenido de noticias o reuniones no se
+registran como etiquetas ni en los logs operativos agregados.

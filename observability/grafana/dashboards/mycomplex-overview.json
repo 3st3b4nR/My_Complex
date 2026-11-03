@@ -122,6 +122,99 @@
       ],
       "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
       "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32}
+    },
+    {
+      "type": "timeseries", "title": "News and meetings request throughput", "id": 15,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "sum(rate(http_server_requests_seconds_count{uri=~\"/api/properties/.*/news.*\"}[5m]))", "legendFormat": "news", "refId": "A"},
+        {"expr": "sum(rate(http_server_requests_seconds_count{uri=~\"/api/properties/.*/meetings.*\"}[5m]))", "legendFormat": "meetings", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 50}
+    },
+    {
+      "type": "timeseries", "title": "News and meetings HTTP 5xx", "id": 16,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "sum(rate(http_server_requests_seconds_count{uri=~\"/api/properties/.*/news.*\",status=~\"5..\"}[5m]))", "legendFormat": "news 5xx", "refId": "A"},
+        {"expr": "sum(rate(http_server_requests_seconds_count{uri=~\"/api/properties/.*/meetings.*\",status=~\"5..\"}[5m]))", "legendFormat": "meetings 5xx", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 50}
+    },
+    {
+      "type": "timeseries", "title": "News and meetings p95 latency", "id": 17,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{uri=~\"/api/properties/.*/news.*\"}[5m])))", "legendFormat": "news p95", "refId": "A"},
+        {"expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{uri=~\"/api/properties/.*/meetings.*\"}[5m])))", "legendFormat": "meetings p95", "refId": "B"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 50}
+    },
+    {
+      "type": "timeseries", "title": "Resend delivery outcomes", "id": 18,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "sum by (outcome) (increase(resend_email_send_seconds_count[1h]))", "legendFormat": "{{outcome}}", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 58}
+    },
+    {
+      "type": "timeseries", "title": "Resend average duration", "id": 19,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "sum(rate(resend_email_send_seconds_sum[5m])) / clamp_min(sum(rate(resend_email_send_seconds_count[5m])), 0.001)", "legendFormat": "average", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 58}
+    },
+    {
+      "type": "timeseries", "title": "Azure Blob news-image outcomes", "id": 20,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "sum by (operation, outcome) (increase(azure_blob_news_image_seconds_count[1h]))", "legendFormat": "{{operation}} {{outcome}}", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 58}
+    },
+    {
+      "type": "timeseries", "title": "Azure Blob average duration", "id": 21,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "sum by (operation) (rate(azure_blob_news_image_seconds_sum[5m])) / clamp_min(sum by (operation) (rate(azure_blob_news_image_seconds_count[5m])), 0.001)", "legendFormat": "{{operation}}", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 66}
+    },
+    {
+      "type": "timeseries", "title": "Firebase integration outcomes", "id": 22,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "sum by (outcome) (increase(firebase_fcm_send_seconds_count[1h]))", "legendFormat": "{{outcome}}", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 66}
+    },
+    {
+      "type": "timeseries", "title": "Meeting reminder batches", "id": 23,
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "targets": [
+        {"expr": "sum by (outcome) (increase(mycomplex_meeting_reminder_batch_seconds_count[1h]))", "legendFormat": "{{outcome}}", "refId": "A"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 66}
+    },
+    {
+      "type": "logs", "title": "External integration errors", "id": 24,
+      "datasource": {"type": "loki", "uid": "loki"},
+      "targets": [
+        {"expr": "{service_name=\"mycomplex-backend\"} | json | message=~\"External email delivery failed|News image storage operation failed|Could not process meeting reminders\"", "refId": "A"}
+      ],
+      "options": {"dedupStrategy": "none", "enableLogDetails": true, "prettifyLogMessage": true, "showCommonLabels": false, "showLabels": false, "showTime": true, "sortOrder": "Descending", "wrapLogMessage": true},
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 74}
     }
   ],
   "refresh": "15s",

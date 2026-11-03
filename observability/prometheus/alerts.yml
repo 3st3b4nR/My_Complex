@@ -9,7 +9,7 @@ groups:
         annotations:
           summary: MyComplex backend is down
           description: Prometheus has not scraped the backend successfully for two minutes.
-          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/backend-down.md
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/backend-down.md
 
       - alert: MyComplexGatewayDown
         expr: up{job="mycomplex-gateway"} == 0
@@ -19,7 +19,7 @@ groups:
         annotations:
           summary: MyComplex gateway is down
           description: Prometheus has not scraped the gateway successfully for two minutes.
-          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/gateway-down.md
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/gateway-down.md
 
   - name: mycomplex-reliability
     rules:
@@ -31,7 +31,7 @@ groups:
         annotations:
           summary: Elevated HTTP 5xx rate
           description: More than 5 percent of requests have returned 5xx for five minutes.
-          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/high-5xx-rate.md
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/high-5xx-rate.md
 
       - alert: MyComplexHighLatency
         expr: histogram_quantile(0.95, sum by (le, application) (rate(http_server_requests_seconds_bucket[5m]))) > 1.5
@@ -41,7 +41,27 @@ groups:
         annotations:
           summary: Elevated p95 request latency
           description: The p95 request latency has exceeded 1.5 seconds for ten minutes.
-          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/high-latency.md
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/high-latency.md
+
+      - alert: MyComplexNewsHttpFailures
+        expr: sum(increase(http_server_requests_seconds_count{uri=~"/api/properties/.*/news.*",status=~"5.."}[10m])) > 3
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Repeated news module HTTP failures
+          description: More than three news requests returned 5xx in ten minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/module-http-failures.md
+
+      - alert: MyComplexMeetingHttpFailures
+        expr: sum(increase(http_server_requests_seconds_count{uri=~"/api/properties/.*/meetings.*",status=~"5.."}[10m])) > 3
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Repeated meetings module HTTP failures
+          description: More than three meeting requests returned 5xx in ten minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/module-http-failures.md
 
   - name: mycomplex-security
     rules:
@@ -53,7 +73,7 @@ groups:
         annotations:
           summary: Administrative access denials increased
           description: More than ten administrative access denials were observed in ten minutes.
-          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/anomalous-access-denied.md
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/anomalous-access-denied.md
 
       - alert: MyComplexInvitationFailures
         expr: sum(increase(mycomplex_invitation_failures_total[10m])) > 3
@@ -63,7 +83,7 @@ groups:
         annotations:
           summary: Repeated member invitation failures
           description: More than three invitation failures were observed in ten minutes.
-          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/invitation-failures.md
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/invitation-failures.md
 
       - alert: MyComplexAuditPersistenceFailures
         expr: sum(increase(mycomplex_audit_rejected_total{reason="persistence"}[5m])) > 0
@@ -73,7 +93,7 @@ groups:
         annotations:
           summary: Security audit persistence failed
           description: At least one durable security audit event could not be persisted.
-          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/audit-failure.md
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/audit-failure.md
 
   - name: mycomplex-tasks-notifications
     rules:
@@ -85,4 +105,36 @@ groups:
         annotations:
           summary: Repeated FCM delivery failures
           description: More than five FCM delivery failures occurred in fifteen minutes.
-          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/feature/panel-administrativo-haider/observability/runbooks/fcm-delivery-failures.md
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/fcm-delivery-failures.md
+
+  - name: mycomplex-external-integrations
+    rules:
+      - alert: MyComplexResendDeliveryFailures
+        expr: sum(increase(resend_email_send_seconds_count{outcome="error"}[10m])) > 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Resend email delivery failed
+          description: At least one Resend delivery failed in the last ten minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/resend-delivery-failures.md
+
+      - alert: MyComplexBlobStorageFailures
+        expr: sum(increase(azure_blob_news_image_seconds_count{outcome="error"}[10m])) > 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Azure Blob news-image operation failed
+          description: At least one news-image storage operation failed in the last ten minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/blob-storage-failures.md
+
+      - alert: MyComplexMeetingReminderFailures
+        expr: sum(increase(mycomplex_meeting_reminder_batch_seconds_count{outcome="error"}[10m])) > 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Meeting reminder batch failed
+          description: At least one scheduled meeting reminder batch failed in the last ten minutes.
+          runbook_url: https://github.com/3st3b4nR/My_Complex/blob/main/observability/runbooks/meeting-reminder-failures.md

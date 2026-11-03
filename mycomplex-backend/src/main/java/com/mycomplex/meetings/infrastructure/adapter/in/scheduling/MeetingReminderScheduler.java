@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 
 import com.mycomplex.meetings.application.port.in.SendMeetingRemindersUseCase;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
+
 @Component
 public class MeetingReminderScheduler {
 
@@ -15,11 +18,14 @@ public class MeetingReminderScheduler {
     );
 
     private final SendMeetingRemindersUseCase useCase;
+    private final ObservationRegistry observations;
 
     public MeetingReminderScheduler(
-            SendMeetingRemindersUseCase useCase
+            SendMeetingRemindersUseCase useCase,
+            ObservationRegistry observations
     ) {
         this.useCase = useCase;
+        this.observations = observations;
     }
 
     @Scheduled(
@@ -27,13 +33,25 @@ public class MeetingReminderScheduler {
                     "${mycomplex.meetings.reminder-interval-ms:60000}"
     )
     public void sendDueReminders() {
+        Observation observation = Observation.start(
+                "mycomplex.meeting.reminder.batch",
+                observations
+        );
+
         try {
-            useCase.sendDueReminders();
+            try (Observation.Scope ignored = observation.openScope()) {
+                useCase.sendDueReminders();
+            }
+            observation.lowCardinalityKeyValue("outcome", "success");
         } catch (RuntimeException exception) {
+            observation.lowCardinalityKeyValue("outcome", "error");
+            observation.error(exception);
             LOGGER.error(
                     "Could not process meeting reminders",
                     exception
             );
+        } finally {
+            observation.stop();
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.mycomplex.notifications.infrastructure.config;
 
+import java.time.Duration;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(
@@ -11,6 +13,9 @@ public class ResendEmailProperties {
     private String apiKey;
     private String from;
     private String baseUrl = "https://api.resend.com";
+    private int maxRetries = 5;
+    private Duration retryDelay = Duration.ofSeconds(30);
+    private Duration dispatchInterval = Duration.ofSeconds(5);
 
     public boolean isEnabled() {
         return enabled;
@@ -42,5 +47,29 @@ public class ResendEmailProperties {
 
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
+    }
+
+    public int getMaxRetries() {
+        return maxRetries;
+    }
+
+    public void setMaxRetries(int maxRetries) {
+        this.maxRetries = maxRetries;
+    }
+
+    public Duration getRetryDelay() {
+        return retryDelay;
+    }
+
+    public void setRetryDelay(Duration retryDelay) {
+        this.retryDelay = retryDelay;
+    }
+
+    public Duration getDispatchInterval() {
+        return dispatchInterval;
+    }
+
+    public void setDispatchInterval(Duration dispatchInterval) {
+        this.dispatchInterval = dispatchInterval;
     }
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -32,11 +33,20 @@ public class FirebaseFcmDeliveryAdapter implements FcmDeliveryPort {
     private final FirebaseMessaging messaging;
     private final ObservationRegistry observations;
 
+    @Autowired
     public FirebaseFcmDeliveryAdapter(
             FcmProperties properties,
             ObservationRegistry observations
     ) {
         messaging = initialize(properties);
+        this.observations = observations;
+    }
+
+    FirebaseFcmDeliveryAdapter(
+            FirebaseMessaging messaging,
+            ObservationRegistry observations
+    ) {
+        this.messaging = messaging;
         this.observations = observations;
     }
 
@@ -50,16 +60,21 @@ public class FirebaseFcmDeliveryAdapter implements FcmDeliveryPort {
             String installationIdentifier,
             NotificationEventType eventType
     ) {
-        if (messaging == null) {
-            return FcmDeliveryResult.failed(
-                    FcmDeliveryResult.Outcome.NOT_CONFIGURED,
-                    "not_configured"
-            );
-        }
         Observation observation = Observation.start(
                 "firebase.fcm.send", observations
         ).lowCardinalityKeyValue("messaging.system", "firebase");
         try {
+            if (messaging == null) {
+                observation.lowCardinalityKeyValue(
+                        "outcome",
+                        "not_configured"
+                );
+                return FcmDeliveryResult.failed(
+                        FcmDeliveryResult.Outcome.NOT_CONFIGURED,
+                        "not_configured"
+                );
+            }
+
             Message message = Message.builder()
                     .setFid(installationIdentifier)
                     .putData("title",
@@ -75,8 +90,10 @@ public class FirebaseFcmDeliveryAdapter implements FcmDeliveryPort {
             try (Observation.Scope ignored = observation.openScope()) {
                 messageId = messaging.send(message);
             }
+            observation.lowCardinalityKeyValue("outcome", "success");
             return FcmDeliveryResult.sent(messageId);
         } catch (FirebaseMessagingException exception) {
+            observation.lowCardinalityKeyValue("outcome", "error");
             observation.error(exception);
             return classify(exception.getMessagingErrorCode());
         } finally {

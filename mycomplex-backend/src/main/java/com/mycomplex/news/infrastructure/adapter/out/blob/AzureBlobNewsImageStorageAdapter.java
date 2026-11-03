@@ -5,7 +5,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.azure.core.util.BinaryData;
@@ -17,10 +21,16 @@ import com.mycomplex.news.application.port.out.LoadNewsImageContentPort;
 import com.mycomplex.news.application.port.out.NewsImageStoragePort;
 import com.mycomplex.news.domain.model.NewsImage;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
+
 @Component
 public class AzureBlobNewsImageStorageAdapter
         implements NewsImageStoragePort, LoadNewsImageContentPort {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            AzureBlobNewsImageStorageAdapter.class
+    );
     private static final long MAXIMUM_IMAGE_SIZE =
             5L * 1024L * 1024L;
 
@@ -39,11 +49,14 @@ public class AzureBlobNewsImageStorageAdapter
             );
 
     private final BlobContainerClient containerClient;
+    private final ObservationRegistry observations;
 
     public AzureBlobNewsImageStorageAdapter(
-            BlobContainerClient containerClient
+            BlobContainerClient containerClient,
+            ObservationRegistry observations
     ) {
         this.containerClient = containerClient;
+        this.observations = observations;
     }
 
     @Override
@@ -66,24 +79,30 @@ public class AzureBlobNewsImageStorageAdapter
                 normalizedContentType
         );
 
-        containerClient.createIfNotExists();
+        return observe(
+                "store",
+                () -> {
+                    containerClient.createIfNotExists();
 
-        BlobClient blobClient =
-                containerClient.getBlobClient(blobPath);
+                    BlobClient blobClient =
+                            containerClient.getBlobClient(blobPath);
 
-        blobClient.upload(
-                BinaryData.fromBytes(content),
-                false
-        );
+                    blobClient.upload(
+                            BinaryData.fromBytes(content),
+                            false
+                    );
 
-        blobClient.setHttpHeaders(
-                new BlobHttpHeaders()
-                        .setContentType(normalizedContentType)
-        );
+                    blobClient.setHttpHeaders(
+                            new BlobHttpHeaders()
+                                    .setContentType(normalizedContentType)
+                    );
 
-        return new NewsImage(
-                blobPath,
-                normalizedContentType
+                    return new NewsImage(
+                            blobPath,
+                            normalizedContentType
+                    );
+                },
+                ignored -> "success"
         );
     }
 
@@ -93,26 +112,71 @@ public class AzureBlobNewsImageStorageAdapter
             return;
         }
 
-        containerClient
-                .getBlobClient(image.blobPath())
-                .deleteIfExists();
+        observe(
+                "delete",
+                () -> containerClient
+                        .getBlobClient(image.blobPath())
+                        .deleteIfExists(),
+                ignored -> "success"
+        );
     }
 
     @Override
     public Optional<NewsImageContent> load(NewsImage image) {
-        BlobClient blobClient = containerClient
-                .getBlobClient(image.blobPath());
+        return observe(
+                "load",
+                () -> {
+                    BlobClient blobClient = containerClient
+                            .getBlobClient(image.blobPath());
 
-        if (!blobClient.exists()) {
-            return Optional.empty();
-        }
+                    if (!blobClient.exists()) {
+                        return Optional.empty();
+                    }
 
-        return Optional.of(
-                new NewsImageContent(
-                        blobClient.downloadContent().toBytes(),
-                        image.contentType()
-                )
+                    return Optional.of(
+                            new NewsImageContent(
+                                    blobClient.downloadContent().toBytes(),
+                                    image.contentType()
+                            )
+                    );
+                },
+                result -> result.isPresent()
+                        ? "success"
+                        : "not_found"
         );
+    }
+
+    private <T> T observe(
+            String operation,
+            Supplier<T> action,
+            Function<T, String> outcome
+    ) {
+        Observation observation = Observation.start(
+                "azure.blob.news.image",
+                observations
+        ).lowCardinalityKeyValue("operation", operation);
+
+        try {
+            T result;
+            try (Observation.Scope ignored = observation.openScope()) {
+                result = action.get();
+            }
+            observation.lowCardinalityKeyValue(
+                    "outcome",
+                    outcome.apply(result)
+            );
+            return result;
+        } catch (RuntimeException exception) {
+            observation.lowCardinalityKeyValue("outcome", "error");
+            observation.error(exception);
+            LOGGER.atWarn()
+                    .addKeyValue("integration", "azure_blob")
+                    .addKeyValue("operation", operation)
+                    .log("News image storage operation failed");
+            throw exception;
+        } finally {
+            observation.stop();
+        }
     }
 
     private void validateImage(

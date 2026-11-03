@@ -8,29 +8,46 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
-import com.mycomplex.notifications.application.model.EmailNotification;
-import com.mycomplex.notifications.application.port.out.SendEmailNotificationPort;
+import com.mycomplex.notifications.application.port.out.EmailDeliveryPort;
+import com.mycomplex.notifications.domain.EmailDeliveryResult;
+import com.mycomplex.notifications.domain.EmailOutboxEvent;
+
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationRegistry;
 
 public final class ResendEmailNotificationAdapter
-        implements SendEmailNotificationPort {
+        implements EmailDeliveryPort {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+            ResendEmailNotificationAdapter.class
+    );
     private static final String IDEMPOTENCY_HEADER = "Idempotency-Key";
 
     private final RestClient restClient;
     private final String from;
+    private final ObservationRegistry observations;
 
     public ResendEmailNotificationAdapter(
             String baseUrl,
             String apiKey,
-            String from
+            String from,
+            ObservationRegistry observations
     ) {
         String validatedBaseUrl = requireText(baseUrl, "base URL");
         String validatedApiKey = requireText(apiKey, "API key");
         this.from = requireText(from, "sender");
+        this.observations = Objects.requireNonNull(
+                observations,
+                "observation registry must not be null"
+        );
 
         this.restClient = RestClient.builder()
                 .baseUrl(validatedBaseUrl)
@@ -46,53 +63,89 @@ public final class ResendEmailNotificationAdapter
     }
 
     @Override
-    public void send(EmailNotification notification) {
+    public EmailDeliveryResult deliver(EmailOutboxEvent event) {
         Objects.requireNonNull(
-                notification,
-                "email notification must not be null"
+                event,
+                "email outbox event must not be null"
         );
 
-        RuntimeException failure = null;
+        Observation observation = Observation.start(
+                "resend.email.send",
+                observations
+        );
 
-        for (String recipient : notification.recipients()) {
-            try {
-                sendToRecipient(notification, recipient);
-            } catch (RuntimeException exception) {
-                if (failure == null) {
-                    failure = new IllegalStateException(
-                            "One or more Resend emails could not be sent"
-                    );
-                }
-
-                failure.addSuppressed(exception);
+        try {
+            EmailDeliveryResult result;
+            try (Observation.Scope ignored = observation.openScope()) {
+                result = sendToRecipient(event);
             }
-        }
 
-        if (failure != null) {
-            throw failure;
+            boolean sent = result.outcome()
+                    == EmailDeliveryResult.Outcome.SENT;
+            observation.lowCardinalityKeyValue(
+                    "outcome",
+                    sent ? "success" : "error"
+            );
+
+            if (!sent) {
+                observation.error(
+                        new IllegalStateException(result.safeReason())
+                );
+                LOGGER.atWarn()
+                        .addKeyValue("integration", "resend")
+                        .addKeyValue("operation", "send")
+                        .addKeyValue("reason", result.safeReason())
+                        .log("External email delivery failed");
+            }
+
+            return result;
+        } catch (RuntimeException exception) {
+            observation.lowCardinalityKeyValue("outcome", "error");
+            observation.error(exception);
+            LOGGER.atWarn()
+                    .addKeyValue("integration", "resend")
+                    .addKeyValue("operation", "send")
+                    .log("External email delivery failed");
+            return EmailDeliveryResult.permanent("unexpected_error");
+        } finally {
+            observation.stop();
         }
     }
 
-    private void sendToRecipient(
-            EmailNotification notification,
-            String recipient
-    ) {
+    private EmailDeliveryResult sendToRecipient(EmailOutboxEvent event) {
         ResendEmailRequest request = new ResendEmailRequest(
                 from,
-                List.of(recipient),
-                notification.subject(),
-                notification.body()
+                List.of(event.recipient()),
+                event.subject(),
+                event.body()
         );
 
-        restClient.post()
-                .uri("/emails")
-                .header(
-                        IDEMPOTENCY_HEADER,
-                        idempotencyKey(notification.deliveryKey(), recipient)
-                )
-                .body(request)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            ResendEmailResponse response = restClient.post()
+                    .uri("/emails")
+                    .header(
+                            IDEMPOTENCY_HEADER,
+                            idempotencyKey(
+                                    event.deliveryKey(),
+                                    event.recipient()
+                            )
+                    )
+                    .body(request)
+                    .retrieve()
+                    .body(ResendEmailResponse.class);
+
+            return EmailDeliveryResult.sent(
+                    response == null ? null : response.id()
+            );
+        } catch (ResourceAccessException exception) {
+            return EmailDeliveryResult.retryable("network_error");
+        } catch (RestClientResponseException exception) {
+            int status = exception.getStatusCode().value();
+            if (status == 408 || status == 429 || status >= 500) {
+                return EmailDeliveryResult.retryable("http_" + status);
+            }
+            return EmailDeliveryResult.permanent("http_" + status);
+        }
     }
 
     private String idempotencyKey(
@@ -140,4 +193,6 @@ public final class ResendEmailNotificationAdapter
             String text
     ) {
     }
+
+    private record ResendEmailResponse(String id) { }
 }

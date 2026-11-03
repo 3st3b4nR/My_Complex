@@ -88,7 +88,9 @@ public class FirebasePushNotificationAdapter
             try (Observation.Scope ignored = observation.openScope()) {
                 messaging.send(message);
             }
+            observation.lowCardinalityKeyValue("outcome", "success");
         } catch (FirebaseMessagingException exception) {
+            observation.lowCardinalityKeyValue("outcome", "error");
             observation.error(exception);
             throw new IllegalStateException(
                     "Could not send Firebase push notifications",
