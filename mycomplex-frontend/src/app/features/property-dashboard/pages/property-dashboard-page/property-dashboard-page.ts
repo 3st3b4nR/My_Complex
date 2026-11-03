@@ -1,6 +1,5 @@
 import {
-  AsyncPipe,
-  NgOptimizedImage
+  AsyncPipe
 } from '@angular/common';
 
 import {
@@ -11,11 +10,8 @@ import {
 
 import {
   ActivatedRoute,
-  Router,
   RouterLink
 } from '@angular/router';
-
-import { AuthService } from '@auth0/auth0-angular';
 
 import {
   catchError,
@@ -27,8 +23,7 @@ import {
 } from 'rxjs';
 
 import { PropertyApiService } from '../../../property-selection/data-access/property-api.service';
-import { PushNotificationButton } from '../../../../shared/notifications/ui/push-notification-button/push-notification-button';
-import { PushNotificationsService } from '../../../../shared/notifications/data-access/push-notifications.service';
+import { PropertyShell } from '../../../../shared/layout/property-shell/property-shell';
 
 import {
   AssignedProperty,
@@ -57,8 +52,7 @@ type PropertyDashboardState =
   selector: 'app-property-dashboard-page',
   imports: [
     AsyncPipe,
-    NgOptimizedImage,
-    PushNotificationButton,
+    PropertyShell,
     RouterLink
   ],
   templateUrl: './property-dashboard-page.html',
@@ -68,14 +62,7 @@ type PropertyDashboardState =
 export class PropertyDashboardPage {
 
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
   private readonly propertyApi = inject(PropertyApiService);
-  private readonly pushNotifications = inject(
-    PushNotificationsService
-  );
-
-  protected readonly user$ = this.authService.user$;
 
   protected readonly state$: Observable<PropertyDashboardState> =
     combineLatest([
@@ -124,16 +111,4 @@ export class PropertyDashboardPage {
     return labels[role];
   }
 
-  protected changeProperty(): void {
-    this.router.navigate(['/select-property']);
-  }
-
-  protected async logout(): Promise<void> {
-    await this.pushNotifications.deactivate();
-    this.authService.logout({
-      logoutParams: {
-        returnTo: window.location.origin
-      }
-    }).subscribe();
-  }
 }

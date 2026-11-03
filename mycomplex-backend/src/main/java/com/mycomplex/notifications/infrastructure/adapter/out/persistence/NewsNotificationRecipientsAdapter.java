@@ -8,11 +8,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mycomplex.notifications.application.model.NotificationRecipient;
+import com.mycomplex.notifications.application.port.out.LoadMeetingNotificationRecipientsPort;
 import com.mycomplex.notifications.application.port.out.LoadNewsNotificationRecipientsPort;
 
 @Component
 public class NewsNotificationRecipientsAdapter
-        implements LoadNewsNotificationRecipientsPort {
+        implements LoadNewsNotificationRecipientsPort,
+        LoadMeetingNotificationRecipientsPort {
 
     private final JdbcClient jdbcClient;
 

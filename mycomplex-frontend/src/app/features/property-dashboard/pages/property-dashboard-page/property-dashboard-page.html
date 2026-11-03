@@ -1,41 +1,4 @@
 <main class="dashboard-page">
-  <header class="dashboard-header">
-    <img
-      ngSrc="/assets/branding/mycomplex-logo.png"
-      alt="MyComplex"
-      width="230"
-      height="70"
-      priority
-    />
-
-    <div class="header-actions">
-      @if (user$ | async; as user) {
-        <div class="user-information">
-          <span>Sesión iniciada como</span>
-          <strong>{{ user.name || user.email }}</strong>
-        </div>
-      }
-
-      <button
-        class="secondary-button"
-        type="button"
-        (click)="changeProperty()"
-      >
-        Cambiar copropiedad
-      </button>
-
-      <app-push-notification-button />
-
-      <button
-        class="logout-button"
-        type="button"
-        (click)="logout()"
-      >
-        Cerrar sesión
-      </button>
-    </div>
-  </header>
-
   @if (state$ | async; as state) {
     @switch (state.status) {
       @case ('loading') {
@@ -56,14 +19,6 @@
             Verifica que los servicios estén activos e inténtalo
             nuevamente.
           </p>
-
-          <button
-            class="primary-button"
-            type="button"
-            (click)="changeProperty()"
-          >
-            Volver a mis copropiedades
-          </button>
         </section>
       }
 
@@ -77,60 +32,16 @@
             Esta copropiedad no está asociada con tu usuario o ya no
             se encuentra activa.
           </p>
-
-          <button
-            class="primary-button"
-            type="button"
-            (click)="changeProperty()"
-          >
-            Seleccionar otra copropiedad
-          </button>
         </section>
       }
 
       @case ('success') {
-        <div class="dashboard-layout">
-          <aside class="dashboard-sidebar">
-            <div class="property-summary">
-              <span class="property-summary__mark" aria-hidden="true">
-                MC
-              </span>
-
-              <div>
-                <span class="property-summary__label">
-                  Copropiedad actual
-                </span>
-
-                <strong>{{ state.property.name }}</strong>
-                <small>{{ state.property.city }}</small>
-              </div>
-            </div>
-
-            <nav aria-label="Navegación principal">
-              <a class="navigation-item navigation-item--active">
-                Inicio
-              </a>
-
-              <a
-                class="navigation-item"
-                [routerLink]="[
-                  '/properties',
-                  state.property.propertyId,
-                  'news'
-                ]"
-              >
-                Noticias
-              </a>
-
-              <span class="navigation-item">Copropiedad</span>
-              <span class="navigation-item">Usuarios y residentes</span>
-              <span class="navigation-item">Visitantes</span>
-              <span class="navigation-item">Reservas</span>
-              <span class="navigation-item">Comunicaciones</span>
-              <span class="navigation-item">Configuración</span>
-            </nav>
-          </aside>
-
+        <app-property-shell
+          [propertyId]="state.property.propertyId"
+          [propertyName]="state.property.name"
+          [propertyCity]="state.property.city"
+          activeSection="dashboard"
+        >
           <section class="dashboard-content">
             <div class="dashboard-welcome">
               <div>
@@ -216,6 +127,24 @@
                   </p>
                 </a>
 
+                <a
+                  class="module-card module-card--link"
+                  [routerLink]="[
+                    '/properties',
+                    state.property.propertyId,
+                    'meetings'
+                  ]"
+                >
+                  <span class="module-card__mark" aria-hidden="true">
+                    RU
+                  </span>
+                  <h3>Reuniones</h3>
+                  <p>
+                    Programa reuniones y comparte el enlace con la
+                    comunidad.
+                  </p>
+                </a>
+
                 <article class="module-card">
                   <span class="module-card__mark" aria-hidden="true">
                     SE
@@ -228,7 +157,7 @@
               </div>
             </section>
           </section>
-        </div>
+        </app-property-shell>
       }
     }
   }
