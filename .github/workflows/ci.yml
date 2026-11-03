@@ -193,6 +193,11 @@ jobs:
       AUTH0_MANAGEMENT_AUDIENCE: https://auth0.test/api/v2/
       AUTH0_DATABASE_CONNECTION: Username-Password-Authentication
       AUTH0_APPLICATION_CLIENT_ID: local-ci-application
+      AZURE_STORAGE_CONNECTION_STRING: UseDevelopmentStorage=true
+      AZURE_STORAGE_CONTAINER: mycomplex-news
+      RESEND_ENABLED: "false"
+      FIREBASE_ENABLED: "false"
+      FIREBASE_CREDENTIALS_PATH: /tmp/firebase-service-account.json
 
     steps:
       - name: Check out repository

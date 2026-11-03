@@ -92,9 +92,13 @@ describe('FcmNotificationService', () => {
   async function createService(webConfig = config) {
     const service = TestBed.inject(FcmNotificationService);
     const http = TestBed.inject(HttpTestingController);
-    await Promise.resolve();
-    http.expectOne(`${environment.apiUrl}/api/public/firebase-config`)
-      .flush(webConfig);
+    let configurationRequest: ReturnType<HttpTestingController['expectOne']>;
+    await vi.waitFor(() => {
+      configurationRequest = http.expectOne(
+        `${environment.apiUrl}/api/public/firebase-config`
+      );
+    });
+    configurationRequest!.flush(webConfig);
     await Promise.resolve();
     return { service, http };
   }

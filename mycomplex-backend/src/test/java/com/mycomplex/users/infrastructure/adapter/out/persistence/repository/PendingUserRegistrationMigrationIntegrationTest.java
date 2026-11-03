@@ -23,12 +23,27 @@ class PendingUserRegistrationMigrationIntegrationTest {
     private JdbcTemplate jdbcTemplate;
 
     @Test
-    void marksExistingUsersAsLinked() {
+    void preservesLinkedUsersAndMarksSeededOwnerAsPending() {
         Integer invalid = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM usuarios WHERE estado_registro <> 'VINCULADO' OR auth0_subject IS NULL",
+                """
+                SELECT COUNT(*) FROM usuarios
+                WHERE id <> '60000000-0000-0000-0000-000000000005'
+                  AND (estado_registro <> 'VINCULADO'
+                       OR auth0_subject IS NULL)
+                """,
+                Integer.class
+        );
+        Integer pendingOwner = jdbcTemplate.queryForObject(
+                """
+                SELECT COUNT(*) FROM usuarios
+                WHERE id = '60000000-0000-0000-0000-000000000005'
+                  AND estado_registro = 'PENDIENTE'
+                  AND auth0_subject IS NULL
+                """,
                 Integer.class
         );
         assertEquals(0, invalid);
+        assertEquals(1, pendingOwner);
     }
 
     @Test

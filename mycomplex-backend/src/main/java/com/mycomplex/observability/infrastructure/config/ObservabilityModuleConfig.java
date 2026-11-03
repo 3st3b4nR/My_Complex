@@ -2,6 +2,7 @@ package com.mycomplex.observability.infrastructure.config;
 
 import java.time.Clock;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,7 +25,7 @@ public class ObservabilityModuleConfig {
             AppendSecurityAuditEventPort appendPort,
             CurrentRequestContextPort requestContextPort,
             ObservabilityMetricsPort metricsPort,
-            Clock securityAuditClock
+            @Qualifier("securityAuditClock") Clock securityAuditClock
     ) {
         return new SecurityAuditService(
                 appendPort, requestContextPort, metricsPort,

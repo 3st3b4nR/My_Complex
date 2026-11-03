@@ -1,6 +1,23 @@
 name: mycomplex
 
 services:
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.37.0
+    container_name: mycomplex-azurite
+    restart: unless-stopped
+    command:
+      - azurite-blob
+      - --blobHost
+      - 0.0.0.0
+      - --blobPort
+      - "10000"
+      - --location
+      - /data
+    ports:
+      - "127.0.0.1:10000:10000"
+    volumes:
+      - mycomplex_azurite_data:/data
+
   postgres:
     image: postgres:17-alpine
     container_name: mycomplex-postgres
@@ -44,7 +61,13 @@ services:
       AUTH0_MANAGEMENT_AUDIENCE: ${AUTH0_MANAGEMENT_AUDIENCE}
       AUTH0_DATABASE_CONNECTION: ${AUTH0_DATABASE_CONNECTION}
       AUTH0_APPLICATION_CLIENT_ID: ${AUTH0_APPLICATION_CLIENT_ID}
-      FCM_ENABLED: ${FCM_ENABLED:-false}
+      AZURE_STORAGE_CONNECTION_STRING: ${AZURE_STORAGE_CONNECTION_STRING}
+      AZURE_STORAGE_CONTAINER: ${AZURE_STORAGE_CONTAINER}
+      RESEND_ENABLED: ${RESEND_ENABLED:-false}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+      FIREBASE_ENABLED: ${FIREBASE_ENABLED:-false}
+      FCM_ENABLED: ${FIREBASE_ENABLED:-false}
       FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-}
       FIREBASE_WEB_API_KEY: ${FIREBASE_WEB_API_KEY:-}
       FIREBASE_WEB_AUTH_DOMAIN: ${FIREBASE_WEB_AUTH_DOMAIN:-}
@@ -56,6 +79,8 @@ services:
       FCM_MAX_RETRIES: ${FCM_MAX_RETRIES:-3}
       FCM_RETRY_DELAY: ${FCM_RETRY_DELAY:-1m}
       FCM_DISPATCH_INTERVAL: ${FCM_DISPATCH_INTERVAL:-5s}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:4200}
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/firebase-service-account.json
       MANAGEMENT_SERVER_PORT: "9080"
       OBSERVABILITY_LOG_FILE: /var/log/mycomplex/backend.json
       OBSERVABILITY_TRACING_SAMPLING_PROBABILITY: ${OBSERVABILITY_TRACING_SAMPLING_PROBABILITY:-0.10}
@@ -66,9 +91,12 @@ services:
       - "9080"
     volumes:
       - mycomplex_backend_logs:/var/log/mycomplex
+      - ${FIREBASE_CREDENTIALS_PATH}:/run/secrets/firebase-service-account.json:ro
     depends_on:
       postgres:
         condition: service_healthy
+      azurite:
+        condition: service_started
     healthcheck:
       test:
         - CMD-SHELL
@@ -114,6 +142,8 @@ services:
 volumes:
   mycomplex_postgres_data:
     name: mycomplex_postgres_data
+  mycomplex_azurite_data:
+    name: mycomplex_azurite_data
   mycomplex_backend_logs:
     name: mycomplex_backend_logs
   mycomplex_gateway_logs:

@@ -40,7 +40,7 @@ class AdministrativeTaskPersistenceIntegrationTest {
 
     @Test
     void persistsTaskAndOutboxAtomicallyAndRejectsStaleVersion() {
-        assertCleanFlywayHistoryThroughV11AndTaskSchema();
+        assertCleanFlywayHistoryThroughV13AndTaskSchema();
         UUID workerUserId = UUID.randomUUID();
         UUID workerMembershipId = UUID.randomUUID();
         UUID secondWorkerUserId = UUID.randomUUID();
@@ -108,7 +108,7 @@ class AdministrativeTaskPersistenceIntegrationTest {
         assertThat(taskAuditCount).isEqualTo(1);
     }
 
-    private void assertCleanFlywayHistoryThroughV11AndTaskSchema() {
+    private void assertCleanFlywayHistoryThroughV13AndTaskSchema() {
         Integer migrationCount = jdbcTemplate.queryForObject("""
                 SELECT COUNT(*) FROM flyway_schema_history
                 WHERE success = TRUE AND version IS NOT NULL
@@ -125,12 +125,21 @@ class AdministrativeTaskPersistenceIntegrationTest {
                 SELECT COUNT(*) FROM flyway_schema_history
                 WHERE version = '11' AND success = TRUE
                 """, Integer.class);
-        Integer v11RecipientCount = jdbcTemplate.queryForObject("""
+        Integer v12Count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM flyway_schema_history
+                WHERE version = '12' AND success = TRUE
+                """, Integer.class);
+        Integer v13Count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM flyway_schema_history
+                WHERE version = '13' AND success = TRUE
+                """, Integer.class);
+        Integer pendingRecipientCount = jdbcTemplate.queryForObject("""
                 SELECT COUNT(*) FROM usuarios
                 WHERE id = '60000000-0000-0000-0000-000000000005'
-                  AND auth0_subject = 'seed|esteban.roldan.propietario'
                   AND correo = 'esteban.roldanrm@gmail.com'
                   AND estado = 'ACTIVO'
+                  AND estado_registro = 'PENDIENTE'
+                  AND auth0_subject IS NULL
                 """, Integer.class);
         Integer duplicatedVersions = jdbcTemplate.queryForObject("""
                 SELECT COUNT(*) FROM (
@@ -179,11 +188,13 @@ class AdministrativeTaskPersistenceIntegrationTest {
                   )
                 """, Integer.class);
 
-        assertThat(migrationCount).isEqualTo(11);
+        assertThat(migrationCount).isEqualTo(13);
         assertThat(v2Count).isEqualTo(1);
         assertThat(v10Count).isEqualTo(1);
         assertThat(v11Count).isEqualTo(1);
-        assertThat(v11RecipientCount).isEqualTo(1);
+        assertThat(v12Count).isEqualTo(1);
+        assertThat(v13Count).isEqualTo(1);
+        assertThat(pendingRecipientCount).isEqualTo(1);
         assertThat(duplicatedVersions).isZero();
         assertThat(tableCount).isEqualTo(3);
         assertThat(validatedForeignKeys).isEqualTo(7);
