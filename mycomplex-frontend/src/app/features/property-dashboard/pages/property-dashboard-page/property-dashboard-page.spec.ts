@@ -9,6 +9,7 @@ import { of } from 'rxjs';
 
 import { PropertyApiService } from '../../../property-selection/data-access/property-api.service';
 import { PropertyRole } from '../../../property-selection/models/assigned-property';
+import { FcmNotificationService } from '../../../notifications/data-access/fcm-notification.service';
 import { PropertyDashboardPage } from './property-dashboard-page';
 
 describe('PropertyDashboardPage', () => {
@@ -32,6 +33,14 @@ describe('PropertyDashboardPage', () => {
           useValue: {
             user$: of({ name: 'Test administrator' }),
             logout: () => of(undefined)
+          }
+        },
+        {
+          provide: FcmNotificationService,
+          useValue: {
+            state: () => 'enabled',
+            activate: vi.fn(),
+            deactivate: vi.fn()
           }
         },
         {
@@ -62,7 +71,7 @@ describe('PropertyDashboardPage', () => {
     const links = Array.from(
       (fixture.nativeElement as HTMLElement).querySelectorAll('a')
     ).filter(link =>
-      link.textContent?.includes('Gestión de usuarios')
+      link.textContent?.includes('Usuarios y residentes')
     );
 
     expect(links.length).toBe(2);
@@ -77,7 +86,7 @@ describe('PropertyDashboardPage', () => {
     const fixture = await createComponent('RESIDENT');
 
     expect(fixture.nativeElement.textContent).not.toContain(
-      'Gestión de usuarios'
+      'Usuarios y residentes'
     );
   });
 });

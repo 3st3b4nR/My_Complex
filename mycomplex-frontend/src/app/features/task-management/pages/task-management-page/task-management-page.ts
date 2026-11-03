@@ -8,7 +8,10 @@ import {
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators }
   from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import {
+  ActivatedRoute,
+  RouterLink
+} from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { AdministrativeTaskApiService }
@@ -22,6 +25,8 @@ import {
 } from '../../models/administrative-task';
 import { PropertyApiService }
   from '../../../property-selection/data-access/property-api.service';
+import { PropertyShell }
+  from '../../../../shared/layout/property-shell/property-shell';
 
 type PageStatus = 'loading' | 'ready' | 'forbidden' | 'not-found' | 'error';
 type TaskView = 'active' | 'history';
@@ -35,7 +40,7 @@ const HISTORY_TASK_STATUSES: readonly TaskStatus[] = [
 
 @Component({
   selector: 'app-task-management-page',
-  imports: [DatePipe, ReactiveFormsModule, RouterLink],
+  imports: [DatePipe, PropertyShell, ReactiveFormsModule, RouterLink],
   templateUrl: './task-management-page.html',
   styleUrl: './task-management-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -51,6 +56,7 @@ export class TaskManagementPage {
   protected readonly tasks = signal<AdministrativeTask[]>([]);
   protected readonly selectedView = signal<TaskView>('active');
   protected readonly propertyName = signal('');
+  protected readonly propertyCity = signal('');
   protected readonly workers = signal<TaskWorker[]>([]);
   protected readonly selected = signal<AdministrativeTask | null>(null);
   protected readonly saving = signal(false);
@@ -126,6 +132,7 @@ export class TaskManagementPage {
           return;
         }
         this.propertyName.set(property.name);
+        this.propertyCity.set(property.city);
         this.tasks.set(result.tasks);
         this.workers.set(result.workers);
         this.status.set('ready');

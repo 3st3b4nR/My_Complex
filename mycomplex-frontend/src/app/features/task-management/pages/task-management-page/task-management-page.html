@@ -1,28 +1,40 @@
 <main class="tasks-page">
-  <header>
-    <div>
-      <span>Panel administrativo</span>
-      <h1>Gestión de tareas</h1>
-      <p>{{ propertyName() || 'Copropiedad seleccionada' }} · Crea, asigna y realiza seguimiento.</p>
-    </div>
-    <a [routerLink]="['/properties', propertyId, 'dashboard']">Volver al panel</a>
-  </header>
-
   @if (status() === 'loading') {
     <section class="state" role="status">Cargando tareas…</section>
   } @else if (status() === 'forbidden') {
     <section class="state state--error" role="alert">
       No tienes permisos para administrar tareas de esta copropiedad.
+      <a [routerLink]="['/properties', propertyId, 'dashboard']">
+        Volver al panel
+      </a>
     </section>
   } @else if (status() === 'not-found') {
     <section class="state state--error" role="alert">
       La copropiedad no está disponible para tu usuario.
+      <a routerLink="/select-property">Mis copropiedades</a>
     </section>
   } @else if (status() === 'error') {
     <section class="state state--error" role="alert">
       No pudimos cargar las tareas. <button (click)="load()">Reintentar</button>
+      <a routerLink="/select-property">Mis copropiedades</a>
     </section>
   } @else {
+    <app-property-shell
+      [propertyId]="propertyId"
+      [propertyName]="propertyName()"
+      [propertyCity]="propertyCity()"
+      activeSection="tasks"
+      [isAdministrator]="true"
+    >
+    <section class="tasks-content">
+    <header>
+      <div>
+        <span>Panel administrativo</span>
+        <h1>Gestión de tareas</h1>
+        <p>{{ propertyName() }} · Crea, asigna y realiza seguimiento.</p>
+      </div>
+    </header>
+
     <nav class="task-tabs" aria-label="Vistas de tareas">
       <button type="button"
         [class.task-tab--active]="selectedView() === 'active'"
@@ -153,5 +165,7 @@
         </section>
       }
     </div>
+    </section>
+    </app-property-shell>
   }
 </main>

@@ -102,18 +102,26 @@ export class FcmNotificationService {
 
   async deactivate(): Promise<void> {
     const id = localStorage.getItem(FcmNotificationService.STORAGE_KEY);
+    let cleanupFailed = false;
+
     try {
       if (id) {
         await firstValueFrom(this.http.delete<void>(
           `${environment.apiUrl}/api/me/fcm-installations/${id}`
         ));
       }
+    } catch {
+      cleanupFailed = true;
+    }
+
+    try {
       const app = getApps().find(item => item.name === 'mycomplex-fcm');
       if (app) await unregister(getMessaging(app));
-      localStorage.removeItem(FcmNotificationService.STORAGE_KEY);
-      this.state.set('available');
     } catch {
-      this.state.set('error');
+      cleanupFailed = true;
+    } finally {
+      localStorage.removeItem(FcmNotificationService.STORAGE_KEY);
+      this.state.set(cleanupFailed ? 'error' : 'available');
     }
   }
 

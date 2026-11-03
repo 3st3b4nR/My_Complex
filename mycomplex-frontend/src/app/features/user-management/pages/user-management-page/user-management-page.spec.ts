@@ -6,10 +6,12 @@ import {
   provideRouter
 } from '@angular/router';
 import { defer, Observable, of, Subject, throwError } from 'rxjs';
+import { AuthService } from '@auth0/auth0-angular';
 
 import { PropertyApiService } from '../../../property-selection/data-access/property-api.service';
 import { AssignedProperty } from '../../../property-selection/models/assigned-property';
 import { PropertyMemberApiService } from '../../data-access/property-member-api.service';
+import { FcmNotificationService } from '../../../notifications/data-access/fcm-notification.service';
 import {
   PropertyMember,
   PropertyMemberDetails
@@ -149,6 +151,21 @@ describe('UserManagementPage', () => {
       imports: [UserManagementPage],
       providers: [
         provideRouter([]),
+        {
+          provide: AuthService,
+          useValue: {
+            user$: of({ email: 'admin@mycomplex.com' }),
+            logout: () => of(undefined)
+          }
+        },
+        {
+          provide: FcmNotificationService,
+          useValue: {
+            state: () => 'enabled',
+            activate: vi.fn(),
+            deactivate: vi.fn()
+          }
+        },
         {
           provide: ActivatedRoute,
           useValue: {

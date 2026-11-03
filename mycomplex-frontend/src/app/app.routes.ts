@@ -29,6 +29,24 @@ export const routes: Routes = [
     title: 'Panel de administración | MyComplex'
   },
   {
+    path: 'properties/:propertyId/news',
+    loadComponent: () =>
+      import(
+        './features/news/pages/news-page/news-page'
+      ).then(component => component.NewsPage),
+    canActivate: [authGuardFn],
+    title: 'Noticias | MyComplex'
+  },
+  {
+    path: 'properties/:propertyId/meetings',
+    loadComponent: () =>
+      import(
+        './features/meetings/pages/meetings-page/meetings-page'
+      ).then(component => component.MeetingsPage),
+    canActivate: [authGuardFn],
+    title: 'Reuniones | MyComplex'
+  },
+  {
     path: 'properties/:propertyId/users',
     loadComponent: () =>
       import(

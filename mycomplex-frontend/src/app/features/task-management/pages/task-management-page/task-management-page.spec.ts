@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
+import { AuthService } from '@auth0/auth0-angular';
 
 import { PropertyApiService }
   from '../../../property-selection/data-access/property-api.service';
@@ -8,6 +9,8 @@ import { AdministrativeTaskApiService }
   from '../../data-access/administrative-task-api.service';
 import { AdministrativeTask } from '../../models/administrative-task';
 import { TaskManagementPage } from './task-management-page';
+import { FcmNotificationService }
+  from '../../../notifications/data-access/fcm-notification.service';
 
 const TASK: AdministrativeTask = {
   id: 'task-1', propertyId: 'property-1', title: 'Revisar ascensor',
@@ -68,6 +71,21 @@ describe('TaskManagementPage', () => {
       imports: [TaskManagementPage],
       providers: [
         provideRouter([]),
+        {
+          provide: AuthService,
+          useValue: {
+            user$: of({ email: 'admin@mycomplex.com' }),
+            logout: () => of(undefined)
+          }
+        },
+        {
+          provide: FcmNotificationService,
+          useValue: {
+            state: () => 'enabled',
+            activate: vi.fn(),
+            deactivate: vi.fn()
+          }
+        },
         { provide: ActivatedRoute, useValue: {
           snapshot: { paramMap: { get: () => 'property-1' } }
         } },

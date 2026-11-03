@@ -1,4 +1,4 @@
-import { DatePipe, NgOptimizedImage } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   Component,
   computed,
@@ -37,10 +37,17 @@ import {
   invitationErrorMessage,
   unlinkErrorMessage
 } from '../../models/property-member-error-messages';
+import { PropertyShell } from '../../../../shared/layout/property-shell/property-shell';
 
 @Component({
   selector: 'app-user-management-page',
-  imports: [DatePipe, NgOptimizedImage, RouterLink, UserManagementEditor, UserRegistration],
+  imports: [
+    DatePipe,
+    PropertyShell,
+    RouterLink,
+    UserManagementEditor,
+    UserRegistration
+  ],
   providers: [UserManagementFacade],
   templateUrl: './user-management-page.html',
   styleUrl: './user-management-page.scss'

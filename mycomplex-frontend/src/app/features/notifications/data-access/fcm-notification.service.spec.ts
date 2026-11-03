@@ -180,6 +180,7 @@ describe('FcmNotificationService', () => {
   it('uses controlled error states for HTTP failures', async () => {
     const { service, http } = await createService();
     localStorage.setItem('mycomplex.fcmInstallationId', 'local-id');
+    firebase.getApps.mockReturnValue([{ name: 'mycomplex-fcm' }]);
 
     const deactivation = service.deactivate();
     http.expectOne(`${environment.apiUrl}/api/me/fcm-installations/local-id`)
@@ -187,7 +188,8 @@ describe('FcmNotificationService', () => {
     await deactivation;
 
     expect(service.state()).toBe('error');
-    expect(firebase.unregister).not.toHaveBeenCalled();
+    expect(firebase.unregister).toHaveBeenCalled();
+    expect(localStorage.getItem('mycomplex.fcmInstallationId')).toBeNull();
     http.verify();
   });
 

@@ -26,6 +26,7 @@ import {
   PropertyRole
 } from '../../models/assigned-property';
 import { NotificationActivation } from '../../../notifications/components/notification-activation/notification-activation';
+import { FcmNotificationService } from '../../../notifications/data-access/fcm-notification.service';
 
 type PropertySelectionState =
   | {
@@ -57,6 +58,7 @@ export class PropertySelectionPage {
   private readonly authService = inject(AuthService);
   private readonly propertyApi = inject(PropertyApiService);
   private readonly router = inject(Router);
+  private readonly notifications = inject(FcmNotificationService);
 
   protected readonly user$ = this.authService.user$;
 
@@ -99,7 +101,8 @@ export class PropertySelectionPage {
     ]);
   }
 
-  protected logout(): void {
+  protected async logout(): Promise<void> {
+    await this.notifications.deactivate();
     this.authService.logout({
       logoutParams: {
         returnTo: window.location.origin

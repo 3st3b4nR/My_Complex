@@ -1,31 +1,4 @@
 <main class="users-page">
-  <header class="users-header">
-    <img
-      ngSrc="/assets/branding/mycomplex-logo.png"
-      alt="MyComplex"
-      width="230"
-      height="70"
-      priority
-    />
-
-    @if (state().property; as property) {
-      <a
-        class="header-link"
-        [routerLink]="[
-          '/properties',
-          property.propertyId,
-          'dashboard'
-        ]"
-      >
-        Volver al panel
-      </a>
-    } @else {
-      <a class="header-link" routerLink="/select-property">
-        Mis copropiedades
-      </a>
-    }
-  </header>
-
   @switch (state().status) {
     @case ('loading') {
       <section class="state-container" role="status">
@@ -85,6 +58,13 @@
 
     @case ('success') {
       @if (state().property; as property) {
+        <app-property-shell
+          [propertyId]="property.propertyId"
+          [propertyName]="property.name"
+          [propertyCity]="property.city"
+          activeSection="users"
+          [isAdministrator]="true"
+        >
         <section class="users-content">
         <div class="page-heading">
           <div>
@@ -341,6 +321,7 @@
           }
         }
         </section>
+        </app-property-shell>
       }
     }
   }

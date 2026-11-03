@@ -1,5 +1,6 @@
 :host { display: block; min-height: 100vh; background: #f4f7fb; color: #16324f; }
-.tasks-page { max-width: 1440px; margin: 0 auto; padding: 2rem; }
+.tasks-page { min-height: 100vh; }
+.tasks-content { max-width: 1440px; margin: 0 auto; padding: 2rem; }
 header, .section-title, .actions { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 header { margin-bottom: 1.5rem; } h1 { margin: .25rem 0; }
 a, button { border: 0; border-radius: .65rem; padding: .7rem 1rem; background: #075985; color: white; cursor: pointer; text-decoration: none; }
