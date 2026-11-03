@@ -60,7 +60,7 @@ describe('LoginPage', () => {
     expect(navigateByUrl).toHaveBeenCalledWith('/select-property');
   });
 
-  it('does not override an Auth0 callback target', async () => {
+  it('redirects an authenticated Auth0 callback to property selection', async () => {
     TestBed.resetTestingModule();
     authenticated = new BehaviorSubject(false);
     navigateByUrl = vi.fn().mockResolvedValue(true);
@@ -99,6 +99,6 @@ describe('LoginPage', () => {
     callbackFixture.detectChanges();
     authenticated.next(true);
 
-    expect(navigateByUrl).not.toHaveBeenCalled();
+    expect(navigateByUrl).toHaveBeenCalledWith('/select-property');
   });
 });

@@ -11,10 +11,7 @@ import {
 
 import { MatButton } from '@angular/material/button';
 import { AuthService } from '@auth0/auth0-angular';
-import {
-  ActivatedRoute,
-  Router
-} from '@angular/router';
+import { Router } from '@angular/router';
 import { filter, take } from 'rxjs';
 
 @Component({
@@ -31,7 +28,6 @@ export class LoginPage implements OnInit {
 
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
 
   protected readonly isLoading$ = this.authService.isLoading$;
   protected readonly error$ = this.authService.error$;
@@ -39,14 +35,6 @@ export class LoginPage implements OnInit {
     this.authService.isAuthenticated$;
 
   ngOnInit(): void {
-    const queryParameters = this.route.snapshot.queryParamMap;
-    const authenticationCallback =
-      queryParameters.has('code') && queryParameters.has('state');
-
-    if (authenticationCallback) {
-      return;
-    }
-
     this.isAuthenticated$.pipe(
       filter(Boolean),
       take(1)
