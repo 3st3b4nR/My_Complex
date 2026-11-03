@@ -1,79 +1,10 @@
 <main class="news-page">
-  <header class="page-header">
-    <img
-      ngSrc="/assets/branding/mycomplex-logo.png"
-      alt="MyComplex"
-      width="230"
-      height="70"
-      priority
-    />
-
-    <div class="header-actions">
-      <button
-        class="header-button"
-        type="button"
-        (click)="changeProperty()"
-      >
-        Cambiar copropiedad
-      </button>
-
-      <app-push-notification-button />
-
-      <button
-        class="logout-button"
-        type="button"
-        (click)="logout()"
-      >
-        Cerrar sesión
-      </button>
-    </div>
-  </header>
-
-  <div class="page-layout">
-    <aside class="page-sidebar">
-      @if (property(); as currentProperty) {
-        <div class="property-summary">
-          <span class="property-mark" aria-hidden="true">MC</span>
-
-          <div>
-            <span>Copropiedad actual</span>
-            <strong>{{ currentProperty.name }}</strong>
-            <small>{{ currentProperty.city }}</small>
-          </div>
-        </div>
-      }
-
-      <nav aria-label="Navegación principal">
-        <a
-          class="navigation-item"
-          [routerLink]="[
-            '/properties',
-            propertyId,
-            'dashboard'
-          ]"
-        >
-          Inicio
-        </a>
-
-        <a class="navigation-item navigation-item--active">
-          Noticias
-        </a>
-
-        <span class="navigation-item navigation-item--disabled">
-          Copropiedad
-        </span>
-        <span class="navigation-item navigation-item--disabled">
-          Usuarios y residentes
-        </span>
-        <span class="navigation-item navigation-item--disabled">
-          Visitantes
-        </span>
-        <span class="navigation-item navigation-item--disabled">
-          Reservas
-        </span>
-      </nav>
-    </aside>
-
+  <app-property-shell
+    [propertyId]="propertyId"
+    [propertyName]="property()?.name ?? 'Cargando…'"
+    [propertyCity]="property()?.city ?? ''"
+    activeSection="news"
+  >
     <section class="page-content">
       <div class="content-heading">
         <div>
@@ -305,5 +236,5 @@
         }
       }
     </section>
-  </div>
+  </app-property-shell>
 </main>

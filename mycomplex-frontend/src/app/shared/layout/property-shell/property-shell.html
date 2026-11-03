@@ -1,0 +1,124 @@
+<div class="property-shell">
+  <header class="property-header">
+    <img
+      ngSrc="/assets/branding/mycomplex-logo.png"
+      alt="MyComplex"
+      width="230"
+      height="70"
+      priority
+    />
+
+    <div class="header-actions">
+      @if (user$ | async; as user) {
+        <div class="user-information">
+          <span>Sesión iniciada como</span>
+          <strong>{{ user.name || user.email }}</strong>
+        </div>
+      }
+
+      <button
+        class="secondary-button"
+        type="button"
+        (click)="changeProperty()"
+      >
+        Cambiar copropiedad
+      </button>
+
+      <app-push-notification-button />
+
+      <button
+        class="logout-button"
+        type="button"
+        (click)="logout()"
+      >
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <div class="property-layout">
+    <aside class="property-sidebar">
+      <div class="property-summary">
+        <span class="property-summary__mark" aria-hidden="true">
+          MC
+        </span>
+
+        <div>
+          <span class="property-summary__label">
+            Copropiedad actual
+          </span>
+          <strong>{{ propertyName() }}</strong>
+          <small>{{ propertyCity() }}</small>
+        </div>
+      </div>
+
+      <nav aria-label="Navegación principal">
+        <a
+          class="navigation-item"
+          data-section="dashboard"
+          [class.navigation-item--active]="
+            activeSection() === 'dashboard'
+          "
+          [routerLink]="[
+            '/properties',
+            propertyId(),
+            'dashboard'
+          ]"
+        >
+          Inicio
+        </a>
+
+        <a
+          class="navigation-item"
+          data-section="news"
+          [class.navigation-item--active]="activeSection() === 'news'"
+          [routerLink]="[
+            '/properties',
+            propertyId(),
+            'news'
+          ]"
+        >
+          Noticias
+        </a>
+
+        <a
+          class="navigation-item"
+          data-section="meetings"
+          [class.navigation-item--active]="
+            activeSection() === 'meetings'
+          "
+          [routerLink]="[
+            '/properties',
+            propertyId(),
+            'meetings'
+          ]"
+        >
+          Reuniones
+        </a>
+
+        <span class="navigation-item navigation-item--disabled">
+          Copropiedad
+        </span>
+        <span class="navigation-item navigation-item--disabled">
+          Usuarios y residentes
+        </span>
+        <span class="navigation-item navigation-item--disabled">
+          Visitantes
+        </span>
+        <span class="navigation-item navigation-item--disabled">
+          Reservas
+        </span>
+        <span class="navigation-item navigation-item--disabled">
+          Comunicaciones
+        </span>
+        <span class="navigation-item navigation-item--disabled">
+          Configuración
+        </span>
+      </nav>
+    </aside>
+
+    <section class="property-content">
+      <ng-content />
+    </section>
+  </div>
+</div>

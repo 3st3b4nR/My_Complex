@@ -1,6 +1,5 @@
 import {
-  DatePipe,
-  NgOptimizedImage
+  DatePipe
 } from '@angular/common';
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -24,12 +23,10 @@ import {
 
 import {
   ActivatedRoute,
-  Router,
-  RouterLink
+  Router
 } from '@angular/router';
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AuthService } from '@auth0/auth0-angular';
 
 import {
   finalize,
@@ -39,8 +36,7 @@ import {
 
 import { PropertyApiService } from '../../../property-selection/data-access/property-api.service';
 import { AssignedProperty } from '../../../property-selection/models/assigned-property';
-import { PushNotificationButton } from '../../../../shared/notifications/ui/push-notification-button/push-notification-button';
-import { PushNotificationsService } from '../../../../shared/notifications/data-access/push-notifications.service';
+import { PropertyShell } from '../../../../shared/layout/property-shell/property-shell';
 import { NewsApiService } from '../../data-access/news-api.service';
 import { NewsItem } from '../../models/news';
 
@@ -48,10 +44,8 @@ import { NewsItem } from '../../models/news';
   selector: 'app-news-page',
   imports: [
     DatePipe,
-    NgOptimizedImage,
-    PushNotificationButton,
+    PropertyShell,
     ReactiveFormsModule,
-    RouterLink
   ],
   templateUrl: './news-page.html',
   styleUrl: './news-page.scss',
@@ -61,12 +55,8 @@ export class NewsPage implements OnInit, OnDestroy {
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
   private readonly propertyApi = inject(PropertyApiService);
   private readonly newsApi = inject(NewsApiService);
-  private readonly pushNotifications = inject(
-    PushNotificationsService
-  );
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -278,19 +268,6 @@ export class NewsPage implements OnInit, OnDestroy {
       this.propertyId,
       'dashboard'
     ]);
-  }
-
-  protected changeProperty(): void {
-    this.router.navigate(['/select-property']);
-  }
-
-  protected async logout(): Promise<void> {
-    await this.pushNotifications.deactivate();
-    this.authService.logout({
-      logoutParams: {
-        returnTo: window.location.origin
-      }
-    }).subscribe();
   }
 
   private loadInitialData(): void {

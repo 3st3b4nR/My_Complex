@@ -38,6 +38,15 @@ export const routes: Routes = [
     title: 'Noticias | MyComplex'
   },
   {
+    path: 'properties/:propertyId/meetings',
+    loadComponent: () =>
+      import(
+        './features/meetings/pages/meetings-page/meetings-page'
+      ).then(component => component.MeetingsPage),
+    canActivate: [authGuardFn],
+    title: 'Reuniones | MyComplex'
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'login'

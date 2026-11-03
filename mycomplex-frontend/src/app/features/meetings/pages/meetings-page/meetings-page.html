@@ -1,0 +1,210 @@
+<main class="meetings-page">
+  <app-property-shell
+    [propertyId]="propertyId"
+    [propertyName]="property()?.name ?? 'Cargando…'"
+    [propertyCity]="property()?.city ?? ''"
+    activeSection="meetings"
+  >
+    <section class="page-content">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">Agenda de la copropiedad</span>
+        <h1>Reuniones</h1>
+        <p>
+          Consulta las reuniones programadas y accede a su enlace.
+          Todas las fechas se gestionan en UTC.
+        </p>
+      </div>
+
+      @if (isAdministrator()) {
+        <button type="button" class="primary-button" (click)="openCreateForm()">
+          Programar reunión
+        </button>
+      }
+    </div>
+
+    @if (formVisible()) {
+      <section class="meeting-form-card">
+        <div class="section-title">
+          <div>
+            <span>Administración</span>
+            <h2>
+              {{ editingMeeting() ? 'Actualizar reunión' : 'Nueva reunión' }}
+            </h2>
+          </div>
+          <button type="button" class="close-button" (click)="closeForm()">
+            Cerrar
+          </button>
+        </div>
+
+        <form [formGroup]="meetingForm" (ngSubmit)="submit()">
+          <label>
+            Título
+            <input
+              type="text"
+              formControlName="title"
+              maxlength="180"
+              placeholder="Ej. Asamblea general"
+            />
+          </label>
+
+          <label>
+            Descripción
+            <textarea
+              formControlName="description"
+              rows="5"
+              placeholder="Indica el objetivo y los temas de la reunión"
+            ></textarea>
+          </label>
+
+          <div class="form-grid">
+            <label>
+              Enlace HTTPS
+              <input
+                type="url"
+                formControlName="meetingUrl"
+                placeholder="https://meet.google.com/..."
+              />
+            </label>
+
+            <label>
+              Fecha y hora (UTC)
+              <input
+                type="datetime-local"
+                formControlName="scheduledAt"
+              />
+            </label>
+          </div>
+
+          @if (formError()) {
+            <p class="error-message" role="alert">{{ formError() }}</p>
+          }
+
+          <div class="form-actions">
+            <button type="button" class="secondary-button" (click)="closeForm()">
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="primary-button"
+              [disabled]="saving()"
+            >
+              {{ saving() ? 'Guardando...' : 'Guardar reunión' }}
+            </button>
+          </div>
+        </form>
+      </section>
+    }
+
+    @if (pageError()) {
+      <section class="state-card state-card--error" role="alert">
+        <h2>No pudimos completar la operación</h2>
+        <p>{{ pageError() }}</p>
+      </section>
+    }
+
+    @if (loading()) {
+      <section class="state-card" role="status">
+        <span class="loading-indicator"></span>
+        <h2>Cargando reuniones</h2>
+      </section>
+    } @else {
+      <section class="meeting-section" aria-labelledby="upcoming-title">
+        <div class="section-title">
+          <div>
+            <span>Próximamente</span>
+            <h2 id="upcoming-title">Reuniones programadas</h2>
+          </div>
+          <strong>{{ upcomingMeetings().length }}</strong>
+        </div>
+
+        @if (upcomingMeetings().length === 0) {
+          <div class="state-card">
+            <h3>No hay reuniones próximas</h3>
+            <p>Cuando se programe una reunión aparecerá aquí.</p>
+          </div>
+        } @else {
+          <div class="meeting-grid">
+            @for (meeting of upcomingMeetings(); track meeting.meetingId) {
+              <article class="meeting-card">
+                <div class="meeting-date">
+                  <span>{{ meeting.scheduledAt | date:'dd':'UTC' }}</span>
+                  <strong>{{ meeting.scheduledAt | date:'MMM':'UTC' }}</strong>
+                </div>
+
+                <div class="meeting-details">
+                  <span class="utc-label">
+                    {{ meeting.scheduledAt | date:'medium':'UTC' }} UTC
+                  </span>
+                  <h3>{{ meeting.title }}</h3>
+                  <p>{{ meeting.description }}</p>
+
+                  <div class="meeting-actions">
+                    <a
+                      class="join-button"
+                      [href]="meeting.meetingUrl"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Ingresar a la reunión
+                    </a>
+
+                    @if (isAdministrator()) {
+                      <button
+                        type="button"
+                        class="text-button"
+                        (click)="openEditForm(meeting)"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        class="text-button text-button--danger"
+                        [disabled]="deletingMeetingId() === meeting.meetingId"
+                        (click)="deleteMeeting(meeting)"
+                      >
+                        {{ deletingMeetingId() === meeting.meetingId
+                          ? 'Eliminando...'
+                          : 'Eliminar' }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+
+      @if (pastMeetings().length > 0) {
+        <section class="meeting-section" aria-labelledby="past-title">
+          <div class="section-title">
+            <div>
+              <span>Historial</span>
+              <h2 id="past-title">Reuniones anteriores</h2>
+            </div>
+          </div>
+
+          <div class="meeting-grid meeting-grid--past">
+            @for (meeting of pastMeetings(); track meeting.meetingId) {
+              <article class="meeting-card meeting-card--past">
+                <div class="meeting-date">
+                  <span>{{ meeting.scheduledAt | date:'dd':'UTC' }}</span>
+                  <strong>{{ meeting.scheduledAt | date:'MMM':'UTC' }}</strong>
+                </div>
+                <div class="meeting-details">
+                  <span class="utc-label">
+                    {{ meeting.scheduledAt | date:'medium':'UTC' }} UTC
+                  </span>
+                  <h3>{{ meeting.title }}</h3>
+                  <p>{{ meeting.description }}</p>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+      }
+    }
+    </section>
+  </app-property-shell>
+</main>
