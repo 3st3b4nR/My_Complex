@@ -6,7 +6,10 @@ import {
 import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../../environments/environment';
-import { FcmNotificationService } from './fcm-notification.service';
+import {
+  FCM_SUPPORT_CHECK,
+  FcmNotificationService
+} from './fcm-notification.service';
 
 const firebase = vi.hoisted(() => ({
   initializeApp: vi.fn(),
@@ -84,6 +87,10 @@ describe('FcmNotificationService', () => {
     });
     TestBed.configureTestingModule({ providers: [
       FcmNotificationService,
+      {
+        provide: FCM_SUPPORT_CHECK,
+        useValue: () => firebase.isSupported()
+      },
       provideHttpClient(),
       provideHttpClientTesting()
     ] });
@@ -156,6 +163,10 @@ describe('FcmNotificationService', () => {
     firebase.isSupported.mockResolvedValue(false);
     TestBed.configureTestingModule({ providers: [
       FcmNotificationService,
+      {
+        provide: FCM_SUPPORT_CHECK,
+        useValue: () => firebase.isSupported()
+      },
       provideHttpClient(),
       provideHttpClientTesting()
     ] });

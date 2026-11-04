@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, InjectionToken, signal } from '@angular/core';
 import { initializeApp, getApps } from 'firebase/app';
 import {
   getMessaging,
@@ -36,10 +36,16 @@ interface FirebaseWebConfig {
 
 interface InstallationResponse { id: string; status: string; }
 
+export const FCM_SUPPORT_CHECK = new InjectionToken<() => Promise<boolean>>(
+  'FCM_SUPPORT_CHECK',
+  { providedIn: 'root', factory: () => isSupported }
+);
+
 @Injectable({ providedIn: 'root' })
 export class FcmNotificationService {
   private static readonly STORAGE_KEY = 'mycomplex.fcmInstallationId';
   private readonly http = inject(HttpClient);
+  private readonly supportsMessaging = inject(FCM_SUPPORT_CHECK);
   readonly state = signal<NotificationState>('checking');
 
   constructor() {
@@ -127,7 +133,7 @@ export class FcmNotificationService {
 
   private async checkAvailability(): Promise<void> {
     if (!('Notification' in globalThis) || !('serviceWorker' in navigator)
-      || !(await isSupported())) {
+      || !(await this.supportsMessaging())) {
       this.state.set('unsupported');
       return;
     }
