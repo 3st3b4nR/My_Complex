@@ -126,7 +126,7 @@ export class FcmNotificationService {
   }
 
   private async checkAvailability(): Promise<void> {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)
+    if (!('Notification' in globalThis) || !('serviceWorker' in navigator)
       || !(await isSupported())) {
       this.state.set('unsupported');
       return;

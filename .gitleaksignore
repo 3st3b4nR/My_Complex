@@ -1,0 +1,7 @@
+# Public Firebase Web configuration previously committed to the frontend.
+# These exact findings are safe to acknowledge; all new findings remain blocked.
+ece9c4a2c7a3fa326a9bc8ed0c11280a8442b838:mycomplex-frontend/src/environments/environment.production.ts:generic-api-key:17
+ece9c4a2c7a3fa326a9bc8ed0c11280a8442b838:mycomplex-frontend/src/environments/environment.production.ts:gcp-api-key:11
+cd62d3d7230b4648c185666929f6b6f2c0d4ea82:mycomplex-frontend/public/firebase-messaging-sw.js:gcp-api-key:9
+cd62d3d7230b4648c185666929f6b6f2c0d4ea82:mycomplex-frontend/src/environments/environment.ts:gcp-api-key:11
+cd62d3d7230b4648c185666929f6b6f2c0d4ea82:mycomplex-frontend/src/environments/environment.ts:generic-api-key:17
