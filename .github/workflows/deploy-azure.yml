@@ -1,0 +1,168 @@
+name: Deploy MyComplex to Azure
+
+on:
+  workflow_run:
+    workflows:
+      - MyComplex CI
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-azure-dev
+  cancel-in-progress: false
+
+env:
+  AZURE_CORE_OUTPUT: none
+  DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+jobs:
+  deploy-containers:
+    name: Deploy backend and gateway
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: azure-dev
+
+    steps:
+      - name: Check out the verified revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOY_SHA }}
+          persist-credentials: false
+
+      - name: Log in to Azure with OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to Azure Container Registry
+        run: az acr login --name "${{ vars.AZURE_ACR_NAME }}"
+
+      - name: Build and push backend image
+        env:
+          IMAGE: >-
+            ${{ vars.AZURE_ACR_NAME }}.azurecr.io/mycomplex-backend:${{ env.DEPLOY_SHA }}
+        run: |
+          docker build --pull --tag "$IMAGE" ./mycomplex-backend
+          docker push "$IMAGE"
+
+      - name: Build and push gateway image
+        env:
+          IMAGE: >-
+            ${{ vars.AZURE_ACR_NAME }}.azurecr.io/mycomplex-gateway:${{ env.DEPLOY_SHA }}
+        run: |
+          docker build --pull --tag "$IMAGE" ./mycomplex-gateway
+          docker push "$IMAGE"
+
+      - name: Deploy backend revision
+        env:
+          IMAGE: >-
+            ${{ vars.AZURE_ACR_NAME }}.azurecr.io/mycomplex-backend:${{ env.DEPLOY_SHA }}
+        run: |
+          az containerapp update \
+            --name "${{ vars.AZURE_BACKEND_APP_NAME }}" \
+            --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \
+            --image "$IMAGE"
+
+      - name: Deploy gateway revision
+        env:
+          IMAGE: >-
+            ${{ vars.AZURE_ACR_NAME }}.azurecr.io/mycomplex-gateway:${{ env.DEPLOY_SHA }}
+        run: |
+          az containerapp update \
+            --name "${{ vars.AZURE_GATEWAY_APP_NAME }}" \
+            --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \
+            --image "$IMAGE"
+
+      - name: Verify deployed images and gateway health
+        env:
+          BACKEND_IMAGE: >-
+            ${{ vars.AZURE_ACR_NAME }}.azurecr.io/mycomplex-backend:${{ env.DEPLOY_SHA }}
+          GATEWAY_IMAGE: >-
+            ${{ vars.AZURE_ACR_NAME }}.azurecr.io/mycomplex-gateway:${{ env.DEPLOY_SHA }}
+        run: |
+          actual_backend_image="$(az containerapp show \
+            --name "${{ vars.AZURE_BACKEND_APP_NAME }}" \
+            --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \
+            --query 'properties.template.containers[0].image' \
+            --output tsv)"
+
+          actual_gateway_image="$(az containerapp show \
+            --name "${{ vars.AZURE_GATEWAY_APP_NAME }}" \
+            --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \
+            --query 'properties.template.containers[0].image' \
+            --output tsv)"
+
+          test "$actual_backend_image" = "$BACKEND_IMAGE"
+          test "$actual_gateway_image" = "$GATEWAY_IMAGE"
+
+          gateway_fqdn="$(az containerapp show \
+            --name "${{ vars.AZURE_GATEWAY_APP_NAME }}" \
+            --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \
+            --query 'properties.configuration.ingress.fqdn' \
+            --output tsv)"
+
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error \
+              "https://${gateway_fqdn}/actuator/health" >/dev/null; then
+              exit 0
+            fi
+            sleep 10
+          done
+
+          echo "Gateway health check did not succeed in time." >&2
+          exit 1
+
+  deploy-frontend:
+    name: Deploy Angular frontend
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    needs:
+      - deploy-containers
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: azure-dev
+
+    steps:
+      - name: Check out the verified revision
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.DEPLOY_SHA }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: mycomplex-frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: mycomplex-frontend
+        run: npm ci --no-audit --no-fund
+
+      - name: Build production frontend
+        working-directory: mycomplex-frontend
+        run: npm run build -- --configuration production
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9
+        with:
+          azure_static_web_apps_api_token: >-
+            ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: upload
+          app_location: mycomplex-frontend/dist/mycomplex-frontend/browser
+          output_location: ""
+          skip_app_build: true
