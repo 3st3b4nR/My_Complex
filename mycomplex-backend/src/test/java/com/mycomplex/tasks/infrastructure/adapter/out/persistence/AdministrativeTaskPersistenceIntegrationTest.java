@@ -40,7 +40,7 @@ class AdministrativeTaskPersistenceIntegrationTest {
 
     @Test
     void persistsTaskAndOutboxAtomicallyAndRejectsStaleVersion() {
-        assertCleanFlywayHistoryThroughV13AndTaskSchema();
+        assertCleanFlywayHistoryThroughV14AndSchemas();
         UUID workerUserId = UUID.randomUUID();
         UUID workerMembershipId = UUID.randomUUID();
         UUID secondWorkerUserId = UUID.randomUUID();
@@ -108,7 +108,7 @@ class AdministrativeTaskPersistenceIntegrationTest {
         assertThat(taskAuditCount).isEqualTo(1);
     }
 
-    private void assertCleanFlywayHistoryThroughV13AndTaskSchema() {
+    private void assertCleanFlywayHistoryThroughV14AndSchemas() {
         Integer migrationCount = jdbcTemplate.queryForObject("""
                 SELECT COUNT(*) FROM flyway_schema_history
                 WHERE success = TRUE AND version IS NOT NULL
@@ -132,6 +132,14 @@ class AdministrativeTaskPersistenceIntegrationTest {
         Integer v13Count = jdbcTemplate.queryForObject("""
                 SELECT COUNT(*) FROM flyway_schema_history
                 WHERE version = '13' AND success = TRUE
+                """, Integer.class);
+        Integer v14Count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM flyway_schema_history
+                WHERE version = '14' AND success = TRUE
+                """, Integer.class);
+        Integer failedMigrationCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM flyway_schema_history
+                WHERE success = FALSE
                 """, Integer.class);
         Integer pendingRecipientCount = jdbcTemplate.queryForObject("""
                 SELECT COUNT(*) FROM usuarios
@@ -187,13 +195,48 @@ class AdministrativeTaskPersistenceIntegrationTest {
                     'eventos_notificacion_fcm'
                   )
                 """, Integer.class);
+        Integer emailOutboxTableCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_name = 'eventos_correo'
+                """, Integer.class);
+        Integer emailOutboxColumnCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM information_schema.columns
+                WHERE table_schema = 'public'
+                  AND table_name = 'eventos_correo'
+                  AND column_name IN (
+                    'id', 'destinatario', 'asunto', 'cuerpo',
+                    'clave_entrega', 'estado', 'intentos',
+                    'proximo_intento_at', 'ultimo_error', 'enviado_at',
+                    'mensaje_externo_id', 'created_at', 'updated_at'
+                  )
+                """, Integer.class);
+        Integer emailOutboxConstraintCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM pg_constraint
+                WHERE conrelid = 'eventos_correo'::regclass
+                  AND conname IN (
+                    'uq_eventos_correo_entrega',
+                    'chk_eventos_correo_estado',
+                    'chk_eventos_correo_intentos',
+                    'chk_eventos_correo_envio',
+                    'chk_eventos_correo_error'
+                  )
+                """, Integer.class);
+        Integer emailOutboxPendingIndexCount = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM pg_indexes
+                WHERE schemaname = 'public'
+                  AND tablename = 'eventos_correo'
+                  AND indexname = 'idx_eventos_correo_pendientes'
+                """, Integer.class);
 
-        assertThat(migrationCount).isEqualTo(13);
+        assertThat(migrationCount).isEqualTo(14);
         assertThat(v2Count).isEqualTo(1);
         assertThat(v10Count).isEqualTo(1);
         assertThat(v11Count).isEqualTo(1);
         assertThat(v12Count).isEqualTo(1);
         assertThat(v13Count).isEqualTo(1);
+        assertThat(v14Count).isEqualTo(1);
+        assertThat(failedMigrationCount).isZero();
         assertThat(pendingRecipientCount).isEqualTo(1);
         assertThat(duplicatedVersions).isZero();
         assertThat(tableCount).isEqualTo(3);
@@ -203,5 +246,9 @@ class AdministrativeTaskPersistenceIntegrationTest {
                 .contains("PENDIENTE", "EN_PROGRESO", "COMPLETADA")
                 .contains("ENVIADA", "FALLIDA", "SIN_DESTINO");
         assertThat(indexCount).isGreaterThanOrEqualTo(12);
+        assertThat(emailOutboxTableCount).isEqualTo(1);
+        assertThat(emailOutboxColumnCount).isEqualTo(13);
+        assertThat(emailOutboxConstraintCount).isEqualTo(5);
+        assertThat(emailOutboxPendingIndexCount).isEqualTo(1);
     }
 }
