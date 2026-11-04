@@ -7,5 +7,5 @@ export const environment = {
     audience: 'https://api.mycomplex.com'
   },
 
-  apiUrl: 'https://ca-mycomplex-gateway.yellowwater-7d580662.eastus2.azurecontainerapps.io'
+  apiUrl: 'https://ca-mycomplex-waf.yellowwater-7d580662.eastus2.azurecontainerapps.io'
 };
