@@ -13,7 +13,8 @@ FROM eclipse-temurin:21-jre-alpine-3.24
 
 WORKDIR /app
 
-RUN addgroup -S mycomplex \
+RUN apk add --no-cache --upgrade libexpat \
+    && addgroup -S mycomplex \
     && adduser -S mycomplex -G mycomplex \
     && mkdir -p /var/log/mycomplex \
     && chown -R mycomplex:mycomplex /var/log/mycomplex
