@@ -33,7 +33,7 @@ describe('PropertyShell', () => {
     }).compileComponents();
   });
 
-  it('keeps every property section visible and marks the active one', () => {
+  it('shows implemented property sections and marks the active one', () => {
     const fixture = TestBed.createComponent(PropertyShell);
     fixture.componentRef.setInput('propertyId', 'property-1');
     fixture.componentRef.setInput('propertyName', 'Los Cerezos');
@@ -50,7 +50,7 @@ describe('PropertyShell', () => {
     expect(navigation?.textContent).toContain('Reuniones');
     expect(navigation?.textContent).toContain('Usuarios y residentes');
     expect(navigation?.textContent).toContain('Tareas');
-    expect(navigation?.textContent).toContain('Comunicaciones');
+    expect(navigation?.textContent).not.toContain('Comunicaciones');
     expect(navigation?.textContent).not.toContain('Copropiedad');
     expect(navigation?.textContent).not.toContain('Configuración');
     expect(navigation?.textContent).not.toContain('Visitantes');
