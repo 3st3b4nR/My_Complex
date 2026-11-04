@@ -80,6 +80,23 @@ describe('PropertyDashboardPage', () => {
         `/properties/${propertyId}/users`
       );
     });
+
+    const moduleTitles = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll(
+        '.module-card h3'
+      )
+    ).map(title => title.textContent?.trim());
+
+    expect(moduleTitles).toEqual([
+      'Usuarios y residentes',
+      'Tareas',
+      'Noticias',
+      'Reuniones'
+    ]);
+    expect(fixture.nativeElement.textContent).not.toContain('Visitantes');
+    expect(fixture.nativeElement.textContent).not.toContain('Reservas');
+    expect(moduleTitles).not.toContain('Copropiedad');
+    expect(moduleTitles).not.toContain('Configuración');
   });
 
   it('hides user management for a non-administrator role', async () => {

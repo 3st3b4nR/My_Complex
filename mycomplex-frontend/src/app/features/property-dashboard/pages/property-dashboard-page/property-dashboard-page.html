@@ -76,17 +76,6 @@
               </div>
 
               <div class="module-grid">
-                <article class="module-card">
-                  <span class="module-card__mark" aria-hidden="true">
-                    CP
-                  </span>
-                  <h3>Copropiedad</h3>
-                  <p>
-                    Consulta y administra la información general del
-                    conjunto.
-                  </p>
-                </article>
-
                 @if (state.property.role === 'PROPERTY_ADMIN') {
                   <a
                     class="module-card module-card--link"
@@ -125,27 +114,6 @@
                   </a>
                 }
 
-                <article class="module-card">
-                  <span class="module-card__mark" aria-hidden="true">
-                    VI
-                  </span>
-                  <h3>Visitantes</h3>
-                  <p>
-                    Controla autorizaciones e ingresos de visitantes.
-                  </p>
-                </article>
-
-                <article class="module-card">
-                  <span class="module-card__mark" aria-hidden="true">
-                    RE
-                  </span>
-                  <h3>Reservas</h3>
-                  <p>
-                    Administra la disponibilidad y reserva de zonas
-                    comunes.
-                  </p>
-                </article>
-
                 <a
                   class="module-card module-card--link"
                   [routerLink]="[
@@ -181,15 +149,6 @@
                   </p>
                 </a>
 
-                <article class="module-card">
-                  <span class="module-card__mark" aria-hidden="true">
-                    SE
-                  </span>
-                  <h3>Configuración</h3>
-                  <p>
-                    Configura reglas y parámetros de la copropiedad.
-                  </p>
-                </article>
               </div>
             </section>
           </section>

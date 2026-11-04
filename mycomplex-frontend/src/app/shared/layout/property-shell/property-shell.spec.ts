@@ -51,7 +51,10 @@ describe('PropertyShell', () => {
     expect(navigation?.textContent).toContain('Usuarios y residentes');
     expect(navigation?.textContent).toContain('Tareas');
     expect(navigation?.textContent).toContain('Comunicaciones');
-    expect(navigation?.textContent).toContain('Configuración');
+    expect(navigation?.textContent).not.toContain('Copropiedad');
+    expect(navigation?.textContent).not.toContain('Configuración');
+    expect(navigation?.textContent).not.toContain('Visitantes');
+    expect(navigation?.textContent).not.toContain('Reservas');
     expect(
       navigation?.querySelector(
         '[data-section="meetings"]'
