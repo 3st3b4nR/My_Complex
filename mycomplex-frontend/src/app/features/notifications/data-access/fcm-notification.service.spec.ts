@@ -7,7 +7,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { environment } from '../../../../environments/environment';
 import {
-  FCM_SUPPORT_CHECK,
+  FIREBASE_MESSAGING_CLIENT,
   FcmNotificationService
 } from './fcm-notification.service';
 
@@ -88,8 +88,8 @@ describe('FcmNotificationService', () => {
     TestBed.configureTestingModule({ providers: [
       FcmNotificationService,
       {
-        provide: FCM_SUPPORT_CHECK,
-        useValue: () => firebase.isSupported()
+        provide: FIREBASE_MESSAGING_CLIENT,
+        useValue: firebase
       },
       provideHttpClient(),
       provideHttpClientTesting()
@@ -164,8 +164,8 @@ describe('FcmNotificationService', () => {
     TestBed.configureTestingModule({ providers: [
       FcmNotificationService,
       {
-        provide: FCM_SUPPORT_CHECK,
-        useValue: () => firebase.isSupported()
+        provide: FIREBASE_MESSAGING_CLIENT,
+        useValue: firebase
       },
       provideHttpClient(),
       provideHttpClientTesting()
