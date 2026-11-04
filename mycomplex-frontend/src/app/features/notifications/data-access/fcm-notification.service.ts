@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, InjectionToken, signal } from '@angular/core';
 import { initializeApp, getApps } from 'firebase/app';
 import {
   getMessaging,
@@ -36,10 +36,40 @@ interface FirebaseWebConfig {
 
 interface InstallationResponse { id: string; status: string; }
 
+interface FirebaseMessagingClient {
+  initializeApp: typeof initializeApp;
+  getApps: typeof getApps;
+  getMessaging: typeof getMessaging;
+  isSupported: typeof isSupported;
+  onRegistered: typeof onRegistered;
+  onUnregistered: typeof onUnregistered;
+  register: typeof register;
+  unregister: typeof unregister;
+}
+
+export const FIREBASE_MESSAGING_CLIENT =
+  new InjectionToken<FirebaseMessagingClient>(
+    'FIREBASE_MESSAGING_CLIENT',
+    {
+      providedIn: 'root',
+      factory: () => ({
+        initializeApp,
+        getApps,
+        getMessaging,
+        isSupported,
+        onRegistered,
+        onUnregistered,
+        register,
+        unregister
+      })
+    }
+);
+
 @Injectable({ providedIn: 'root' })
 export class FcmNotificationService {
   private static readonly STORAGE_KEY = 'mycomplex.fcmInstallationId';
   private readonly http = inject(HttpClient);
+  private readonly firebase = inject(FIREBASE_MESSAGING_CLIENT);
   readonly state = signal<NotificationState>('checking');
 
   constructor() {
@@ -62,9 +92,10 @@ export class FcmNotificationService {
         this.state.set('disabled');
         return;
       }
-      const app = getApps().find(item => item.name === 'mycomplex-fcm')
-        ?? initializeApp(config, 'mycomplex-fcm');
-      const messaging = getMessaging(app);
+      const app = this.firebase.getApps()
+        .find(item => item.name === 'mycomplex-fcm')
+        ?? this.firebase.initializeApp(config, 'mycomplex-fcm');
+      const messaging = this.firebase.getMessaging(app);
       const worker = await navigator.serviceWorker.register(
         '/firebase-messaging-sw.js'
       );
@@ -73,7 +104,7 @@ export class FcmNotificationService {
         type: 'MYCOMPLEX_FIREBASE_CONFIG_ENDPOINT',
         apiUrl: environment.apiUrl
       });
-      onRegistered(messaging, async installationIdentifier => {
+      this.firebase.onRegistered(messaging, async installationIdentifier => {
         try {
           const response = await firstValueFrom(
             this.http.post<InstallationResponse>(
@@ -87,11 +118,11 @@ export class FcmNotificationService {
           this.state.set('error');
         }
       });
-      onUnregistered(messaging, () => {
+      this.firebase.onUnregistered(messaging, () => {
         localStorage.removeItem(FcmNotificationService.STORAGE_KEY);
         this.state.set('available');
       });
-      await register(messaging, {
+      await this.firebase.register(messaging, {
         vapidKey: config.vapidKey,
         serviceWorkerRegistration: worker
       });
@@ -115,8 +146,11 @@ export class FcmNotificationService {
     }
 
     try {
-      const app = getApps().find(item => item.name === 'mycomplex-fcm');
-      if (app) await unregister(getMessaging(app));
+      const app = this.firebase.getApps()
+        .find(item => item.name === 'mycomplex-fcm');
+      if (app) {
+        await this.firebase.unregister(this.firebase.getMessaging(app));
+      }
     } catch {
       cleanupFailed = true;
     } finally {
@@ -126,8 +160,8 @@ export class FcmNotificationService {
   }
 
   private async checkAvailability(): Promise<void> {
-    if (!('Notification' in window) || !('serviceWorker' in navigator)
-      || !(await isSupported())) {
+    if (!('Notification' in globalThis) || !('serviceWorker' in navigator)
+      || !(await this.firebase.isSupported())) {
       this.state.set('unsupported');
       return;
     }
